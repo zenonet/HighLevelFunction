@@ -1,6 +1,12 @@
-﻿using System.Runtime.Versioning;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Versioning;
+using System.Text;
+using System.Web;
 using Bootsharp;
 using Hlf.Transpiler;
+using Newtonsoft.Json;
+using File = Hlf.Transpiler.DatapackGen.File;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 [SupportedOSPlatform("browser")]
 public static partial class HlfTranspilerJs
@@ -26,13 +32,22 @@ public static partial class HlfTranspilerJs
     {
         try
         {
-            string mcFunction = new Transpiler().Transpile(src);
-            return mcFunction;
+            var dp = new Transpiler().Transpile(src);
+            List<File> generate = dp.Generate();
+            Dictionary<string, string> files = generate.ToDictionary(x =>x.Path, y => y.Content);
+            return SerializeDictionary(files);
+
+            //return JsonSerializer.Serialize(files);
         }
         catch (LanguageException langEx)
         {
-            return "errhndl:" + langEx.ToString();
+            return "errhndl:" + langEx;
         }
 
+    }
+
+    private static string SerializeDictionary(Dictionary<string, string> dict)
+    {
+        return $"{{{string.Join(",", dict.Select(x => $"\"{HttpUtility.JavaScriptStringEncode(x.Key)}\":\"{HttpUtility.JavaScriptStringEncode(x.Value)}\""))}}}";
     }
 }

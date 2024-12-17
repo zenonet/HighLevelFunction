@@ -41,10 +41,17 @@
                 console.error('Async: Could not copy text: ', err);
             });
         }
+        
+        function switchFile(){
+            let file = document.getElementById("file-view-select").value;
+            console.log("Switching to file " + file);
+            let outputWindow = document.getElementById("outputTextArea");
+            outputWindow.value = document.transpiledJson[file];
+        }
     </script>
     <script lang="js" type="module">
         // Importing compiled ES module.
-        import bootsharp, {HlfTranspilerJs} from "./index.mjs";
+        import bootsharp, {HlfTranspilerJs} from "./bin/bootsharp/index.mjs";
         //import bootsharp, {HlfTranspilerJs} from "./bin/bootsharp/index.mjs";
         
         // Binding 'Program.GetFrontendName' import invoked in C#.
@@ -55,11 +62,11 @@
 
         let srcTextArea = document.getElementById("hlfTextArea");
         function transpile(){
-            const mcfunc = HlfTranspilerJs.transpileToString(document.getElementById("hlfTextArea").value);
+            const resp = HlfTranspilerJs.transpileToString(document.getElementById("hlfTextArea").value);
             const msgField = document.getElementById("errorMsg");
             const successField = document.getElementById("successMsg");
-            if(mcfunc.startsWith("errhndl:")){
-                const err = mcfunc.substring(8);
+            if(resp.startsWith("errhndl:")){
+                const err = resp.substring(8);
                 console.log("Error detected: " + err)
                 msgField.style.visibility = "visible";
                 msgField.innerText = err;
@@ -69,7 +76,25 @@
             msgField.style.visibility = "hidden";
             successField.style.visibility = "visible";
 
-            document.getElementById("outputTextArea").value = mcfunc;
+            let json = JSON.parse(resp);
+            //document.getElementById("outputTextArea").value = json["data/function/load.mcfunction"];
+            document.transpiledJson = json;
+            
+            let oldSelectedFile = document.getElementById("file-view-select").value;
+            const dropdown = document.getElementById("file-view-select");
+            dropdown.innerHTML = "";
+            for (let f in json){
+                let option = new Option(f, f);
+                option.innerText = f;
+                dropdown.appendChild(option);
+            }
+
+            console.log("File selected before: " + oldSelectedFile)
+            if(json[oldSelectedFile] !== undefined){
+                console.log("still exists!")
+                dropdown.value = oldSelectedFile;
+            }
+            switchFile();
         }
         
         srcTextArea.addEventListener('input', function() {
@@ -95,6 +120,7 @@
         <div style="display: flex; flex-direction: column">
             <textarea class="outputBox" id="outputTextArea"></textarea>
             <div>
+                <select id="file-view-select" onchange="switchFile()"></select>
                 <button onclick="copyOutputToClipboard()">Copy <output></output></button>
             </div>
         </div>

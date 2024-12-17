@@ -2,19 +2,14 @@
 
 public class DefaultDirectoryGenerator : IDirectoryGenerator
 {
-    public void GenerateDirectoryStructure(string parentPath, Directory directory)
+    public void GenerateDirectoryStructure(string parentPath, List<File> files)
     {
-        System.IO.Directory.CreateDirectory(Path.Join(parentPath, directory.Name));
-
-        foreach (Node node in directory.Children)
+        foreach (File file in files)
         {
-            if (node is File file)
-            {
-                System.IO.File.WriteAllText(Path.Join(parentPath, directory.Name, file.Name), file.Content);
-            }else if (node is Directory dir)
-            {
-                GenerateDirectoryStructure(Path.Join(parentPath, directory.Name), dir);
-            }
+            string path = Path.Join(parentPath, file.Path);
+            if (!Directory.Exists(Path.GetDirectoryName(path))) 
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            System.IO.File.WriteAllText(path, file.Content);
         }
     }
 }

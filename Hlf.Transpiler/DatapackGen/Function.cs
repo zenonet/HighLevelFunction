@@ -1,7 +1,17 @@
 ﻿namespace Hlf.Transpiler.DatapackGen;
 
-public class Function(string name, string src)
+public class Function
 {
-    public string SourceCode { get; set; } = src;
-    public string Name { get; set; } = name;
+    public string SourceCode { get; set; }
+    public string Name { get; set; }
+
+    public Function()
+    {
+    }
+
+    public Function(string name, string src)
+    {
+        SourceCode = src;
+        Name = name;
+    }
 }

@@ -1,4 +1,5 @@
-﻿namespace Hlf.Transpiler.DatapackGen;
+﻿
+namespace Hlf.Transpiler.DatapackGen;
 
 public class Datapack
 {
@@ -10,61 +11,57 @@ public class Datapack
     public Function? OnLoadFunction;
     public Function? OnTickFunction;
 
-    public Directory Generate()
+    public List<File> Generate()
     {
-        Directory rootDir = new(Name);
-        
-        rootDir.Children.Add(GenerateMcMetaFile());
+        List<File> files = new();
 
-        Directory dataDir = new("data");
-    
-        dataDir.Children.Add(GenerateMinecraftDir());
-        dataDir.Children.Add(GenerateDatapackDir());
+        string dataPath = Path.Join(Name, "data");
         
-        rootDir.Children.Add(dataDir);
-        return rootDir;
+        files.Add(GenerateMcMetaFile(Name));
+        
+        files.AddRange(GenerateMinecraftDir(dataPath));
+        files.AddRange(GenerateDatapackDir(dataPath));
+        
+        return files;
     }
 
-    public File GenerateMcMetaFile()
+    public File GenerateMcMetaFile(string basePath)
     {
-        File file = new("pack.mcmeta");
-        file.Content = "{\"pack\": {\"pack_format\":" + DatapackFormat + ",\"description\": \"" + Description + "\"}}";
+        File file = new(Path.Join(basePath, "pack.mcmeta"), "{\"pack\": {\"pack_format\":" + DatapackFormat + ",\"description\": \"" + Description + "\"}}");
         return file;
     }
 
-    public Directory GenerateMinecraftDir()
+    public List<File> GenerateMinecraftDir(string basePath)
     {
-        Directory minecraftDir = new("minecraft");
+        List<File> files = new();
         
-        Directory tagsDir = minecraftDir.CreateChild("tags");
-        Directory functionDir = tagsDir.CreateChild("function");
-
-
+        string functionsPath = Path.Join(basePath, "minecraft", "tags", "function");
+        
         if (OnLoadFunction is not null)
         {
             const bool replace = false;
             string json = $"{{\"replace\": {replace.ToString().ToLower()}, \"values\": [\"{Namespace}:{OnLoadFunction!.Name}\"]}}";
-            functionDir.CreateFile("load.json", json);
+            files.Add(new(Path.Join(functionsPath, "load.json"), json));
         }
 
         if (OnTickFunction is not null)
         {
             const bool replace = false;
             string json = $"{{\"replace\": {replace.ToString().ToLower()}, \"values\": [\"{Namespace}:{OnTickFunction!.Name}\"]}}";
-            functionDir.CreateFile("tick.json", json);
+            files.Add(new(Path.Join(functionsPath, "tick.json"), json));
         }
 
-        return minecraftDir;
+        return files;
     }
 
-    public Directory GenerateDatapackDir()
+    public List<File> GenerateDatapackDir(string basePath)
     {
-        Directory datapackDir = new(Namespace);
-        Directory functionDir = datapackDir.CreateChild("function");
+        List<File> files = new();
+        string functionsPath = Path.Join(basePath, Namespace, "function");
         foreach (Function function in Functions)
         {
-            functionDir.CreateFile(function.Name + ".mcfunction", function.SourceCode);
+            files.Add(new(Path.Join(functionsPath, function.Name + ".mcfunction"), function.SourceCode));
         }
-        return datapackDir;
+        return files;
     }
 }

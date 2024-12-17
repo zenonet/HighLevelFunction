@@ -2,5 +2,5 @@
 
 public interface IDirectoryGenerator
 {
-    void GenerateDirectoryStructure(string parentPath, Directory directory);
+    void GenerateDirectoryStructure(string parentPath, List<File> files);
 }
