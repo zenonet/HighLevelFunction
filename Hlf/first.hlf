@@ -1,4 +1,1 @@
-﻿if(getBlock(vec(1, 1, 1)) == getBlock(vec(16, 16,
-16))){
-
-}
+﻿say("yeah!");

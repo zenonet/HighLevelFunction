@@ -15,10 +15,14 @@ const string dataPackPath = @"C:\Users\zeno\MultiMC\instances\1.21.3 HLF\.minecr
 try
 {
     Stopwatch sw = Stopwatch.StartNew();
-    string mcFunction = transpiler.Transpile(src);
-    CreateDataPackStructure(dataPackPath);
+    Datapack datapack = transpiler.Transpile(src);
+    datapack.Name = "first_hlf";
+    datapack.Namespace = "first_hlf";
+    Hlf.Transpiler.DatapackGen.Directory gen = datapack.Generate();
+    new DefaultDirectoryGenerator().GenerateDirectoryStructure(@"C:\Users\zeno\MultiMC\instances\1.21.3 HLF\.minecraft\saves\HflTests\datapacks\", gen);
+    /*CreateDataPackStructure(dataPackPath);
     File.WriteAllText(Path.Join(dataPackPath, @"data", "first_hlf", "function", "load.mcfunction"), mcFunction);
-    sw.Stop();
+    sw.Stop();*/
     Console.WriteLine($"Successfully generated datapack in {sw.Elapsed.TotalMilliseconds}ms");
 }
 catch (LanguageException l)
@@ -27,6 +31,8 @@ catch (LanguageException l)
     //Console.WriteLine($"Error in line {l.Line}: {l.CustomErrorMessage}");
     Console.WriteLine(l.ToString());
 }
+
+return;
 
 Console.WriteLine("Generating datapack...");
 Datapack dp = new()
