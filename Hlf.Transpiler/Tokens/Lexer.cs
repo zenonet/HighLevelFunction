@@ -1,0 +1,143 @@
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
+
+namespace Hlf.Transpiler;
+
+public static class Lexer
+{
+    private static ITokenDefinition[] TokenDefinitions =
+    [
+        new RawTokenDefinition(TokenType.OpenParenthesis, "("),
+        new RawTokenDefinition(TokenType.CloseParenthesis, ")"),
+        new RawTokenDefinition(TokenType.OpenBrace, "{"),
+        new RawTokenDefinition(TokenType.CloseBrace, "}"),
+        new RawTokenDefinition(TokenType.Comma, ","),
+        new RawTokenDefinition(TokenType.Dot, "."),
+        new RawTokenDefinition(TokenType.DoubleEquals, "=="),
+        new RawTokenDefinition(TokenType.Equals, "="),
+        
+        new RawTokenDefinition(TokenType.Colon, ":"),
+        new RawTokenDefinition(TokenType.Semicolon, ";"),
+        
+        new RegexTokenDefinition(TokenType.FloatLiteral, @"-?(?:\.\d+|\d+\.\d+|\d+[fFdD])"),
+        new RegexTokenDefinition(TokenType.IntLiteral, @"-?\d+"),
+        new RegexTokenDefinition(TokenType.StringLiteral, "\".*\""),
+        new RegexTokenDefinition(TokenType.Identifier, @"\w+"),
+    ];
+
+    public static TokenList Lex(ReadOnlySpan<char> src)
+    {
+        TokenList tokens = new();
+
+        LexerState state = new();
+
+        while (src.Length > 0)
+        {
+            // skip whitespace
+            int skipped = 0;
+            while (skipped < src.Length && char.IsWhiteSpace(src[skipped]))
+            {
+                state.Column++;
+                char c = src[skipped]; 
+                skipped++;
+                if (c == '\n')
+                {
+                    state.Line++;
+                    state.Column = 1;
+                }
+            }
+            src = src[skipped..];
+            if (src.IsEmpty) break;
+
+            state.Source = src.ToString();
+            foreach (ITokenDefinition def in TokenDefinitions)
+            {
+                if (def.TryInterpret(ref state, out Token? token))
+                {
+                    tokens.Push(token);
+                    goto success;
+                }
+            }
+            // failure
+            throw new LanguageException($"Unknown Token", state.Line, state.Column);
+            
+            success:
+            src = state.Source;
+        }
+        
+        tokens.Length = tokens._Tokens.Count;
+        return tokens;
+    }
+
+
+    private interface ITokenDefinition
+    {
+        bool TryInterpret(ref LexerState state, [NotNullWhen(true)] out Token? token);
+    }
+
+    private class RawTokenDefinition(TokenType type, string pattern) : ITokenDefinition
+    {
+        public bool TryInterpret(ref LexerState state, [NotNullWhen(true)] out Token? token)
+        {
+            if (state.Source.StartsWith(pattern, StringComparison.Ordinal))
+            {
+                token = new()
+                {
+                    Type = type,
+                    Content = pattern,
+                    Column = state.Column,
+                    Line = state.Line,
+                };
+                state.Source = state.Source[pattern.Length..];
+                state.Column += pattern.Length;
+                return true;
+            }
+
+            token = null;
+            return false;
+        }
+    }
+
+    private class RegexTokenDefinition : ITokenDefinition
+    {
+        private Regex _regex;
+        private TokenType _type;
+
+        public RegexTokenDefinition(TokenType type, string pattern)
+        {
+            if (!pattern.StartsWith('^')) pattern = $"^{pattern}";
+            _regex = new(pattern);
+            _type = type;
+        }
+
+        public bool TryInterpret(ref LexerState state, [NotNullWhen(true)] out Token? token)
+        {
+            Match match = _regex.Match(state.Source);
+
+            if (!match.Success)
+            {
+                token = null;
+                return false;
+            }
+
+            token = new()
+            {
+                Content = match.Value,
+                Column = state.Column,
+                Line = state.Line,
+                Type = _type
+            };
+
+            state.Source = state.Source[match.Length..];
+            state.Column += match.Length;
+            return true;
+        }
+    }
+
+    private ref struct LexerState()
+    {
+        public string Source;
+        public int Line = 1;
+        public int Column = 1;
+    }
+}

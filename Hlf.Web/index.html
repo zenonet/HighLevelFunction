@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HLF-Transpiler</title>
+    <script>
+        // https://stackoverflow.com/a/30810322
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+
+            document.body.removeChild(textArea);
+        }
+        function copyOutputToClipboard() {
+            const text = document.getElementById("outputTextArea").value;
+            console.log("copying: " + text);
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+    </script>
+    <script lang="js" type="module">
+        // Importing compiled ES module.
+        import bootsharp, {HlfTranspilerJs} from "./index.mjs";
+        //import bootsharp, {HlfTranspilerJs} from "./bin/bootsharp/index.mjs";
+        
+        // Binding 'Program.GetFrontendName' import invoked in C#.
+        HlfTranspilerJs.getFrontendName = () => process.version;
+
+        // Initializing dotnet runtime and invoking entry point.
+        await bootsharp.boot();
+
+        let srcTextArea = document.getElementById("hlfTextArea");
+        function transpile(){
+            const mcfunc = HlfTranspilerJs.transpileToString(document.getElementById("hlfTextArea").value);
+            const msgField = document.getElementById("errorMsg");
+            const successField = document.getElementById("successMsg");
+            if(mcfunc.startsWith("errhndl:")){
+                const err = mcfunc.substring(8);
+                console.log("Error detected: " + err)
+                msgField.style.visibility = "visible";
+                msgField.innerText = err;
+                successField.style.visibility = "hidden";
+                return;
+            }
+            msgField.style.visibility = "hidden";
+            successField.style.visibility = "visible";
+
+            document.getElementById("outputTextArea").value = mcfunc;
+        }
+        
+        srcTextArea.addEventListener('input', function() {
+            transpile();
+        }, false);
+        document.getElementById("transpileButton").onclick = transpile;
+    </script>
+    <style>
+        .inputBox {
+            width: 70vw;
+        }
+
+        .outputBox {
+            height: 100%;
+            width: 30vw;
+        }
+    </style>
+</head>
+<body>
+<div style="flex-direction: column">
+    <div style="display: flex; flex-direction: row; height: 70vh">
+        <textarea class="inputBox" id="hlfTextArea"></textarea>
+        <div style="display: flex; flex-direction: column">
+            <textarea class="outputBox" id="outputTextArea"></textarea>
+            <div>
+                <button onclick="copyOutputToClipboard()">Copy <output></output></button>
+            </div>
+        </div>
+    </div>
+    <button id="transpileButton">Transpile</button> 
+    <h2 style="color: red;" id="errorMsg">
+        
+    </h2>    
+    <h2 style="color: #45e445; visibility: hidden" id="successMsg">
+        Transpiled successfully!
+    </h2>
+</div>
+</body>
+</html>
