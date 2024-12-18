@@ -48,11 +48,54 @@
             let outputWindow = document.getElementById("outputTextArea");
             outputWindow.value = document.transpiledJson[file];
         }
+        
+        async function openLocalDir(){
+
+            if(!('showOpenFilePicker' in window)){
+                alert("Your browser currently does not support FileSystemAccessAPI which is needed for modifying local files. Try using a chromium-based browser");
+                return;
+            }
+            
+            document.dirHandle = await window.showDirectoryPicker();
+            console.log("got file handle: " + document.dirHandle);
+            document.getElementById("saveInRealtimeCheckbox").disabled = false;
+            document.getElementById("workInLocalDirButton").innerText = "Change working directory";
+        }
+        
+        async function saveDatapackLocally(){
+            let json = document.transpiledJson;
+            
+            for(const o in json){
+
+                let subdirs = o.split("/");
+                let fileName = subdirs.pop()
+                console.log("Creating subdirs:" + subdirs)
+                // Iterate over the subdirectory names and create them
+                let currentDir = document.dirHandle;
+                for (const subdir of subdirs) {
+                    currentDir = await currentDir.getDirectoryHandle(subdir, { create: true });
+                }
+                /*
+                const index = o.lastIndexOf('/');
+                const path = o.substring(0, index+1);
+                const name = o.substring(index);
+                console.log("Full path:" + o + " Location: " + path)*/
+/*                let subDirHandle = document.dirHandle;
+                if(path !== ""){
+                    subDirHandle = await document.dirHandle.getDirectoryHandle(path, { create: true });
+                }*/
+                const fileHandle = await currentDir.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(json[o]);
+                await writable.close();
+            }
+        }
+        
     </script>
     <script lang="js" type="module">
         // Importing compiled ES module.
         import bootsharp, {HlfTranspilerJs} from "./bin/bootsharp/index.mjs";
-        //import bootsharp, {HlfTranspilerJs} from "./bin/bootsharp/index.mjs";
+        //import bootsharp, {HlfTranspilerJs} from "./index.mjs";
         
         // Binding 'Program.GetFrontendName' import invoked in C#.
         HlfTranspilerJs.getFrontendName = () => process.version;
@@ -61,8 +104,13 @@
         await bootsharp.boot();
 
         let srcTextArea = document.getElementById("hlfTextArea");
-        function transpile(){
+        function transpile(isAuto = false){
+            const start = performance.now()
             const resp = HlfTranspilerJs.transpileToString(document.getElementById("hlfTextArea").value);
+            const end = performance.now()
+            
+            document.getElementById("stats").innerText = `${(end-start).toFixed(1)}ms`;
+            
             const msgField = document.getElementById("errorMsg");
             const successField = document.getElementById("successMsg");
             if(resp.startsWith("errhndl:")){
@@ -93,42 +141,82 @@
             if(json[oldSelectedFile] !== undefined){
                 console.log("still exists!")
                 dropdown.value = oldSelectedFile;
+            }else{
+                // By default, select the load.mcfunction file
+                for(let o in json){
+                    if(o.endsWith("load.mcfunction")){
+                        dropdown.value = o;
+                        break;
+                    }
+                }
             }
             switchFile();
+            
+            if(document.dirHandle !== undefined && (!isAuto || document.getElementById("saveInRealtimeCheckbox").checked)){
+                saveDatapackLocally();
+            }
         }
         
         srcTextArea.addEventListener('input', function() {
-            transpile();
+            if(document.getElementById("transpileInRealtimeCheckbox").checked){
+                transpile(true);
+            }
         }, false);
         document.getElementById("transpileButton").onclick = transpile;
+
+        if(document.getElementById("hlfTextArea").value.length > 0){
+            console.log("Source code area already has a value so we'll transpile right away");
+            transpile(true);
+        }
     </script>
     <style>
+        html{
+            font-family: Arial,sans-serif;
+        }
         .inputBox {
             width: 70vw;
         }
 
+        .output-stuff{
+            background: cyan
+        }
         .outputBox {
             height: 100%;
-            width: 30vw;
+        }
+        
+        button select input{
+            padding: 3pt;
+            border: 1px solid black;
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
 <div style="flex-direction: column">
-    <div style="display: flex; flex-direction: row; height: 70vh">
+    <div style="display: flex; flex-direction: row; height: 70vh; margin-bottom: 10pt">
         <textarea class="inputBox" id="hlfTextArea"></textarea>
-        <div style="display: flex; flex-direction: column">
-            <textarea class="outputBox" id="outputTextArea"></textarea>
-            <div>
-                <select id="file-view-select" onchange="switchFile()"></select>
-                <button onclick="copyOutputToClipboard()">Copy <output></output></button>
+        <div style="display: flex; flex-direction: column; width: 30vw;">
+            <textarea class="outputBox output-stuff" id="outputTextArea"></textarea>
+            <div style="padding:3pt" class="output-stuff">
+                <select id="file-view-select" style="min-width: 100pt" onchange="switchFile()">
+                    <option>No files generated</option>
+                </select>
+                <button onclick="copyOutputToClipboard()">Copy</button>
+                <button id="workInLocalDirButton" onclick="openLocalDir()">Work in local directory</button>
             </div>
         </div>
     </div>
-    <button id="transpileButton">Transpile</button> 
+    <div style="display: flex; flex-direction: row; gap: 15pt">
+        <button id="transpileButton" style="margin-bottom: 10pt">Transpile</button>
+        <span id="stats"></span>
+    </div>
+    <div style="background:gray; display: flex; gap:15pt; padding: 10pt">
+        <input type="checkbox" id="transpileInRealtimeCheckbox" checked>Transpile in realtime</input>
+        <input type="checkbox" id="saveInRealtimeCheckbox" disabled>Save to filesystem in realtime</input>
+    </div>
     <h2 style="color: red;" id="errorMsg">
         
-    </h2>    
+    </h2>
     <h2 style="color: #45e445; visibility: hidden" id="successMsg">
         Transpiled successfully!
     </h2>
