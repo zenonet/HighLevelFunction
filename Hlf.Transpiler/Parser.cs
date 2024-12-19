@@ -32,6 +32,9 @@ public class Parser
 
     public Statement ParseStatementLvl1(ref TokenList tokens, Scope scope)
     {
+        if (tokens.IsEmpty)
+            throw new LanguageException("Expected expression", tokens._Tokens.Last());
+        
         int line = tokens.Peek().Line;
         int column = tokens.Peek().Column;
 
@@ -137,17 +140,23 @@ public class Parser
 
         if (tokens.StartsWith(TokenType.StringLiteral))
         {
-            return new LiteralExpression(new ConstDataId(HlfType.ConstString, tokens.Pop().Content[1..^1]));
+            var lit = new LiteralExpression(new ConstDataId(HlfType.ConstString, tokens.Pop().Content[1..^1]));
+            InitStatement(lit);
+            return lit;
         }
 
         if (tokens.StartsWith(TokenType.IntLiteral))
         {
-            return new LiteralExpression(HlfType.Int, tokens.Pop().Content); // TODO: This is inconsistent
+            var lit = new LiteralExpression(HlfType.Int, tokens.Pop().Content);
+            InitStatement(lit);
+            return lit;
         }
 
         if (tokens.StartsWith(TokenType.FloatLiteral))
         {
-            return new LiteralExpression(HlfType.Float, tokens.Pop().Content + "d");
+            var lit = new LiteralExpression(HlfType.Float, tokens.Pop().Content + 'd');
+            InitStatement(lit);
+            return lit;
         }
 
         #endregion
@@ -176,7 +185,7 @@ public class Parser
             if (statement.NeedsSemicolon)
             {
                 if (!tokens.StartsWith(TokenType.Semicolon))
-                    throw new LanguageException("Expected semicolon after statement.", t.Line, -1);
+                    throw new LanguageException("Expected semicolon after statement.", tokens.Peek(-1));
                 tokens.Pop(); // semicolon
             }
         }

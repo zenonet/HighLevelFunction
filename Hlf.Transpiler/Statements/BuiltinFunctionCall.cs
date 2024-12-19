@@ -83,7 +83,7 @@ public class BuiltinFunctionCall : Statement
         for (int i = 0; i < definition.Parameters.Length; i++)
         {
             if (!Parameters[i].Result!.Type.IsAssignableTo(definition.Parameters[i].Type))
-                throw new LanguageException($"Function {FunctionName} expects a {definition.Parameters[i].Type.Name} as its {(i + 1).GetOrdinal()} parameter but received a {Parameters[i].Result!.Type.Name}.", Line, Column);
+                throw new LanguageException($"Function {FunctionName} expects a {definition.Parameters[i].Type.Name} as its {(i + 1).GetOrdinal()} parameter but received a {Parameters[i].Result!.Type.Name}.", Parameters[i].Line, Parameters[i].Column);
         }
 
         if(definition.ReturnType.Kind != ValueKind.Void)

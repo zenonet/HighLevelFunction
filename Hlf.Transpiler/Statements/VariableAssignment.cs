@@ -14,7 +14,7 @@ public class VariableAssignment : Statement
         Expression.Parse();
 
         if (!ParentScope.TryGetVariable(VariableName, out DataId? variable))
-            throw new LanguageException($"Trying to assign a value to the undeclared variable {VariableName}.", Line, Column);
+            throw new LanguageException($"Trying to assign a value to the undeclared variable {VariableName}.", Line, Column, VariableName.Length);
         variableId = variable;
 
         if (!Expression.Result!.Type.IsAssignableTo(variable.Type))

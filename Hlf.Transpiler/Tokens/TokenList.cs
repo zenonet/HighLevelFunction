@@ -6,7 +6,7 @@ public class TokenList : IEnumerable<Token>
 {
     internal List<Token> _Tokens { get; set; } = new();
 
-    private int StartIndex { get; set; } = 0;
+    public int StartIndex { get; set; } = 0;
     public int Length { get; set; }
     public int EndIndex => StartIndex + Length;
     public bool IsEmpty => Length == 0;
