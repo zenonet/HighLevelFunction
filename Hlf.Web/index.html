@@ -7,24 +7,133 @@
     <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.min.css">
 
     <script>
+        
+        function getMonarchDef(){
+            return {
+                // Set defaultToken to invalid to see what you do not tokenize yet
+                // defaultToken: 'invalid',
+
+                keywords: [
+                    "if", "while"
+                ],
+
+                typeKeywords: [
+                    "string", "int", "float", "bool", "Entity", "Vector", "BlockType", "void"
+                ],
+
+                operators: [
+                    "==", '*'
+                ],
+
+                // we include these common regular expressions
+                symbols:  /[=><!~?:&|+\-*\/\^%]+/,
+
+                // C# style strings
+                escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+
+                // The main tokenizer for our languages
+                tokenizer: {
+                    root: [
+                        // identifiers and keywords
+                        [/[a-z_$][\w$]*/, { cases: { '@typeKeywords': 'keyword',
+                                '@keywords': 'keyword',
+                                '@default': 'identifier' } }],
+                        [/[A-Z][\w\$]*/, 'type.identifier' ],  // to show class names nicely
+
+                        // whitespace
+                        { include: '@whitespace' },
+
+                        // delimiters and operators
+                        [/[{}()\[\]]/, '@brackets'],
+                        [/[<>](?!@symbols)/, '@brackets'],
+                        [/@symbols/, { cases: { '@operators': 'operator',
+                                '@default'  : '' } } ],
+
+                        // @ annotations.
+                        // As an example, we emit a debugging log message on these tokens.
+                        // Note: message are supressed during the first load -- change some lines to see them.
+                        [/@\s*[a-zA-Z_\$][\w\$]*/, { token: 'annotation', log: 'annotation token: $0' }],
+
+                        // numbers
+                        [/-?(?:\.\d+|\d+\.\d+|\d+[fFdD])/, 'number.float'],
+                        [/-?\d+/, 'number'],
+
+                        // delimiter: after number because of .\d floats
+                        [/[;,.]/, 'delimiter'],
+
+                        // strings
+                        [/"([^"\\]|\\.)*$/, 'string.invalid' ],  // non-teminated string
+                        [/"/,  { token: 'string.quote', bracket: '@open', next: '@string' } ],
+                    ],
+
+                    comment: [
+                        [/[^\/*]+/, 'comment' ],
+                        [/\/\*/,    'comment', '@push' ],    // nested comment
+                        ["\\*/",    'comment', '@pop'  ],
+                        [/[\/*]/,   'comment' ]
+                    ],
+
+                    string: [
+                        [/[^\\"]+/,  'string'],
+                        [/@escapes/, 'string.escape'],
+                        [/\\./,      'string.escape.invalid'],
+                        [/"/,        { token: 'string.quote', bracket: '@close', next: '@pop' } ]
+                    ],
+
+                    whitespace: [
+                        [/[ \t\r\n]+/, 'white'],
+                        [/\/\*/,       'comment', '@comment' ],
+                        [/\/\/.*$/,    'comment'],
+                    ],
+                },
+            };
+        }
+        
         // require is provided by loader.min.js.
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs' }});
         require(["vs/editor/editor.main"], () => {
-            document.editorModel = monaco.editor.createModel(
-                'This line is okay.\nThis line has a warning.\nThis line has an error.'
+            monaco.languages.register({ id: "hlf" });
+            document.editorModel = monaco.editor.createModel(`
+Vector v = vec(-35, 63, -18);
+BlockType block = getBlock(v);
+
+Vector i = vec(-32, 63, -22);
+setBlock(i, block);
+say("Block placed!");
+`,
+                "hlf"
             );
+            /*monaco.languages.setLanguageConfiguration("hlf", {
+                autoClosingPairs: true,
+            });*/
             document.codeEditor = monaco.editor.create(document.getElementById('codeContainer'), {
-                value: `function x() {
-  console.log("Hello world!");
-}`,
-                language: 'javascript',
                 theme: 'vs-dark',
-                tabSize: 16,
+                tabSize: 4,
                 directIndentation:true,
                 useTabStops:true,
                 model:document.editorModel,
+                autoClosingBrackets: true,
             });
-
+            monaco.languages.setMonarchTokensProvider("hlf", getMonarchDef());
+            monaco.languages.setLanguageConfiguration('hlf', {
+                brackets: [
+                    ['{', '}'],
+                    ['[', ']'],
+                    ['(', ')']
+                ],
+                autoClosingPairs: [
+                    { open: '{', close: '}', notIn: ['string', 'comment'] },
+                    { open: '[', close: ']', notIn: ['string', 'comment'] },
+                    { open: '(', close: ')', notIn: ['string', 'comment'] },
+                    { open: '"', close: '"', notIn: ['string'] },
+                ],
+                surroundingPairs: [
+                    { open: '{', close: '}' },
+                    { open: '[', close: ']' },
+                    { open: '(', close: ')' },
+                    { open: '"', close: '"' },
+                ],
+            });
             document.editorModel.onDidChangeContent((event) => {
                 if(document.getElementById("transpileInRealtimeCheckbox").checked){
                     window.transpile(true);
@@ -139,7 +248,8 @@
             const resp = HlfTranspilerJs.transpileToString(document.editorModel.getValue());
             const end = performance.now()
             
-            document.getElementById("stats").innerText = `${(end-start).toFixed(1)}ms`;
+            const ms = (end-start);
+            document.getElementById("stats").innerText = `${ms.toFixed(1)}ms (${(1/ms*1000).toFixed(0)}hz)`;
             
             const msgField = document.getElementById("errorMsg");
             const successField = document.getElementById("successMsg");
