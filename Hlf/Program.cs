@@ -1,6 +1,7 @@
 ﻿
 using System.Diagnostics;
 using Hlf.Transpiler;
+using Hlf.Transpiler.CodeGen;
 using Hlf.Transpiler.DatapackGen;
 using File = System.IO.File;
 
@@ -12,9 +13,13 @@ const string dataPackPath = @"C:\Users\zeno\MultiMC\instances\1.21.3 HLF\.minecr
 try
 {
     Stopwatch sw = Stopwatch.StartNew();
-    Datapack datapack = transpiler.Transpile(src);
+    var opt = new GeneratorOptions()
+    {
+        DatapackNamespace = "first_hlf"
+    };
+    
+    Datapack datapack = transpiler.Transpile(src, opt);
     datapack.Name = "first_hlf";
-    datapack.Namespace = "first_hlf";
     var gen = datapack.Generate();
     
     new DefaultDirectoryGenerator().GenerateDirectoryStructure(@"C:\Users\zeno\MultiMC\instances\1.21.3 HLF\.minecraft\saves\HflTests\datapacks\", gen);

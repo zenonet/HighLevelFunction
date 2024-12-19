@@ -6,6 +6,7 @@ public struct GeneratorOptions()
     public bool RuntimeErrors { get; set; } = true;
     public bool GenerateComments { get; set; } = true;
     public string StorageNamespace { get; set; } = "hlfdata";
+    public string DatapackNamespace { get; set; } = "hlf";
     public string Scoreboard { get; set; } = "hlf";
     public string MarkerTag = "hlf_marker";
 

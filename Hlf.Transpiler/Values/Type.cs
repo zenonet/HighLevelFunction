@@ -12,8 +12,8 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
     public static HlfType Entity = new("Entity", ValueKind.EntityTag);
     public static HlfType Vector = new("Vector", ValueKind.Nbt);
     public static HlfType BlockType = new("BlockType", ValueKind.Block);
-    public static HlfType Void = new("Void", ValueKind.Void);
-
+    public static HlfType Void = new("void", ValueKind.Void);
+ 
     public static HlfType ConstString = new("const string", ValueKind.Constant,
     [
         new(String,

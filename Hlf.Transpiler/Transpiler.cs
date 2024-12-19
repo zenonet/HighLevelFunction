@@ -7,9 +7,10 @@ namespace Hlf.Transpiler;
 
 public class Transpiler
 {
-    public Datapack Transpile(string sourceCode)
+    public Datapack Transpile(string sourceCode, GeneratorOptions options = default)
     {
         Datapack datapack = new();
+        datapack.Namespace = options.DatapackNamespace;
         
         // Fix messed up line ending characters
         sourceCode = sourceCode.Replace("\r\n", "\n");
@@ -24,14 +25,9 @@ public class Transpiler
         // Stage 2: Parsing
         List<Statement> statements = new Parser().ParseMultiple(ref tokens, rootScope);
         statements.ForEach(x => x.Parse());
-        
-        // Stage 2.1: Create extra functions for statements
-        var extraFunctions = statements.Select(x => x.ExtraFunctionsToGenerate).OfType<Function[]>().SelectMany(x => x).Distinct();
-        datapack.Functions.AddRange(extraFunctions);
 
         // Stage 3: Code generation
         StringBuilder sb = new();
-        GeneratorOptions options = new();
         
         // Clear old stuff
         sb.AppendLine($"kill @e[tag={options.MarkerTag}]");
@@ -42,6 +38,10 @@ public class Transpiler
         }
         // Free all data in root scope
         sb.AppendCommands(rootScope, rootScope.GenerateScopeDeallocation(options));
+        
+        // Create extra functions for statements
+        var extraFunctions = statements.Select(x => x.ExtraFunctionsToGenerate).OfType<Function[]>().SelectMany(x => x).Distinct();
+        datapack.Functions.AddRange(extraFunctions);
 
         var loadFunction = new Function("load", sb.ToString());
         datapack.Functions.Add(loadFunction);

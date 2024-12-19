@@ -75,6 +75,15 @@ public class Parser
                         }
                         
                         return ifStatement;
+                    case "while":
+                        if (betweenParentheses.IsEmpty) throw new LanguageException("Expected condition for while statement", tokens.Peek());
+                        WhileLoop whileLoop = new();
+                        InitStatement(whileLoop);
+                        whileLoop.Condition = Parse(ref betweenParentheses, scope);
+                        whileLoop.LoopScope = scope.NewChildScope();
+                        TokenList blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
+                        whileLoop.Body = ParseMultiple(ref blockTokens, whileLoop.LoopScope);
+                        return whileLoop;
                 }
             }
             else
