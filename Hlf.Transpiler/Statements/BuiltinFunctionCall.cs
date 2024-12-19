@@ -19,7 +19,7 @@ public class BuiltinFunctionCall : Statement
             ]
         ),
         
-        new("vec", HlfType.Vector, (gen, parameters, resultId) => 
+        new("Vector", HlfType.Vector, (gen, parameters, resultId) => 
                 gen.Comment("Constructing a 3d vector from individual values\n") + 
                 $"data remove storage {gen.StorageNamespace} {resultId.Generate(gen)}\n" +
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} append from storage {gen.StorageNamespace} {parameters["x"].Generate(gen)}\n" +
@@ -52,6 +52,13 @@ public class BuiltinFunctionCall : Statement
                 $"kill @e[tag={gen.MarkerTag}, tag=hlf_getblock]",
             [
                 new("position", HlfType.Vector),
+            ]
+        ),
+        
+        new("BlockType", HlfType.BlockType, (gen, parameters, resultId) => 
+                $"setblock {resultId.Generate(gen)} {parameters["blockType"].Generate(gen)}",
+            [
+                new("blockType", HlfType.ConstString),
             ]
         ),
 
