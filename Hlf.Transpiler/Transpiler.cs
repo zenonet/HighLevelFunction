@@ -7,7 +7,7 @@ namespace Hlf.Transpiler;
 
 public class Transpiler
 {
-    public Datapack Transpile(string sourceCode, GeneratorOptions options = default)
+    public Datapack Transpile(string sourceCode, GeneratorOptions options)
     {
         Datapack datapack = new();
         datapack.Namespace = options.DatapackNamespace;

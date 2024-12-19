@@ -1,12 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.Versioning;
-using System.Text;
+﻿using System.Runtime.Versioning;
 using System.Web;
 using Bootsharp;
 using Hlf.Transpiler;
-using Newtonsoft.Json;
 using File = Hlf.Transpiler.DatapackGen.File;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 [SupportedOSPlatform("browser")]
 public static partial class HlfTranspilerJs
@@ -32,7 +28,7 @@ public static partial class HlfTranspilerJs
     {
         try
         {
-            var dp = new Transpiler().Transpile(src);
+            var dp = new Transpiler().Transpile(src, new ());
             List<File> generate = dp.Generate();
             Dictionary<string, string> files = generate.ToDictionary(x =>x.Path, y => y.Content);
             return SerializeDictionary(files);
