@@ -17,8 +17,8 @@ public class VariableAssignment : Statement
             throw new LanguageException($"Trying to assign a value to the undeclared variable {VariableName}.", Line, Column, VariableName.Length);
         variableId = variable;
 
-        if (!Expression.Result!.Type.IsAssignableTo(variable.Type))
-            throw new LanguageException($"Value of type {Expression.Result.Type.Name} cannot be assigned to variable {VariableName} of type {variable.Type.Name}.", Line, Column);
+        if (!Expression.Result.Type.IsAssignableTo(variable.Type))
+            throw new LanguageException($"Value of type {Expression.Result.Type.Name} cannot be assigned to variable {VariableName} of type {variable.Type.Name}.", Expression.Line, Expression.Column);
     }
 
     public override string Generate(GeneratorOptions options)

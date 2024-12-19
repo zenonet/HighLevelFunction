@@ -22,7 +22,8 @@ public class LiteralExpression : Statement
 
     public override void Parse()
     {
-        Result ??= HlfType.NewDataId();
+        if(Result is VoidDataId)
+            Result = HlfType.NewDataId();
     }
 
     public override string Generate(GeneratorOptions options)

@@ -11,7 +11,7 @@ public abstract class Statement
 
     public virtual bool NeedsSemicolon => true;
     public Scope ParentScope;
-    public DataId? Result { get; set; }
+    public DataId Result { get; set; } = VoidDataId.Void;
     public Function[]? ExtraFunctionsToGenerate { get; set; } = null;
     public abstract void Parse();
 

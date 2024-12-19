@@ -16,7 +16,7 @@ public class IfStatement : Statement
         Condition.Parse();
         Block.ForEach(statement => statement.Parse());
         ElseBlock?.ForEach(statement => statement.Parse());
-        if (!Condition.Result!.Type.IsAssignableTo(HlfType.Bool))
+        if (!Condition.Result.Type.IsAssignableTo(HlfType.Bool))
             throw new LanguageException($"Condition expression of if-statement should be of type {HlfType.Bool.Name} but is of type {Condition.Result!.Type.Name}", Condition.Line, Condition.Column);
     }
 

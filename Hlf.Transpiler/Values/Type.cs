@@ -13,14 +13,16 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
     public static HlfType Vector = new("Vector", ValueKind.Nbt);
     public static HlfType BlockType = new("BlockType", ValueKind.Block);
     public static HlfType Void = new("void", ValueKind.Void);
- 
+
+    
     public static HlfType ConstString = new("const string", ValueKind.Constant,
     [
         new(String,
             (gen, from, to) =>
                 $"data modify storage {gen.StorageNamespace} {to.Generate(gen)} set value \"{from.Generate(gen)}\"")
     ]);
-    
+
+
     static HlfType()
     {
         Int.Operations =
