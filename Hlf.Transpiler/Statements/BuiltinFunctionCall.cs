@@ -7,18 +7,21 @@ public class BuiltinFunctionCall : Statement
 {
     public static BuiltinFunctionDefinition[] BuiltinFunctionDefinitions { get; } =
     [
+        new("say", HlfType.Void, (gen, parameters, _) => $"tellraw @a \"{parameters["content"].Generate(gen)}\"",
+            [
+                new("content", HlfType.ConstString),
+            ]
+        ),
         new("say", HlfType.Void, (gen, parameters, _) => $"tellraw @a {{\"storage\":\"{gen.StorageNamespace}\", \"nbt\":\"{parameters["content"].Generate(gen)}\"}}",
             [
                 new("content", HlfType.String),
             ]
         ),
-        // TODO: Add function overloading for this purpose
-        new("constSay", HlfType.Void, (gen, parameters, _) => $"tellraw @a \"{parameters["content"].Generate(gen)}\"",
+        new("say", HlfType.Void, (gen, parameters, _) => $"tellraw @a {{\"storage\":\"{gen.StorageNamespace}\", \"nbt\":\"{parameters["content"].Generate(gen)}\"}}",
             [
-                new("content", HlfType.ConstString),
+                new("content", HlfType.Int),
             ]
         ),
-        
         new("Vector", HlfType.Vector, (gen, parameters, resultId) => 
                 gen.Comment("Constructing a 3d vector from individual values\n") + 
                 $"data remove storage {gen.StorageNamespace} {resultId.Generate(gen)}\n" +
@@ -83,14 +86,25 @@ public class BuiltinFunctionCall : Statement
     public override void Parse()
     {
         Parameters.ForEach(x => x.Parse());
-        definition = BuiltinFunctionDefinitions.FirstOrDefault(x => x.Name == FunctionName);
-        if (definition == null) throw new LanguageException($"No function called {FunctionName} was found.", Line, Column, FunctionName.Length);
 
-        if (definition.Parameters.Length != Parameters.Count) throw new LanguageException($"Function {FunctionName} expects {definition.Parameters.Length} parameters but received {Parameters.Count}.", Line, Column);
-        for (int i = 0; i < definition.Parameters.Length; i++)
+        var overloads = BuiltinFunctionDefinitions.Where(x => x.Name == FunctionName).ToArray();
+
+        if (overloads.Length == 0)
+            throw new LanguageException($"No function called {FunctionName} was found.", Line, Column, FunctionName.Length);
         {
-            if (!Parameters[i].Result!.Type.IsAssignableTo(definition.Parameters[i].Type))
-                throw new LanguageException($"Function {FunctionName} expects a {definition.Parameters[i].Type.Name} as its {(i + 1).GetOrdinal()} parameter but received a {Parameters[i].Result!.Type.Name}.", Parameters[i].Line, Parameters[i].Column);
+            BuiltinFunctionDefinition? o = overloads
+                .Where(x => x.Parameters.Length == Parameters.Count)
+                .FirstOrDefault(x => !x.Parameters.Where((t, i) => !Parameters[i].Result.Type.IsAssignableTo(t.Type)).Any());
+
+            if (o != null)
+                definition = o;
+            else
+            {
+                throw new LanguageException($"Overload for function with signature {FunctionName}({string.Join(", ", Parameters.Select(x => x.Result.Type.Name))}) could not be found.\n" +
+                                            $"Available overloads of {FunctionName}:\n" +
+                                            $"{string.Join('\n', overloads.Select(ov => $"    {FunctionName}({string.Join(", ", ov.Parameters.Select(x => x.Type.Name))})"))}", Line, Column, FunctionName.Length);
+            }
+            
         }
 
         if(definition.ReturnType.Kind != ValueKind.Void)
