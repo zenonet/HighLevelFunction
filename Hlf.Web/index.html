@@ -3,6 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>HLF-Transpiler</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/loader.min.js"></script>
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.min.css">
+
+    <script>
+        // require is provided by loader.min.js.
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs' }});
+        require(["vs/editor/editor.main"], () => {
+            document.editorModel = monaco.editor.createModel(
+                'This line is okay.\nThis line has a warning.\nThis line has an error.'
+            );
+            document.codeEditor = monaco.editor.create(document.getElementById('codeContainer'), {
+                value: `function x() {
+  console.log("Hello world!");
+}`,
+                language: 'javascript',
+                theme: 'vs-dark',
+                tabSize: 16,
+                directIndentation:true,
+                useTabStops:true,
+                model:document.editorModel,
+            });
+
+            document.editorModel.onDidChangeContent((event) => {
+                if(document.getElementById("transpileInRealtimeCheckbox").checked){
+                    window.transpile(true);
+                }
+            });
+        });
+    </script>
+    
     <script>
         // https://stackoverflow.com/a/30810322
         function fallbackCopyTextToClipboard(text) {
@@ -104,23 +134,55 @@
         await bootsharp.boot();
 
         let srcTextArea = document.getElementById("hlfTextArea");
-        function transpile(isAuto = false){
+        export function transpile(isAuto = false){
             const start = performance.now()
-            const resp = HlfTranspilerJs.transpileToString(document.getElementById("hlfTextArea").value);
+            const resp = HlfTranspilerJs.transpileToString(document.editorModel.getValue());
             const end = performance.now()
             
             document.getElementById("stats").innerText = `${(end-start).toFixed(1)}ms`;
             
             const msgField = document.getElementById("errorMsg");
             const successField = document.getElementById("successMsg");
-            if(resp.startsWith("errhndl:")){
-                const err = resp.substring(8);
+            if(resp.startsWith("errhndl(")){
+                
+                const metaStart = resp.indexOf('(');
+                const metaSplit = resp.indexOf(';');
+                const metaEnd = resp.indexOf(')');
+                
+                const line = parseInt(resp.substring(metaStart+1, metaSplit));
+                const column = parseInt(resp.substring(metaSplit+1, metaEnd));
+                console.log("line:" + line + " column: " + column)
+                
+                
+                const err = resp.substring(metaEnd+2);
                 console.log("Error detected: " + err)
                 msgField.style.visibility = "visible";
                 msgField.innerText = err;
                 successField.style.visibility = "hidden";
+                
+                
+                
+                // show errors:
+                require(["vs/editor/editor.main"], () => {
+                    monaco.editor.setModelMarkers(document.editorModel, "owner", [
+                        {
+                            startLineNumber: line,
+                            startColumn: column,
+                            endLineNumber: line,
+                            endColumn: column+1,
+                            message: err,
+                            severity: monaco.MarkerSeverity.Error
+                        }
+                    ]);
+                });
                 return;
             }
+            // clear errors in editor:
+            require(["vs/editor/editor.main"], () => {
+                monaco.editor.setModelMarkers(document.editorModel, "owner", []);
+            });
+            
+            
             msgField.style.visibility = "hidden";
             successField.style.visibility = "visible";
 
@@ -137,9 +199,7 @@
                 dropdown.appendChild(option);
             }
 
-            console.log("File selected before: " + oldSelectedFile)
             if(json[oldSelectedFile] !== undefined){
-                console.log("still exists!")
                 dropdown.value = oldSelectedFile;
             }else{
                 // By default, select the load.mcfunction file
@@ -156,19 +216,20 @@
                 saveDatapackLocally();
             }
         }
-        
-        srcTextArea.addEventListener('input', function() {
+        window.transpile = transpile;
+/*        srcTextArea.addEventListener('input', function() {
             if(document.getElementById("transpileInRealtimeCheckbox").checked){
                 transpile(true);
             }
-        }, false);
+        }, false);*/
         document.getElementById("transpileButton").onclick = transpile;
-
+/*
         if(document.getElementById("hlfTextArea").value.length > 0){
             console.log("Source code area already has a value so we'll transpile right away");
             transpile(true);
-        }
+        }*/
     </script>
+    
     <style>
         html{
             font-family: Arial,sans-serif;
@@ -194,7 +255,7 @@
 <body>
 <div style="flex-direction: column">
     <div style="display: flex; flex-direction: row; height: 70vh; margin-bottom: 10pt">
-        <textarea class="inputBox" id="hlfTextArea"></textarea>
+        <div class="inputBox" id="codeContainer"></div>
         <div style="display: flex; flex-direction: column; width: 30vw;">
             <textarea class="outputBox output-stuff" id="outputTextArea"></textarea>
             <div style="padding:3pt" class="output-stuff">
