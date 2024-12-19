@@ -146,12 +146,13 @@
             if(resp.startsWith("errhndl(")){
                 
                 const metaStart = resp.indexOf('(');
-                const metaSplit = resp.indexOf(';');
                 const metaEnd = resp.indexOf(')');
+                const nums = resp.substring(metaStart+1, metaEnd).split(';');
                 
-                const line = parseInt(resp.substring(metaStart+1, metaSplit));
-                const column = parseInt(resp.substring(metaSplit+1, metaEnd));
-                console.log("line:" + line + " column: " + column)
+                const line = parseInt(nums[0]);
+                const column = parseInt(nums[1]);
+                const length = parseInt(nums[2]);
+                console.log("line:" + line + " column:" + column + " length:" + length)
                 
                 
                 const err = resp.substring(metaEnd+2);
@@ -169,7 +170,7 @@
                             startLineNumber: line,
                             startColumn: column,
                             endLineNumber: line,
-                            endColumn: column+1,
+                            endColumn: column+length,
                             message: err,
                             severity: monaco.MarkerSeverity.Error
                         }

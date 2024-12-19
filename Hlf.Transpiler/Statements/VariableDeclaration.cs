@@ -11,7 +11,7 @@ public class VariableDeclaration : Statement
     public override void Parse()
     {
         type = HlfType.Types.FirstOrDefault(x => x.Name == TypeName);
-        if (type is null) throw new LanguageException($"Cannot declare a variable of type {TypeName} because that type does not exist.", Line, Column);
+        if (type is null) throw new LanguageException($"Cannot declare a variable of type {TypeName} because that type does not exist.", Line, Column, TypeName.Length);
         if (ParentScope.Variables.ContainsKey(VariableName))
             throw new LanguageException($"Cannot declare a variable with name '{VariableName}' because a variable with that name is already declared in the current scope.", Line, Column);
 

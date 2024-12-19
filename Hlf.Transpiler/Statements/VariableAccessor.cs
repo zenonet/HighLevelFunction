@@ -13,7 +13,7 @@ public class VariableAccessor : Statement
         }
         else
         {
-            throw new LanguageException($"Variable '{VariableName}' does not exist in the current scope", Line, Column);
+            throw new LanguageException($"Variable '{VariableName}' does not exist in the current scope", Line, Column, VariableName.Length);
         }
     }
 

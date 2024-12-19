@@ -16,7 +16,7 @@ public class Operation : Statement
 
         definition = A.Result!.Type.Operations.FirstOrDefault(x => x.OtherType == B.Result!.Type && x.Operator == Op.Type);
         if (definition == null)
-            throw new LanguageException($"Type {A.Result.Type.Name} does not implement the {Op.Content} Operator with a right side of type {B.Result!.Type.Name}", Line, Column);
+            throw new LanguageException($"Type {A.Result.Type.Name} does not implement the {Op.Content} Operator with a right side of type {B.Result!.Type.Name}", Op);
         Result = definition.ResultType.NewDataId();
     }
     

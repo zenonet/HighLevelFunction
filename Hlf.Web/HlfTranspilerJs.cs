@@ -41,7 +41,7 @@ public static partial class HlfTranspilerJs
         }
         catch (LanguageException langEx)
         {
-            return $"errhndl({langEx.Line};{langEx.Column}):" + langEx;
+            return $"errhndl({langEx.Line};{langEx.Column};{langEx.Length}):" + langEx;
         }
 
     }

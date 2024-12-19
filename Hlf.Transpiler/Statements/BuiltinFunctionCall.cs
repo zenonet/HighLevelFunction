@@ -77,7 +77,7 @@ public class BuiltinFunctionCall : Statement
     {
         Parameters.ForEach(x => x.Parse());
         definition = BuiltinFunctionDefinitions.FirstOrDefault(x => x.Name == FunctionName);
-        if (definition == null) throw new LanguageException($"No function called {FunctionName} was found.", Line, Column);
+        if (definition == null) throw new LanguageException($"No function called {FunctionName} was found.", Line, Column, FunctionName.Length);
 
         if (definition.Parameters.Length != Parameters.Count) throw new LanguageException($"Function {FunctionName} expects {definition.Parameters.Length} parameters but received {Parameters.Count}.", Line, Column);
         for (int i = 0; i < definition.Parameters.Length; i++)
