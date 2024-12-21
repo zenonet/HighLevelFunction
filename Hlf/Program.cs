@@ -9,7 +9,6 @@ string src = File.ReadAllText(@"C:\Users\zeno\RiderProjects\Hlf.Transpiler\Hlf\f
 
 Transpiler transpiler = new();
 
-const string dataPackPath = @"C:\Users\zeno\MultiMC\instances\1.21.3 HLF\.minecraft\saves\HflTests\datapacks\first_hlf\";
 try
 {
     Stopwatch sw = Stopwatch.StartNew();

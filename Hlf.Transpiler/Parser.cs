@@ -183,7 +183,12 @@ public class Parser
             return assignment;
         }
 
-
+        if (tokens.StartsWith(TokenType.OpenParenthesis))
+        {
+            TokenList betweenParentheses = tokens.PopBetweenParentheses(TokenType.OpenParenthesis, TokenType.CloseParenthesis);
+            return Parse(ref betweenParentheses, scope);
+        }
+        
         #region Value literals
 
         if (tokens.StartsWith(TokenType.StringLiteral))
