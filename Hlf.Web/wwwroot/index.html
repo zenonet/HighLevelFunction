@@ -232,44 +232,52 @@ say("Block placed!");
         // Importing compiled ES module.
         import bootsharp, {HlfTranspilerJs} from "./../bin/bootsharp/index.mjs";
         //import bootsharp, {HlfTranspilerJs} from "./index.mjs";
-        
-        // Binding 'Program.GetFrontendName' import invoked in C#.
-        HlfTranspilerJs.getFrontendName = () => process.version;
 
         // Initializing dotnet runtime and invoking entry point.
         await bootsharp.boot();
 
         let srcTextArea = document.getElementById("hlfTextArea");
+        const wasmWorker = new Worker("worker.js", {type:"module"});
+        
+        wasmWorker.onmessage = (e) => {
+            onResult(e.data)
+        };
         export function transpile(isAuto = false){
-            const start = performance.now()
-            const resp = HlfTranspilerJs.transpileToString(document.editorModel.getValue());
-            const end = performance.now()
-            
-            const ms = (end-start);
+            window.TranspileStart = performance.now()
+            if(document.getElementById("useWorkerCheckbox").checked)
+                wasmWorker.postMessage(document.editorModel.getValue());
+            else{
+                const resp = HlfTranspilerJs.transpileToString(document.editorModel.getValue());
+                onResult(resp);
+            }
+        }
+        
+        function onResult(resp){
+            const ms = (performance.now()-window.TranspileStart);
             document.getElementById("stats").innerText = `${ms.toFixed(1)}ms (${(1/ms*1000).toFixed(0)}hz)`;
-            
+
             const msgField = document.getElementById("errorMsg");
             const successField = document.getElementById("successMsg");
             if(resp.startsWith("errhndl(")){
-                
+
                 const metaStart = resp.indexOf('(');
                 const metaEnd = resp.indexOf(')');
                 const nums = resp.substring(metaStart+1, metaEnd).split(';');
-                
+
                 const line = parseInt(nums[0]);
                 const column = parseInt(nums[1]);
                 const length = parseInt(nums[2]);
                 console.log("line:" + line + " column:" + column + " length:" + length)
-                
-                
+
+
                 const err = resp.substring(metaEnd+2);
                 console.log("Error detected: " + err)
                 msgField.style.visibility = "visible";
                 msgField.innerText = err;
                 successField.style.visibility = "hidden";
-                
-                
-                
+
+
+
                 // show errors:
                 require(["vs/editor/editor.main"], () => {
                     monaco.editor.setModelMarkers(document.editorModel, "owner", [
@@ -289,15 +297,15 @@ say("Block placed!");
             require(["vs/editor/editor.main"], () => {
                 monaco.editor.setModelMarkers(document.editorModel, "owner", []);
             });
-            
-            
+
+
             msgField.style.visibility = "hidden";
             successField.style.visibility = "visible";
 
             let json = JSON.parse(resp);
             //document.getElementById("outputTextArea").value = json["data/function/load.mcfunction"];
             document.transpiledJson = json;
-            
+
             let oldSelectedFile = document.getElementById("file-view-select").value;
             const dropdown = document.getElementById("file-view-select");
             dropdown.innerHTML = "";
@@ -319,11 +327,12 @@ say("Block placed!");
                 }
             }
             switchFile();
-            
+
             if(document.dirHandle !== undefined && (!isAuto || document.getElementById("saveInRealtimeCheckbox").checked)){
                 saveDatapackLocally();
             }
         }
+        
         window.transpile = transpile;
 /*        srcTextArea.addEventListener('input', function() {
             if(document.getElementById("transpileInRealtimeCheckbox").checked){
@@ -382,6 +391,7 @@ say("Block placed!");
     <div style="background:gray; display: flex; gap:15pt; padding: 10pt">
         <input type="checkbox" id="transpileInRealtimeCheckbox" checked>Transpile in realtime</input>
         <input type="checkbox" id="saveInRealtimeCheckbox" disabled>Save to filesystem in realtime</input>
+        <input type="checkbox" id="useWorkerCheckbox">Use worker for transpiling</input>
     </div>
     <h2 style="color: red;" id="errorMsg">
         
