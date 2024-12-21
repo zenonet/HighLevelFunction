@@ -28,6 +28,10 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
         Int.Operations =
         [
             OperationImplementations.IntEq,
+            OperationImplementations.IntAdd,
+            OperationImplementations.IntSub,
+            OperationImplementations.IntMul,
+            OperationImplementations.IntDiv,
         ];
 
         BlockType.Operations =
@@ -127,6 +131,39 @@ public static class OperationImplementations
                $"{gen.CopyDataToScoreboard(a.Generate(gen), "a")}\n" +
                $"{gen.CopyDataToScoreboard(b.Generate(gen), "b")}\n" +
                $"execute store success storage {gen.StorageNamespace} {result.Generate(gen)} byte 1 if score a hlf = b hlf";
+    });
+
+    public static OperationDefinition IntAdd = new(TokenType.Plus, HlfType.Int, HlfType.Int, (gen, a, b, result) =>
+    {
+        return gen.Comment("Adding 2 ints via scoreboard\n") +
+               $"{gen.CopyDataToScoreboard(a.Generate(gen), "a")}\n" +
+               $"{gen.CopyDataToScoreboard(b.Generate(gen), "b")}\n" +
+               $"{gen.ScoreboardOpIntoA("a", "b", "+=")}\n" +
+               $"{gen.CopyScoreToData("a", result.Generate(gen))}";
+    });
+    public static OperationDefinition IntSub = new(TokenType.Minus, HlfType.Int, HlfType.Int, (gen, a, b, result) =>
+    {
+        return gen.Comment("Subtracting 2 ints via scoreboard\n") +
+               $"{gen.CopyDataToScoreboard(a.Generate(gen), "a")}\n" +
+               $"{gen.CopyDataToScoreboard(b.Generate(gen), "b")}\n" +
+               $"{gen.ScoreboardOpIntoA("a", "b", "-=")}\n" +
+               $"{gen.CopyScoreToData("a", result.Generate(gen))}";
+    });
+    public static OperationDefinition IntMul = new(TokenType.Asterisk, HlfType.Int, HlfType.Int, (gen, a, b, result) =>
+    {
+        return gen.Comment("Multiplying 2 ints via scoreboard\n") +
+               $"{gen.CopyDataToScoreboard(a.Generate(gen), "a")}\n" +
+               $"{gen.CopyDataToScoreboard(b.Generate(gen), "b")}\n" +
+               $"{gen.ScoreboardOpIntoA("a", "b", "*=")}\n" +
+               $"{gen.CopyScoreToData("a", result.Generate(gen))}";
+    });
+    public static OperationDefinition IntDiv = new(TokenType.Slash, HlfType.Int, HlfType.Int, (gen, a, b, result) =>
+    {
+        return gen.Comment("Dividing 2 ints via scoreboard\n") +
+               $"{gen.CopyDataToScoreboard(a.Generate(gen), "a")}\n" +
+               $"{gen.CopyDataToScoreboard(b.Generate(gen), "b")}\n" +
+               $"{gen.ScoreboardOpIntoA("a", "b", "/=")}\n" +
+               $"{gen.CopyScoreToData("a", result.Generate(gen))}";
     });
     
     public static OperationDefinition BlockTypeEq = new(TokenType.DoubleEquals, HlfType.Bool, HlfType.BlockType, (gen, a, b, result) =>
