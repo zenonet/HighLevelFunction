@@ -1,4 +1,6 @@
 ﻿
+using System.Collections;
+
 namespace Hlf.Transpiler;
 
 public class Parser
@@ -17,17 +19,54 @@ public class Parser
 
     public Statement ParseStatementLvl2(ref TokenList tokens, Scope scope)
     {
-        var a = ParseStatementLvl1(ref tokens, scope);
+        var s = ParseStatementLvl1(ref tokens, scope);
 
-        if (tokens.IsEmpty || !Token.IsOperatorToken(tokens.Peek().Type)) return a;
-        var op = new Operation();
-        op.Op = tokens.Pop();
-        op.ParentScope = scope;
-        op.Line = a.Line;
-        op.Column = a.Column;
-        op.A = a;
-        op.B = ParseStatementLvl1(ref tokens, scope);
-        return op;
+        if (tokens.IsEmpty || !Token.IsOperatorToken(tokens.Peek().Type)) return s;
+
+        List<Statement> operands = [];
+        List<Token> operators = [];
+        
+        operands.Add(s);
+        operators.Add(tokens.Pop());
+
+        while (!tokens.IsEmpty)
+        {
+            operands.Add(ParseStatementLvl1(ref tokens, scope));
+
+            if (!Token.IsOperatorToken(tokens.Peek().Type)) break;
+            operators.Add(tokens.Pop());
+        }
+
+        while (operands.Count > 1)
+        {
+            for (int i = 0; i < operators.Count; i++)
+            {
+                int precedence = Token.GetOperatorPrecedence(operators[i].Type);
+
+                if (i == operators.Count - 1 || precedence >= Token.GetOperatorPrecedence(operators[i + 1].Type))
+                {
+                    // Merge
+                    Statement a = operands[i];
+                    Statement b = operands[i + 1];
+
+                    var op = new Operation
+                    {
+                        A = a,
+                        B = b,
+                        Op = operators[i],
+                        ParentScope = scope,
+                        Line = operands[i].Line,
+                        Column = operands[i].Column,
+                    };
+                    
+                    operands.RemoveAt(i+1);
+                    operators.RemoveAt(i);
+                    operands[i] = op;
+                }
+            }
+        }
+        
+        return operands[0];
     }
 
     public Statement ParseStatementLvl1(ref TokenList tokens, Scope scope)
