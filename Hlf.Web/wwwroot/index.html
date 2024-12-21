@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>HLF-Transpiler</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/loader.min.js"></script>
-    <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.20.0/min/vs/editor/editor.main.min.css">
-
+    <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
     <script>
         
         function getMonarchDef(){
@@ -89,8 +87,7 @@
             };
         }
         
-        // require is provided by loader.min.js.
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs' }});
+        require.config({ paths: { vs: 'node_modules/monaco-editor/min/vs' } });
         require(["vs/editor/editor.main"], () => {
             monaco.languages.register({ id: "hlf" });
             document.editorModel = monaco.editor.createModel(`
@@ -233,7 +230,7 @@ say("Block placed!");
     </script>
     <script lang="js" type="module">
         // Importing compiled ES module.
-        import bootsharp, {HlfTranspilerJs} from "./bin/bootsharp/index.mjs";
+        import bootsharp, {HlfTranspilerJs} from "./../bin/bootsharp/index.mjs";
         //import bootsharp, {HlfTranspilerJs} from "./index.mjs";
         
         // Binding 'Program.GetFrontendName' import invoked in C#.
