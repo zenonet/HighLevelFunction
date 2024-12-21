@@ -23,7 +23,7 @@ public static class Lexer
         new RawTokenDefinition(TokenType.Colon, ":"),
         new RawTokenDefinition(TokenType.Semicolon, ";"),
         
-        new RegexTokenDefinition(TokenType.FloatLiteral, @"-?(?:\.\d+|\d+\.\d+|\d+[fFdD])"),
+        new RegexTokenDefinition(TokenType.FloatLiteral, @"(-?(?:\.\d+|\d+\.\d+|\d+))(?:[fFdD])"),
         new RegexTokenDefinition(TokenType.IntLiteral, @"-?\d+"),
         new RegexTokenDefinition(TokenType.StringLiteral, "\".*\""),
         new RegexTokenDefinition(TokenType.Identifier, @"\w+"),
@@ -123,13 +123,15 @@ public static class Lexer
                 token = null;
                 return false;
             }
+            
+            string content = match.Groups.Count > 1 ? match.Groups[1].Value : match.Value;
 
             token = new()
             {
-                Content = match.Value,
+                Content = content,
                 Column = state.Column,
                 Line = state.Line,
-                Type = _type
+                Type = _type,
             };
 
             state.Source = state.Source[match.Length..];
