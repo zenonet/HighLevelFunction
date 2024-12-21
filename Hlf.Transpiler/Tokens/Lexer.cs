@@ -39,15 +39,22 @@ public static class Lexer
         {
             // skip whitespace
             int skipped = 0;
-            while (skipped < src.Length && char.IsWhiteSpace(src[skipped]))
+            bool isSingleLineComment = false;
+            while (skipped < src.Length && (isSingleLineComment || char.IsWhiteSpace(src[skipped]) || (src[skipped] == '/' && src[skipped+1] == '/')))
             {
+
                 state.Column++;
-                char c = src[skipped]; 
+                char c = src[skipped];
                 skipped++;
+                if (c == '/')
+                {
+                    isSingleLineComment = true;
+                }
                 if (c == '\n')
                 {
                     state.Line++;
                     state.Column = 1;
+                    isSingleLineComment = false;
                 }
             }
             src = src[skipped..];
