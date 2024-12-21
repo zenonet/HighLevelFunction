@@ -40,7 +40,8 @@ public static class Lexer
             // skip whitespace
             int skipped = 0;
             bool isSingleLineComment = false;
-            while (skipped < src.Length && (isSingleLineComment || char.IsWhiteSpace(src[skipped]) || (src[skipped] == '/' && src[skipped+1] == '/')))
+            int multiLineCommentDepth = 0;
+            while (skipped < src.Length && (isSingleLineComment || multiLineCommentDepth > 0 || char.IsWhiteSpace(src[skipped]) || (src[skipped] == '/' && src[skipped+1] is '/' or '*') || (src[skipped] is '*' && src[skipped+1] is '/')))
             {
 
                 state.Column++;
@@ -48,8 +49,22 @@ public static class Lexer
                 skipped++;
                 if (c == '/')
                 {
-                    isSingleLineComment = true;
+                    if(src[skipped] is '*')
+                    {
+                        multiLineCommentDepth++;
+                        skipped++;
+                        state.Column++;
+                    }
+                    else isSingleLineComment = true;
                 }
+
+                if (multiLineCommentDepth > 0 && c == '*')
+                {
+                    multiLineCommentDepth--;
+                    skipped++;
+                    state.Column++;
+                }
+                
                 if (c == '\n')
                 {
                     state.Line++;
