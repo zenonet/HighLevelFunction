@@ -8,18 +8,19 @@ public class Parser
     /*
      Levels:
      1: Single expressions
-     2: Operators
+     2: Resolving member accessors
+     3: Operators
     */
 
 
     public Statement Parse(ref TokenList tokens, Scope scope)
     {
-        return ParseStatementLvl2(ref tokens, scope);
+        return ParseStatementLvl3(ref tokens, scope);
     }
 
-    public Statement ParseStatementLvl2(ref TokenList tokens, Scope scope)
+    public Statement ParseStatementLvl3(ref TokenList tokens, Scope scope)
     {
-        var s = ParseStatementLvl1(ref tokens, scope);
+        var s = ParseStatementLvl2(ref tokens, scope);
 
         if (tokens.IsEmpty || !Token.IsOperatorToken(tokens.Peek().Type)) return s;
 
@@ -31,7 +32,7 @@ public class Parser
 
         while (!tokens.IsEmpty)
         {
-            operands.Add(ParseStatementLvl1(ref tokens, scope));
+            operands.Add(ParseStatementLvl2(ref tokens, scope));
 
             if (!Token.IsOperatorToken(tokens.Peek().Type)) break;
             operators.Add(tokens.Pop());
@@ -67,6 +68,68 @@ public class Parser
         }
         
         return operands[0];
+    }
+
+    public Statement ParseStatementLvl2(ref TokenList tokens, Scope scope)
+    {
+        Statement statement = ParseStatementLvl1(ref tokens, scope);
+        if(!tokens.StartsWith(TokenType.Dot)) return statement;
+
+        // Resolve type member path
+        tokens.Pop();
+        
+        // Find end of path
+        int startIndex = tokens.StartIndex;
+        while(true)
+        {
+            if (!tokens.StartsWith(TokenType.Identifier)) throw new LanguageException("Expected identifier after dot", tokens.Peek(-1));
+            tokens.Pop();
+            if(!tokens.StartsWith(TokenType.Dot)) break;
+            tokens.Pop();
+        }
+
+        TokenList path = new()
+        {
+            _Tokens = tokens._Tokens, // Yep, we give that new tokenlist a reference to tokens of the original one.
+                                      // This works because token lists are supposed to be immutable as soon as lexical analysis is over
+            StartIndex = startIndex,
+            Length = tokens.StartIndex - startIndex,
+        };
+
+        while (!path.IsEmpty)
+        {
+            Token identifier = path.Pop();
+            
+            if (tokens.StartsWith(TokenType.Equals))
+            {
+                tokens.Pop();
+                Statement value = ParseStatementLvl1(ref tokens, scope);
+                statement = new MemberSetter
+                {
+                    MemberName = identifier.Content,
+                    BaseExpression = statement,
+                    Expression = value,
+                    Line = identifier.Line,
+                    Column = identifier.Column,
+                };
+            }
+            else
+            {
+                statement = new MemberGetter
+                {
+                    BaseExpression = statement,
+                    MemberName = identifier.Content,
+                    Line = identifier.Line,
+                    Column = identifier.Column,
+                };
+            }
+        }
+
+
+        
+        
+        return statement;
+
     }
 
     public Statement ParseStatementLvl1(ref TokenList tokens, Scope scope)

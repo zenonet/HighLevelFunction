@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Hlf.Transpiler.CodeGen;
+using Hlf.Transpiler.Values;
 
 namespace Hlf.Transpiler;
 
@@ -63,6 +64,35 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
                 return gen.Convert(from.Generate(gen), to.Generate(gen), "double");
             }),
         ];
+
+        Vector.Members = new()
+        {
+            {
+                "x", new()
+                {
+                    Name = "x",
+                    Type = Float,
+                    GetterGenerator = (gen, value, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from storage {gen.StorageNamespace} {value.Generate(gen)}[0]",
+                    SetterGenerator = (gen, value, valueId) => $"data modify storage {gen.StorageNamespace} {value.Generate(gen)}[0] set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
+                }
+            },            {
+                "y", new()
+                {
+                    Name = "x",
+                    Type = Float,
+                    GetterGenerator = (gen, value, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from storage {gen.StorageNamespace} {value.Generate(gen)}[1]",
+                    SetterGenerator = (gen, value, valueId) => $"data modify storage {gen.StorageNamespace} {value.Generate(gen)}[1] set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
+                }
+            },            {
+                "z", new()
+                {
+                    Name = "x",
+                    Type = Float,
+                    GetterGenerator = (gen, value, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from storage {gen.StorageNamespace} {value.Generate(gen)}[2]",
+                    SetterGenerator = (gen, value, valueId) => $"data modify storage {gen.StorageNamespace} {value.Generate(gen)}[2] set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
+                }
+            },
+        };
     }
 
     public static HlfType[] Types =
@@ -83,6 +113,7 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
     public Conversion[] ImplicitConversions = implicitConversions ?? [];
     public OperationDefinition[] Operations = operations ?? [];
 
+    public Dictionary<string, Member> Members;
     public static bool TryGetTypeFromName(string name, [NotNullWhen(true)]out HlfType? type)
     {
         type = Types.FirstOrDefault(x => x.Name == name);
