@@ -26,7 +26,7 @@ public class Operation : Statement
         sb.AppendCommands(ParentScope, A.Generate(gen));
         sb.AppendCommands(ParentScope, B.Generate(gen));
 
-        sb.Append(definition!.Generator.Invoke(gen, A.Result!, B.Result!, Result!));
+        sb.AppendCommands(ParentScope, definition!.Generator.Invoke(gen, A.Result!, B.Result!, Result!));
         return sb.ToString();
     }
 }
