@@ -232,7 +232,6 @@ public class Parser
                         if(!headerSections[1].IsEmpty) forLoop.Condition = Parse(headerSections[1], scope);
                         if(!headerSections[2].IsEmpty) forLoop.Increment = Parse(headerSections[2], scope);
 
-                        forLoop.LoopScope = scope.NewChildScope();
                         blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
                         forLoop.Block = ParseMultiple(ref blockTokens, forLoop.LoopScope);
                         return forLoop;
