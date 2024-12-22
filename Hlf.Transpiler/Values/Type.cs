@@ -35,7 +35,8 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
             OperationImplementations.IntCompOperation(TokenType.GreaterThan, ">"),
             OperationImplementations.IntCompOperation(TokenType.LessThan, "<"),
             OperationImplementations.IntCompOperation(TokenType.DoubleEquals, "="),
-            
+            OperationImplementations.IntCompOperation(TokenType.GreaterThanOrEqual, ">="),
+            OperationImplementations.IntCompOperation(TokenType.LessThanOrEqual, "<="),
         ];
 
         BlockType.Operations =
