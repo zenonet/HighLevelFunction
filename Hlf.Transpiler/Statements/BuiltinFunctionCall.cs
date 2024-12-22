@@ -93,14 +93,14 @@ public class BuiltinFunctionCall : Statement
     ];
 
     private BuiltinFunctionDefinition? definition;
+    private CustomFunctionDefinition? customFunctionDefinition;
     public override void Parse()
     {
         Parameters.ForEach(x => x.Parse());
 
         var overloads = BuiltinFunctionDefinitions.Where(x => x.Name == FunctionName).ToArray();
 
-        if (overloads.Length == 0)
-            throw new LanguageException($"No function called {FunctionName} was found.", Line, Column, FunctionName.Length);
+        if (overloads.Length != 0)
         {
             BuiltinFunctionDefinition? o = overloads
                 .Where(x => x.Parameters.Length == Parameters.Count)
@@ -114,16 +114,28 @@ public class BuiltinFunctionCall : Statement
                                             $"Available overloads of {FunctionName}:\n" +
                                             $"{string.Join('\n', overloads.Select(ov => $"    {FunctionName}({string.Join(", ", ov.Parameters.Select(x => x.Type.Name))})"))}", Line, Column, FunctionName.Length);
             }
-            
-        }
 
-        if(definition.ReturnType.Kind != ValueKind.Void)
-            Result = definition.ReturnType.NewDataId();
+
+            if (definition.ReturnType.Kind != ValueKind.Void)
+                Result = definition.ReturnType.NewDataId();
+        }
+        else
+        {
+            if (!ParentScope.TryGetFunction(FunctionName, out var function))
+                throw new LanguageException($"No function called {FunctionName} was found.", Line, Column, FunctionName.Length);
+            
+            // User defined function
+
+            if (Parameters.Count > 0) throw new LanguageException($"Function {FunctionName} does not receive parameters but your are supplying {Parameters.Count}", Line, Column, FunctionName.Length);
+
+            customFunctionDefinition = function;
+
+        }
     }
 
     public override string Generate(GeneratorOptions options)
     {
-        if (definition == null) throw new ArgumentNullException();
+        if (definition == null && customFunctionDefinition == null) throw new ArgumentNullException();
 
         StringBuilder sb = new();
         Dictionary<string, DataId> parameterDataIds = new();
@@ -134,8 +146,13 @@ public class BuiltinFunctionCall : Statement
             sb.AppendCommands(ParentScope, code);
             parameterDataIds.Add(definition.Parameters[i].Name, parameterId);
         }
-        sb.AppendCommands(ParentScope, definition.CodeGenerator.Invoke(options, parameterDataIds, Result!));
         
+        // Actual function code
+        if(definition != null)
+            sb.AppendCommands(ParentScope, definition.CodeGenerator.Invoke(options, parameterDataIds, Result!));
+        else
+            sb.AppendCommands(ParentScope, $"function {options.DatapackNamespace}:{customFunctionDefinition!.Name}");
+    
         // Free parameter values
         sb.AppendCommands(ParentScope, options.Comment("Freeing parameter values for function call.\n"));
         sb.AppendCommands(ParentScope, string.Join("\n", parameterDataIds.Values.Union(Parameters.Select(x => x.Result)).Select(x => x.FreeIfTemporary(options))));

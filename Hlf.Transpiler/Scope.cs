@@ -8,6 +8,7 @@ namespace Hlf.Transpiler;
 public partial class Scope
 {
     public Dictionary<string, DataId> Variables { get; } = new();
+    public Dictionary<string, CustomFunctionDefinition> FunctionDefinitions { get; } = new();
 
     public Scope? Parent
     {
@@ -28,6 +29,15 @@ public partial class Scope
         
         Parent?.TryGetVariable(name, out variable);
         return variable != null;
+    }
+    
+    public bool TryGetFunction(string name, [NotNullWhen(true)]out CustomFunctionDefinition? functionDefinition)
+    {
+        if (FunctionDefinitions.TryGetValue(name, out functionDefinition))
+            return true;
+        
+        Parent?.TryGetFunction(name, out functionDefinition);
+        return functionDefinition != null;
     }
 
     public DataId? AddVariable(string variableName, HlfType hlfType)

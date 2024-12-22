@@ -147,6 +147,32 @@ public class Parser
             stmt.ParentScope = scope;
         }
 
+        if (tokens.StartsWithSequence(TokenType.Identifier, TokenType.Identifier, TokenType.OpenParenthesis))
+        {
+            if (tokens.Peek().Content == "void") // TODO: Actually allow for return types
+            {
+                // Function definition
+                tokens.Pop();
+                string functionName = tokens.Pop().Content;
+                TokenList parameterTokens = tokens.PopBetweenParentheses(TokenType.OpenParenthesis, TokenType.CloseParenthesis);
+                
+                if(!tokens.StartsWith(TokenType.OpenBrace)) throw new LanguageException("Expected code block for function definition", tokens.Peek(-1));
+
+                TokenList blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
+                Scope functionScope = scope.NewChildScope();
+                List<Statement> block = ParseMultiple(ref blockTokens, functionScope);
+
+                FunctionDefinitionStatement statement = new()
+                {
+                    Name = functionName,
+                    Block = block,
+                    FunctionScope = functionScope,
+                };
+                InitStatement(statement);
+                return statement;
+            }
+            
+        }
         if (tokens.StartsWithSequence(TokenType.Identifier, TokenType.OpenParenthesis))
         {
             string identifier = tokens.Pop().Content; // Pop identifier
