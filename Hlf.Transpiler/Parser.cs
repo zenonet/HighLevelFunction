@@ -286,6 +286,15 @@ public class Parser
             return accessor;
         }
 
+        if (tokens.StartsWith(TokenType.PersistentComment))
+        {
+            PersistentComment comment = new()
+            {
+                Comment = tokens.Pop().Content,
+            };
+            InitStatement(comment);
+            return comment;
+        }
 
         throw new LanguageException("Invalid syntax.", tokens.Peek());
     }

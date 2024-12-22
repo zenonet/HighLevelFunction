@@ -18,7 +18,6 @@ public static class Lexer
         new RawTokenDefinition(TokenType.Plus, "+"),
         new RawTokenDefinition(TokenType.Minus, "-"),
         new RawTokenDefinition(TokenType.Asterisk, "*"),
-        new RawTokenDefinition(TokenType.Slash, "/"),
         
         new RawTokenDefinition(TokenType.Colon, ":"),
         new RawTokenDefinition(TokenType.Semicolon, ";"),
@@ -27,6 +26,9 @@ public static class Lexer
         new RegexTokenDefinition(TokenType.IntLiteral, @"-?\d+"),
         new RegexTokenDefinition(TokenType.StringLiteral, "\".*\""),
         new RegexTokenDefinition(TokenType.Identifier, @"\w+"),
+        new RegexTokenDefinition(TokenType.PersistentComment, @"\/#(.*)"),
+        
+        new RawTokenDefinition(TokenType.Slash, "/"),
     ];
 
     public static TokenList Lex(ReadOnlySpan<char> src)
@@ -41,7 +43,7 @@ public static class Lexer
             int skipped = 0;
             bool isSingleLineComment = false;
             int multiLineCommentDepth = 0;
-            while (skipped < src.Length && (isSingleLineComment || multiLineCommentDepth > 0 || char.IsWhiteSpace(src[skipped]) || (src[skipped] == '/' && src[skipped+1] is '/' or '*') || (src[skipped] is '*' && src[skipped+1] is '/')))
+            while (skipped < src.Length && (isSingleLineComment || multiLineCommentDepth > 0 || char.IsWhiteSpace(src[skipped]) || (src[skipped] == '/' && src[skipped + 1] is '/' or '*') || (src[skipped] is '*' && src[skipped+1] is '/')))
             {
 
                 state.Column++;

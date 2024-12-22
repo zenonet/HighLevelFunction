@@ -55,4 +55,5 @@ public enum TokenType
     Asterisk,
     Slash,
     Percent,
+    PersistentComment,
 }
