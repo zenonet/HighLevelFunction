@@ -16,7 +16,6 @@ public static class Lexer
         new RawTokenDefinition(TokenType.DoubleEquals, "=="),
         new RawTokenDefinition(TokenType.Equals, "="),
         new RawTokenDefinition(TokenType.Plus, "+"),
-        new RawTokenDefinition(TokenType.Minus, "-"),
         new RawTokenDefinition(TokenType.Asterisk, "*"),
         
         new RawTokenDefinition(TokenType.Colon, ":"),
@@ -28,6 +27,7 @@ public static class Lexer
         new RegexTokenDefinition(TokenType.Identifier, @"\w+"),
         new RegexTokenDefinition(TokenType.PersistentComment, @"\/#(.*)"),
         
+        new RawTokenDefinition(TokenType.Minus, "-"),
         new RawTokenDefinition(TokenType.Slash, "/"),
     ];
 
