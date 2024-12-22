@@ -84,6 +84,14 @@ public class BuiltinFunctionCall : Statement
             new("tag", HlfType.ConstString),
         ]),
         
+        new("summon", HlfType.Entity, (gen, parameters, resultId) =>
+        {
+            string tag = resultId.Generate(gen);
+            return $"summon {parameters["type"].Generate(gen)} 0 0 0 {{Tags:[\"{tag}\", \"{gen.OwnedEntityTag}\"]}}";
+        }, [
+            new("type", HlfType.ConstString),
+        ]),
+        
         new("kill", HlfType.Void, (gen, parameters, _) =>
         {
             return $"kill @e[tag={parameters["entity"].Generate(gen)}]";

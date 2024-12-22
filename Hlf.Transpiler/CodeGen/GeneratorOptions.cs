@@ -9,6 +9,7 @@ public struct GeneratorOptions()
     public string DatapackNamespace { get; set; } = "hlf";
     public string Scoreboard { get; set; } = "hlf";
     public string MarkerTag = "hlf_marker";
+    public string OwnedEntityTag = "hlf_owned_entity";
 
     public string BlockMemoryDimension = "minecraft:overworld";
     public Vector3Int BlockMemoryBasePosition = new(0, 120, 0);
