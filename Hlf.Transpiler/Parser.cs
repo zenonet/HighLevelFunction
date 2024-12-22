@@ -103,7 +103,7 @@ public class Parser
             if (tokens.StartsWith(TokenType.Equals))
             {
                 tokens.Pop();
-                Statement value = ParseStatementLvl1(ref tokens, scope);
+                Statement value = ParseStatementLvl3(ref tokens, scope);
                 statement = new MemberSetter
                 {
                     MemberName = identifier.Content,
@@ -123,6 +123,13 @@ public class Parser
                     Column = identifier.Column,
                 };
             }
+            
+            if(!path.IsEmpty)
+            {
+                if (!path.StartsWith(TokenType.Dot)) throw new LanguageException("Uh, what is happening? There is a member path parsing problem! Pls contact the developer!", statement.Line, statement.Column);
+                path.Pop();
+            }
+
         }
 
 
