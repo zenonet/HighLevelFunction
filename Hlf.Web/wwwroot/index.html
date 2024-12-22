@@ -20,7 +20,7 @@
                 ],
 
                 operators: [
-                    "==", '*'
+                    "==", '*', '+', '-', '/'
                 ],
 
                 // we include these common regular expressions
@@ -46,11 +46,6 @@
                         [/[<>](?!@symbols)/, '@brackets'],
                         [/@symbols/, { cases: { '@operators': 'operator',
                                 '@default'  : '' } } ],
-
-                        // @ annotations.
-                        // As an example, we emit a debugging log message on these tokens.
-                        // Note: message are supressed during the first load -- change some lines to see them.
-                        [/@\s*[a-zA-Z_\$][\w\$]*/, { token: 'annotation', log: 'annotation token: $0' }],
 
                         // numbers
                         [/-?(?:\.\d+|\d+\.\d+|\d+[fFdD])/, 'number.float'],
@@ -82,6 +77,7 @@
                         [/[ \t\r\n]+/, 'white'],
                         [/\/\*/,       'comment', '@comment' ],
                         [/\/\/.*$/,    'comment'],
+                        [/\/#.*$/,    'comment'],
                     ],
                 },
             };
@@ -91,10 +87,10 @@
         require(["vs/editor/editor.main"], () => {
             monaco.languages.register({ id: "hlf" });
             document.editorModel = monaco.editor.createModel(`
-Vector v = vec(-35, 63, -18);
+Vector v = Vector(-35, 63, -18);
 BlockType block = getBlock(v);
 
-Vector i = vec(-32, 63, -22);
+Vector i = Vector(-32, 63, -22);
 setBlock(i, block);
 say("Block placed!");
 `,
