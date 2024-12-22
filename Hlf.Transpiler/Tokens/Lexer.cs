@@ -14,6 +14,8 @@ public static class Lexer
         new RawTokenDefinition(TokenType.Comma, ","),
         new RawTokenDefinition(TokenType.Dot, "."),
         new RawTokenDefinition(TokenType.DoubleEquals, "=="),
+        new RawTokenDefinition(TokenType.GreaterThan, ">"),
+        new RawTokenDefinition(TokenType.LessThan, "<"),
         new RawTokenDefinition(TokenType.Equals, "="),
         new RawTokenDefinition(TokenType.Plus, "+"),
         new RawTokenDefinition(TokenType.Asterisk, "*"),
