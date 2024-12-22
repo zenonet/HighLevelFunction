@@ -39,7 +39,7 @@ public class VariableAssignment : Statement
         
         // Free values:
         sb.AppendCommands(ParentScope, dataId.FreeIfTemporary(options));
-        sb.AppendCommands(ParentScope, Expression.Result.FreeIfTemporary(options));
+        if(Expression.Result != dataId) sb.AppendCommands(ParentScope, Expression.Result.FreeIfTemporary(options));
         
         return sb.ToString();
     }
