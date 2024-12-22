@@ -100,7 +100,15 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
                     GetterGenerator = (gen, self, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag={self.Generate(gen)}, limit=1] Pos",
                     SetterGenerator = (gen, self, valueId) => $"data modify entity @e[tag={self.Generate(gen)}, limit=1] Pos set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
                 }
-            }
+            },
+            {
+                "Motion", new ()
+                {
+                    Type = Vector,
+                    GetterGenerator = (gen, self, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag={self.Generate(gen)}, limit=1] Motion",
+                    SetterGenerator = (gen, self, valueId) => $"data modify entity @e[tag={self.Generate(gen)}, limit=1] Motion set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
+                }
+            },
         };
     }
 
