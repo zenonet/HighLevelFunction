@@ -27,6 +27,11 @@ public class BuiltinFunctionCall : Statement
                 new("content", HlfType.Float),
             ]
         ),
+        new("say", HlfType.Void, (gen, parameters, _) => $"tellraw @a {{\"storage\":\"{gen.StorageNamespace}\", \"nbt\":\"{parameters["content"].Generate(gen)}\"}}",
+            [
+                new("content", HlfType.Vector),
+            ]
+        ),
         new("Vector", HlfType.Vector, (gen, parameters, resultId) => 
                 gen.Comment("Constructing a 3d vector from individual values\n") + 
                 $"data remove storage {gen.StorageNamespace} {resultId.Generate(gen)}\n" +
