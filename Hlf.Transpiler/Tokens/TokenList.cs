@@ -69,6 +69,33 @@ public class TokenList : IEnumerable<Token>
         Length -= between.Length+2;
         return between;
     }
+
+    public List<TokenList> Split(TokenType separator)
+    {
+        List<TokenList> tokenLists = new();
+        int startIndex = StartIndex;
+        for (int i = startIndex; i < StartIndex+Length; i++)
+        {
+            if (_Tokens[i].Type == separator)
+            {
+                tokenLists.Add(new ()
+                {
+                    _Tokens = _Tokens,
+                    StartIndex = startIndex,
+                    Length = i - startIndex,
+                });
+                startIndex = i + 1;
+            }
+        }
+        tokenLists.Add(new ()
+        {
+            _Tokens = _Tokens,
+            StartIndex = startIndex,
+            Length = EndIndex - startIndex,
+        });
+
+        return tokenLists;
+    }
     
 
     public IEnumerator<Token> GetEnumerator() => _Tokens[StartIndex..EndIndex].GetEnumerator();

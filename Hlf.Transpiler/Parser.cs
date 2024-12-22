@@ -13,7 +13,7 @@ public class Parser
     */
 
 
-    public Statement Parse(ref TokenList tokens, Scope scope)
+    public Statement Parse(TokenList tokens, Scope scope)
     {
         return ParseStatementLvl3(ref tokens, scope);
     }
@@ -194,7 +194,7 @@ public class Parser
                         if (betweenParentheses.IsEmpty) throw new LanguageException("Expected condition for if statement", tokens.Peek());
                         IfStatement ifStatement = new();
                         InitStatement(ifStatement);
-                        ifStatement.Condition = Parse(ref betweenParentheses, scope);
+                        ifStatement.Condition = Parse(betweenParentheses, scope);
                         ifStatement.IfClauseScope = scope.NewChildScope();
                         TokenList codeBlockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
                         ifStatement.Block = ParseMultiple(ref codeBlockTokens, ifStatement.IfClauseScope);
@@ -214,11 +214,28 @@ public class Parser
                         if (betweenParentheses.IsEmpty) throw new LanguageException("Expected condition for while statement", tokens.Peek());
                         WhileLoop whileLoop = new();
                         InitStatement(whileLoop);
-                        whileLoop.Condition = Parse(ref betweenParentheses, scope);
+                        whileLoop.Condition = Parse(betweenParentheses, scope);
                         whileLoop.LoopScope = scope.NewChildScope();
                         TokenList blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
                         whileLoop.Body = ParseMultiple(ref blockTokens, whileLoop.LoopScope);
                         return whileLoop;
+                    case "for":
+                        if (betweenParentheses.IsEmpty) throw new LanguageException("Expected condition for for statement", tokens.Peek());
+
+                        var headerSections = betweenParentheses.Split(TokenType.Semicolon);
+                        ForLoop forLoop = new();
+                        forLoop.HeaderScope = scope.NewChildScope();
+                        forLoop.LoopScope = forLoop.HeaderScope.NewChildScope();
+                        InitStatement(forLoop);
+
+                        if(!headerSections[0].IsEmpty) forLoop.InitStatement = Parse(headerSections[0], scope);
+                        if(!headerSections[1].IsEmpty) forLoop.Condition = Parse(headerSections[1], scope);
+                        if(!headerSections[2].IsEmpty) forLoop.Increment = Parse(headerSections[2], scope);
+
+                        forLoop.LoopScope = scope.NewChildScope();
+                        blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
+                        forLoop.Block = ParseMultiple(ref blockTokens, forLoop.LoopScope);
+                        return forLoop;
                 }
             }
             else
@@ -230,7 +247,7 @@ public class Parser
                 List<Statement> parameterStatements = new();
                 while (betweenParentheses.Length > 0)
                 {
-                    Statement param = Parse(ref betweenParentheses, scope);
+                    Statement param = Parse(betweenParentheses, scope);
                     parameterStatements.Add(param);
                     if (betweenParentheses.StartsWith(TokenType.Comma))
                     {
@@ -260,7 +277,7 @@ public class Parser
                 tokens.Pop();
                 VariableAssignment assignment = new();
                 InitStatement(assignment);
-                assignment.Expression = Parse(ref tokens, scope);
+                assignment.Expression = Parse(tokens, scope);
                 assignment.VariableName = declaration.VariableName;
                 declaration.Assignment = assignment;
             }
@@ -275,14 +292,14 @@ public class Parser
             InitStatement(assignment);
             assignment.VariableName = tokens.Pop().Content;
             tokens.Pop(); // Equals
-            assignment.Expression = Parse(ref tokens, scope);
+            assignment.Expression = Parse(tokens, scope);
             return assignment;
         }
 
         if (tokens.StartsWith(TokenType.OpenParenthesis))
         {
             TokenList betweenParentheses = tokens.PopBetweenParentheses(TokenType.OpenParenthesis, TokenType.CloseParenthesis);
-            return Parse(ref betweenParentheses, scope);
+            return Parse(betweenParentheses, scope);
         }
         
         #region Value literals
@@ -338,7 +355,7 @@ public class Parser
         while (tokens.Length > 0)
         {
             Token t = tokens.Peek();
-            Statement statement = Parse(ref tokens, scope);
+            Statement statement = Parse(tokens, scope);
             statements.Add(statement);
             if (statement.NeedsSemicolon)
             {
