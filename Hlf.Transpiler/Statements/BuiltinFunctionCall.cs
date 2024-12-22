@@ -45,6 +45,13 @@ public class BuiltinFunctionCall : Statement
             ]
         ),
         
+        new("int", HlfType.Int, (gen, parameters, resultId) => 
+                $"{gen.Convert(parameters["x"].Generate(gen), resultId.Generate(gen), "int")}",
+            [
+                new("x", HlfType.Float),
+            ]
+        ),
+        
         new("setBlock", HlfType.Void, (gen, parameters, _) => 
                 gen.Comment("Placing a block\n") +
                 $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_setblock\"]}}\n" +
