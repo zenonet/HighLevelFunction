@@ -70,7 +70,6 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
             {
                 "x", new()
                 {
-                    Name = "x",
                     Type = Float,
                     GetterGenerator = (gen, value, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from storage {gen.StorageNamespace} {value.Generate(gen)}[0]",
                     SetterGenerator = (gen, value, valueId) => $"data modify storage {gen.StorageNamespace} {value.Generate(gen)}[0] set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
@@ -78,7 +77,6 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
             },            {
                 "y", new()
                 {
-                    Name = "x",
                     Type = Float,
                     GetterGenerator = (gen, value, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from storage {gen.StorageNamespace} {value.Generate(gen)}[1]",
                     SetterGenerator = (gen, value, valueId) => $"data modify storage {gen.StorageNamespace} {value.Generate(gen)}[1] set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
@@ -86,12 +84,23 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
             },            {
                 "z", new()
                 {
-                    Name = "x",
                     Type = Float,
                     GetterGenerator = (gen, value, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from storage {gen.StorageNamespace} {value.Generate(gen)}[2]",
                     SetterGenerator = (gen, value, valueId) => $"data modify storage {gen.StorageNamespace} {value.Generate(gen)}[2] set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
                 }
             },
+        };
+        
+        Entity.Members = new()
+        {
+            {
+                "Position", new ()
+                {
+                    Type = Vector,
+                    GetterGenerator = (gen, self, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag={self.Generate(gen)}, limit=1] Pos",
+                    SetterGenerator = (gen, self, valueId) => $"data modify entity @e[tag={self.Generate(gen)}, limit=1] Pos set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
+                }
+            }
         };
     }
 

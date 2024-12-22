@@ -4,7 +4,7 @@ namespace Hlf.Transpiler.Values;
 
 public class Member
 {
-    public required string Name;
+    /*public required string Name;*/
     public required HlfType Type;
 
     public required GetterGenerator GetterGenerator;
