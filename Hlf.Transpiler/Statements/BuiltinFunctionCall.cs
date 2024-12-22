@@ -98,6 +98,11 @@ public class BuiltinFunctionCall : Statement
         }, [
             new("entity", HlfType.Entity),
         ]),
+        
+        new("killOwned", HlfType.Void, (gen, _, _) =>
+        {
+            return $"execute as @e[tag={gen.OwnedEntityTag}] run data modify entity @s Health set value 0";
+        }),
     ];
 
     private BuiltinFunctionDefinition? definition;
