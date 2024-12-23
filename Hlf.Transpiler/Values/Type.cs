@@ -183,7 +183,7 @@ public static class OperationImplementations
                $"{gen.ScoreboardOpIntoA("a", "b", mcOperator)}\n" +
                $"{gen.CopyScoreToData("a", result.Generate(gen))}");
     
-    public static OperationDefinition IntCompOperation(TokenType hlfOperator, string mcOperator) => new(hlfOperator, HlfType.Int, HlfType.Int, (gen, a, b, result) =>
+    public static OperationDefinition IntCompOperation(TokenType hlfOperator, string mcOperator) => new(hlfOperator, HlfType.Bool, HlfType.Int, (gen, a, b, result) =>
             gen.Comment("Comaring 2 ints via scoreboard\n") +
                    $"{gen.CopyDataToScoreboard(a.Generate(gen), "a")}\n" +
                    $"{gen.CopyDataToScoreboard(b.Generate(gen), "b")}\n" +
