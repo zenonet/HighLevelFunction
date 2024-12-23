@@ -64,7 +64,7 @@ public static class Lexer
                     else isSingleLineComment = true;
                 }
 
-                if (multiLineCommentDepth > 0 && c == '*')
+                if (multiLineCommentDepth > 0 && c == '*' && src[skipped] == '/')
                 {
                     multiLineCommentDepth--;
                     skipped++;
