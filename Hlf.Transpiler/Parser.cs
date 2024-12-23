@@ -215,7 +215,7 @@ public class Parser
                         WhileLoop whileLoop = new();
                         InitStatement(whileLoop);
                         whileLoop.Condition = Parse(betweenParentheses, scope);
-                        whileLoop.LoopScope = scope.NewChildScope();
+                        whileLoop.LoopScope = scope.NewChildScope(ScopeType.Loop);
                         TokenList blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
                         whileLoop.Body = ParseMultiple(ref blockTokens, whileLoop.LoopScope);
                         return whileLoop;
@@ -225,7 +225,7 @@ public class Parser
                         var headerSections = betweenParentheses.Split(TokenType.Semicolon);
                         ForLoop forLoop = new();
                         forLoop.HeaderScope = scope.NewChildScope();
-                        forLoop.LoopScope = forLoop.HeaderScope.NewChildScope();
+                        forLoop.LoopScope = forLoop.HeaderScope.NewChildScope(ScopeType.Loop);
                         InitStatement(forLoop);
 
                         if(!headerSections[0].IsEmpty) forLoop.InitStatement = Parse(headerSections[0], scope);
@@ -310,7 +310,7 @@ public class Parser
                 accessor.VariableName = assignment.VariableName;
                 
                 Statement expression = Parse(tokens, scope);
-                Operation operation = new Operation()
+                Operation operation = new()
                 {
                     A = accessor,
                     B = expression,

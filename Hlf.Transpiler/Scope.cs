@@ -20,6 +20,8 @@ public partial class Scope
         }
     }
 
+    public ScopeType Type = ScopeType.Default;
+
     public int Depth { get; set; }
     
     public bool TryGetVariable(string name, [NotNullWhen(true)]out DataId? variable)
@@ -71,8 +73,15 @@ public partial class Scope
     [GeneratedRegex(@"^\w.*", RegexOptions.Multiline)]
     private static partial Regex CommandPrefixRegex();
 
-    public Scope NewChildScope()
+    public Scope NewChildScope(ScopeType type = default)
     {
-        return new() {Parent = this};
+        return new() {Parent = this, Type = type};
     }
+}
+
+public enum ScopeType
+{
+    Default,
+    Loop,
+    Function,
 }
