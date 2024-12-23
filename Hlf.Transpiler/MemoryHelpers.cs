@@ -8,6 +8,10 @@ public static class MemoryHelpers
     {
         return $"execute store result score {scoreboardName} {gen.Scoreboard} run data get storage {gen.StorageNamespace} {dataPath} {scale}";
     }
+    public static string CopyDataToData(this GeneratorOptions gen, string dataPath, string destDataPath)
+    {
+        return $"data modify storage {gen.StorageNamespace} {destDataPath} set from storage {gen.StorageNamespace} {dataPath}";
+    }
     
     public static string CopyScoreToData(this GeneratorOptions gen, string scoreboardName, string dataPath, int scale = 1, string type = "int")
     {

@@ -320,7 +320,16 @@ public class Parser
                 assignment.Expression = operation;
                 return assignment;
             }
-            
+
+            if (tokens.StartsWithSequence(TokenType.Identifier, TokenType.Plus, TokenType.Plus) || tokens.StartsWithSequence(TokenType.Identifier, TokenType.Minus, TokenType.Minus))
+            {
+                // Increment stuff
+                VariableAccessor accessor = new();
+                InitStatement(accessor);
+                accessor.VariableName = tokens.Pop().Content;
+                accessor.Increment = (sbyte) (tokens.Pop().Type == TokenType.Plus ? 1 : -1);
+                return accessor;
+            }
         }
 
         if (tokens.StartsWith(TokenType.OpenParenthesis))
