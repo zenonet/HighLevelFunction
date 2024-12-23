@@ -1,4 +1,6 @@
-﻿namespace Hlf.Transpiler.CodeGen;
+﻿using Hlf.Transpiler.DatapackGen;
+
+namespace Hlf.Transpiler.CodeGen;
 
 public struct GeneratorOptions()
 {
@@ -13,6 +15,8 @@ public struct GeneratorOptions()
 
     public string BlockMemoryDimension = "minecraft:overworld";
     public Vector3Int BlockMemoryBasePosition = new(0, 120, 0);
+
+    internal List<Function> ExtraFunctionsToGenerate { get; set; } = new();
 
     public string Comment(string comment) => GenerateComments ? $"# {comment}" : "";
 }

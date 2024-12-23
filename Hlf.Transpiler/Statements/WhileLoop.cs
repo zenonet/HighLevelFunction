@@ -42,9 +42,7 @@ public class WhileLoop : Statement
             SourceCode = sb.ToString(),
         };
         
-        base.ExtraFunctionsToGenerate = [
-            loopFunction,
-        ];
+        gen.ExtraFunctionsToGenerate.Add(loopFunction);
 
         sb = new();
         sb.AppendCommands(ParentScope, conditionEvalCode);

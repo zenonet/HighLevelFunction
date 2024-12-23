@@ -52,10 +52,8 @@ public class ForLoop : Statement
             Name = funcName,
             SourceCode = sb.ToString(),
         };
-        
-        base.ExtraFunctionsToGenerate = [
-            loopFunction,
-        ];
+
+        gen.ExtraFunctionsToGenerate.Add(loopFunction);
 
         sb = new();
         if(InitStatement != null) sb.AppendCommands(HeaderScope, InitStatement.Generate(gen));

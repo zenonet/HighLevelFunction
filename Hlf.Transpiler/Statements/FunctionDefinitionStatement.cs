@@ -29,9 +29,7 @@ public class FunctionDefinitionStatement : Statement
     {
         StringBuilder sb = new();
         Block.ForEach(x => sb.AppendCommands(FunctionScope, x.Generate(gen)));
-        ExtraFunctionsToGenerate = [
-            new(Name, sb.ToString()),
-        ];
+        gen.ExtraFunctionsToGenerate.Add(new(Name, sb.ToString()));
         return "";
     }
 }

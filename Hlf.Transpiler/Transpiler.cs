@@ -37,15 +37,19 @@ public class Transpiler
             sb.AppendCommands(rootScope, s.Generate(options));
         }
         // Free all data in root scope
-        sb.AppendCommands(rootScope, rootScope.GenerateScopeDeallocation(options));
+        //sb.AppendCommands(rootScope, rootScope.GenerateScopeDeallocation(options));
         
         // Create extra functions for statements
-        var extraFunctions = statements.Select(x => x.ExtraFunctionsToGenerate).OfType<Function[]>().SelectMany(x => x).Distinct();
-        datapack.Functions.AddRange(extraFunctions);
 
+        datapack.Functions.AddRange(options.ExtraFunctionsToGenerate);
         var loadFunction = new Function("load", sb.ToString());
         datapack.Functions.Add(loadFunction);
         datapack.OnLoadFunction = loadFunction;
+        
+        var tickFunction = options.ExtraFunctionsToGenerate.FirstOrDefault(x => x.Name == "tick");
+        if (tickFunction != null) datapack.OnTickFunction = tickFunction;
+
+        Console.WriteLine($"Variable translation table in root scope: {string.Join(", ", rootScope.Variables.Select(x => $"{x.Key} -> {x.Value.Generate(options)}"))}");
         
         return datapack;
     }
