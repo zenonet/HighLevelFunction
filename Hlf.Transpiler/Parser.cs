@@ -383,6 +383,7 @@ public class Parser
         {
             Token t = tokens.Peek();
             Statement statement = Parse(tokens, scope);
+            statement.IsReturnValueNeeded = false;
             statements.Add(statement);
             if (statement.NeedsSemicolon)
             {
