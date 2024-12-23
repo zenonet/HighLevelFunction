@@ -285,14 +285,42 @@ public class Parser
         }
 
         // Variable assignment
-        if (tokens.StartsWithSequence(TokenType.Identifier, TokenType.Equals))
+        if (tokens.StartsWith(TokenType.Identifier) && tokens.Length > 1)
         {
-            VariableAssignment assignment = new();
-            InitStatement(assignment);
-            assignment.VariableName = tokens.Pop().Content;
-            tokens.Pop(); // Equals
-            assignment.Expression = Parse(tokens, scope);
-            return assignment;
+            if (tokens.Peek(1).Type == TokenType.Equals)
+            {
+                VariableAssignment assignment = new();
+                InitStatement(assignment);
+                assignment.VariableName = tokens.Pop().Content;
+                tokens.Pop(); // Equals
+                assignment.Expression = Parse(tokens, scope);
+                return assignment;
+            }
+
+            if (tokens.Length > 2 && Token.IsOperatorToken(tokens.Peek(1).Type) && tokens.Peek(2).Type == TokenType.Equals)
+            {
+                VariableAssignment assignment = new();
+                InitStatement(assignment);
+                assignment.VariableName = tokens.Pop().Content;
+                Token operatorToken = tokens.Pop();
+                tokens.Pop(); // Equals
+                
+                VariableAccessor accessor = new();
+                InitStatement(accessor);
+                accessor.VariableName = assignment.VariableName;
+                
+                Statement expression = Parse(tokens, scope);
+                Operation operation = new Operation()
+                {
+                    A = accessor,
+                    B = expression,
+                    Op = operatorToken,
+                };
+                InitStatement(operation);
+                assignment.Expression = operation;
+                return assignment;
+            }
+            
         }
 
         if (tokens.StartsWith(TokenType.OpenParenthesis))
