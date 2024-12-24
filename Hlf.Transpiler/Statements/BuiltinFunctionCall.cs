@@ -110,6 +110,28 @@ public class BuiltinFunctionCall : Statement
         {
             return $"execute as @e[tag={gen.OwnedEntityTag}] run data modify entity @s Health set value 0";
         }),
+
+        #region Mathematics
+
+                
+        new("sin", HlfType.Float, (gen, parameters, resultId) => 
+                $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
+                $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[0]\n" +
+                $"kill @e[tag={gen.MarkerTag}, tag=hlf_sin_calc]",
+            [
+                new("x", HlfType.Int),
+            ]
+        ),
+        new("cos", HlfType.Float, (gen, parameters, resultId) => 
+                $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
+                $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[2]\n" +
+                $"kill @e[tag={gen.MarkerTag}, tag=hlf_sin_calc]",
+            [
+                new("x", HlfType.Int),
+            ]
+        ),
+
+        #endregion
     ];
 
     private BuiltinFunctionDefinition? definition;
