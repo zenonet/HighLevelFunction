@@ -62,7 +62,8 @@ public partial class Scope
     public string GenerateScopeDeallocation(GeneratorOptions gen)
     {
         StringBuilder sb = new();
-        sb.AppendLine($"# Scope deallocation for scope at depth {Depth}");
+        if(Variables.Count > 0)
+            sb.AppendLine(gen.Comment($"# Scope deallocation for scope at depth {Depth}"));
         foreach ((string name, DataId variable) in Variables)
         {
             sb.AppendCommands(this, variable.Free(gen));
