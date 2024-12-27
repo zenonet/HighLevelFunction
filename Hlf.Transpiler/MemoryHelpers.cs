@@ -4,7 +4,7 @@ namespace Hlf.Transpiler;
 
 public static class MemoryHelpers
 {
-    public static string CopyDataToScoreboard(this GeneratorOptions gen, string dataPath, string scoreboardName, int scale = 1)
+    public static string CopyDataToScoreboard(this GeneratorOptions gen, string dataPath, string scoreboardName, string scale = "1")
     {
         return $"execute store result score {scoreboardName} {gen.Scoreboard} run data get storage {gen.StorageNamespace} {dataPath} {scale}";
     }
@@ -13,7 +13,7 @@ public static class MemoryHelpers
         return $"data modify storage {gen.StorageNamespace} {destDataPath} set from storage {gen.StorageNamespace} {dataPath}";
     }
     
-    public static string CopyScoreToData(this GeneratorOptions gen, string scoreboardName, string dataPath, int scale = 1, string type = "int")
+    public static string CopyScoreToData(this GeneratorOptions gen, string scoreboardName, string dataPath, string scale = "1", string type = "int")
     {
         return $"execute store result storage {gen.StorageNamespace} {dataPath} {type} {scale} run scoreboard players get {scoreboardName} {gen.Scoreboard}";
     }

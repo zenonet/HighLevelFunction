@@ -133,6 +133,13 @@ public class BuiltinFunctionCall : Statement
 
         #endregion
     ];
+    
+    private static string CalculateSinAndCos(GeneratorOptions gen, string inputVariable) => $"{gen.CopyDataToScoreboard(inputVariable, "dtf", "-10000000")}\n" +
+                                                                                            $"{gen.CopyScoreToData("dtf", "sin_input", "0.0000001", "float")}\n" +
+                                                                                            $"summon armor_stand 0 63 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_sin_calc\"]}}\n" +
+                                                                                            $"data modify entity @e[tag=hlf_sin_calc, limit=1] Pos set value [0d,0d,0d]\n" +
+                                                                                            $"data modify entity @e[tag=hlf_sin_calc, limit=1] Rotation[0] set from storage {gen.StorageNamespace} sin_input\n" +
+                                                                                            $"execute as @e[tag=hlf_sin_calc] at @s run tp @s ^ ^ ^1";
 
     private BuiltinFunctionDefinition? definition;
     private CustomFunctionDefinition? customFunctionDefinition;
