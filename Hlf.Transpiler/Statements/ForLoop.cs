@@ -4,13 +4,11 @@ using Hlf.Transpiler.DatapackGen;
 
 namespace Hlf.Transpiler;
 
-public class ForLoop : Statement
+public class ForLoop : Loop
 {
-    public List<Statement> Block;
     public Statement? InitStatement;
     public Statement? Condition;
     public Statement? Increment;
-    public Scope LoopScope;
     public Scope HeaderScope;
     
     public override bool NeedsSemicolon => false;
@@ -37,6 +35,7 @@ public class ForLoop : Statement
         string conditionEvalCode = Condition.Generate(gen) + "\n" + conditionConversionCode;
         string conditionalFuncCallCode = $"execute if data storage {gen.StorageNamespace} {{{conditionVal.Generate(gen)}:1b}} run function {gen.DatapackNamespace}:{funcName}";
         
+        sb.AppendCommands(ParentScope, PrepareGenForControlFlow(gen));
         sb.AppendCommands(LoopScope, string.Join('\n', Block.Select(x => x.Generate(gen))));
         if (Increment != null)
         {

@@ -21,6 +21,7 @@ public partial class Scope
     }
 
     public ScopeType Type = ScopeType.Default;
+    public Loop? ClosestLoop;
 
     public int Depth { get; set; }
     
@@ -75,7 +76,7 @@ public partial class Scope
 
     public Scope NewChildScope(ScopeType type = default)
     {
-        return new() {Parent = this, Type = type};
+        return new() {Parent = this, Type = type, ClosestLoop = ClosestLoop};
     }
 }
 

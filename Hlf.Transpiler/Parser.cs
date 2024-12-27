@@ -216,8 +216,9 @@ public class Parser
                         InitStatement(whileLoop);
                         whileLoop.Condition = Parse(betweenParentheses, scope);
                         whileLoop.LoopScope = scope.NewChildScope(ScopeType.Loop);
+                        whileLoop.LoopScope.ClosestLoop = whileLoop;
                         TokenList blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
-                        whileLoop.Body = ParseMultiple(ref blockTokens, whileLoop.LoopScope);
+                        whileLoop.Block = ParseMultiple(ref blockTokens, whileLoop.LoopScope);
                         return whileLoop;
                     case "for":
                         if (betweenParentheses.IsEmpty) throw new LanguageException("Expected condition for for statement", tokens.Peek());
@@ -226,6 +227,7 @@ public class Parser
                         ForLoop forLoop = new();
                         forLoop.HeaderScope = scope.NewChildScope();
                         forLoop.LoopScope = forLoop.HeaderScope.NewChildScope(ScopeType.Loop);
+                        forLoop.LoopScope.ClosestLoop = forLoop;
                         InitStatement(forLoop);
 
                         if(!headerSections[0].IsEmpty) forLoop.InitStatement = Parse(headerSections[0], scope);
@@ -366,6 +368,14 @@ public class Parser
         // Variable accessor
         if (tokens.StartsWith(TokenType.Identifier))
         {
+            if (tokens.Peek().Content == "break")
+            {
+                tokens.Pop();
+                BreakStatement breakStatement = new();
+                InitStatement(breakStatement);
+                return breakStatement;
+            }
+            
             VariableAccessor accessor = new();
             InitStatement(accessor);
             accessor.VariableName = tokens.Pop().Content;
