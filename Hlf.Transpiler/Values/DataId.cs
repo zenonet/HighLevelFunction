@@ -40,6 +40,7 @@ public abstract class DataId
 
         if (Type.TryGenerateImplicitConversion(options, targetType, this, out code, out DataId newId))
         {
+            code += $"\n{this.FreeIfTemporary(options)}";
             return newId;
         }
 
