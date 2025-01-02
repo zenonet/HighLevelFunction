@@ -23,10 +23,11 @@ public class Operation : Statement
     public override string Generate(GeneratorOptions gen)
     {
         StringBuilder sb = new();
-        sb.AppendCommands(ParentScope, A.Generate(gen));
-        sb.AppendCommands(ParentScope, B.Generate(gen));
-
-        sb.AppendCommands(ParentScope, definition!.Generator.Invoke(gen, A.Result!, B.Result!, Result!));
+        sb.SmartAppendL(A.Generate(gen));
+        sb.SmartAppendL(B.Generate(gen));
+        sb.SmartAppendL(definition!.Generator.Invoke(gen, A.Result, B.Result, Result));
+        sb.SmartAppendL(A.Result.FreeIfTemporary(gen));
+        sb.SmartAppendL(B.Result.FreeIfTemporary(gen));
         return sb.ToString();
     }
 }

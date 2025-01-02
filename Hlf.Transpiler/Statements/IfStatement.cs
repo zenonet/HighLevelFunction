@@ -40,6 +40,7 @@ public class IfStatement : Statement
             ElseBlock.ForEach(x => sb.AppendCommands(ElseClauseScope, x.Generate(gen)));
             sb.AppendCommands(ParentScope, ElseClauseScope.GenerateScopeDeallocation(gen));
         }
+        // TODO: FIX THIS DEALLOCATION BEING SKIPPED BY BREAK STATEMENT
         sb.AppendCommands(ParentScope, condition.FreeIfTemporary(gen));
         
 

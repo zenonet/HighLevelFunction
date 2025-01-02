@@ -22,30 +22,46 @@ public class WhileLoop : Loop
     private static int loopCounter = 0;
     public override string Generate(GeneratorOptions gen)
     {
-        StringBuilder sb = new();
 
         string funcName = $"while{loopCounter++}";
         
-        DataId conditionVal = Condition.Result!.ConvertImplicitly(gen, HlfType.Bool, out string conditionConversionCode);
+        DataId conditionVal = Condition.Result.ConvertImplicitly(gen, HlfType.Bool, out string conditionConversionCode);
         string conditionEvalCode = Condition.Generate(gen) + "\n" + conditionConversionCode;
         string conditionalFuncCallCode = $"execute if data storage {gen.StorageNamespace} {{{conditionVal.Generate(gen)}:1b}} run function {gen.DatapackNamespace}:{funcName}";
         
-        sb.AppendCommands(ParentScope, PrepareGenForControlFlow(gen)); // This HAS TO be in parent scope, otherwise it will be skipped as if a break was hit
-        sb.AppendCommands(LoopScope, string.Join('\n', Block.Select(x => x.Generate(gen))));
-        sb.AppendCommands(LoopScope, conditionEvalCode);
-        sb.AppendCommands(LoopScope, conditionalFuncCallCode); // Recursive call in loop here
+        StringBuilder startupSb = new();
+        startupSb.SmartAppendL(PrepareGenForControlFlow(gen));
+        startupSb.SmartAppendL(conditionEvalCode);
+        startupSb.SmartAppendL(conditionalFuncCallCode);
+        
+        StringBuilder endSb = new();
+        endSb.AppendLine(gen.Comment($"Cleaning up after while loop in line {Line}"));
+        endSb.SmartAppendL(LoopScope.GenerateScopeDeallocation(gen));
+        endSb.SmartAppendL(conditionVal.FreeIfTemporary(gen));
+        if(ControlFlowDataId != null) endSb.SmartAppendL(ControlFlowDataId.Free(gen));
+        
+        StringBuilder loopSb = new();
+        loopSb.AppendCommands(LoopScope, string.Join('\n', Block.Select(x => x.Generate(gen))));
+        loopSb.AppendCommands(LoopScope, conditionEvalCode);
+        loopSb.AppendCommands(LoopScope, conditionalFuncCallCode); // Recursive call in loop here
+        
+        // Finish loop execution cleanly by running cleanup if condition is no longer met
+        loopSb.AppendWithPrefix($"execute unless data storage {gen.StorageNamespace} {{{conditionVal.Generate(gen)}:1b}} run", endSb.ToString());
+        if(ControlFlowDataId != null)
+        {
+            // Also run cleanup when the loop was stopped by a break statement
+            loopSb.AppendWithPrefix($"execute if data storage {gen.StorageNamespace} {{{ControlFlowDataId.Generate(gen)}:1b}} run", endSb.ToString());
+        }
 
         Function loopFunction = new()
         {
             Name = funcName,
-            SourceCode = sb.ToString(),
+            SourceCode = loopSb.ToString(),
         };
         
         gen.ExtraFunctionsToGenerate.Add(loopFunction);
 
-        sb = new();
-        sb.AppendCommands(ParentScope, conditionEvalCode);
-        sb.AppendCommands(ParentScope, conditionalFuncCallCode);
-        return sb.ToString();
+
+        return startupSb.ToString();
     }
 }

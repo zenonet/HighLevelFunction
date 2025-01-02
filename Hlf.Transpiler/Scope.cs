@@ -1,11 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Text.RegularExpressions;
 using Hlf.Transpiler.CodeGen;
 
 namespace Hlf.Transpiler;
 
-public partial class Scope
+public class Scope
 {
     public Dictionary<string, DataId> Variables { get; } = new();
     public Dictionary<string, CustomFunctionDefinition> FunctionDefinitions { get; } = new();
@@ -55,7 +54,7 @@ public partial class Scope
     public string ApplyScopedPrefixes(string commands)
     {
         if(ConditionPrefix.Length > 0)
-            return CommandPrefixRegex().Replace(commands, $"{ConditionPrefix} $&");
+            return Utils.CommandPrefixRegex().Replace(commands, $"{ConditionPrefix} $&");
         return commands;
     }
 
@@ -71,9 +70,7 @@ public partial class Scope
         return sb.ToString();
     }
 
-
-    [GeneratedRegex(@"^\w.*", RegexOptions.Multiline)]
-    private static partial Regex CommandPrefixRegex();
+    
 
     public Scope NewChildScope(ScopeType type = default)
     {

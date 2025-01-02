@@ -34,6 +34,10 @@ public class Transpiler
         
         foreach (Statement s in statements)
         {
+            if (s is not VariableDeclaration and not FunctionDefinitionStatement)
+            {
+                throw new LanguageException("Only variable declarations and function definitions are allowed as top-level statements!", s.Line, s.Column);
+            }
             sb.AppendCommands(rootScope, s.Generate(options));
         }
         // Free all data in root scope
@@ -42,12 +46,21 @@ public class Transpiler
         // Create extra functions for statements
 
         datapack.Functions.AddRange(options.ExtraFunctionsToGenerate);
-        var loadFunction = new Function("load", sb.ToString());
-        datapack.Functions.Add(loadFunction);
-        datapack.OnLoadFunction = loadFunction;
+        
+        var loadFunction = options.ExtraFunctionsToGenerate.FirstOrDefault(x => x.Name is "main" or "load");
+        if (loadFunction != null)
+        {
+            sb.Append(loadFunction.SourceCode);
+            datapack.Functions.Remove(loadFunction);
+        }
+
+        var combinedLoadFunction = new Function("load", sb.ToString());
+        datapack.Functions.Add(combinedLoadFunction);
+        datapack.OnLoadFunction = combinedLoadFunction;
         
         var tickFunction = options.ExtraFunctionsToGenerate.FirstOrDefault(x => x.Name == "tick");
         if (tickFunction != null) datapack.OnTickFunction = tickFunction;
+        
 
         Console.WriteLine($"Variable translation table in root scope: {string.Join(", ", rootScope.Variables.Select(x => $"{x.Key} -> {x.Value.Generate(options)}"))}");
         
