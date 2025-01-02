@@ -25,6 +25,8 @@ public static class Lexer
         new RawTokenDefinition(TokenType.Colon, ":"),
         new RawTokenDefinition(TokenType.Semicolon, ";"),
         
+        new SelectorTokenDefinition(),
+        
         new RegexTokenDefinition(TokenType.FloatLiteral, @"(-?(?:\.\d+|\d+\.\d+|\d+))(?:[fFdD])"),
         new RegexTokenDefinition(TokenType.IntLiteral, @"-?\d+"),
         new RegexTokenDefinition(TokenType.StringLiteral, "\".*\""),
@@ -32,7 +34,6 @@ public static class Lexer
         new RegexTokenDefinition(TokenType.PersistentComment, @"\/#(.*)"),
         
         new RawTokenDefinition(TokenType.Minus, "-"),
-        new RawTokenDefinition(TokenType.Slash, "/"),
     ];
 
     public static TokenList Lex(ReadOnlySpan<char> src)
@@ -164,6 +165,58 @@ public static class Lexer
 
             state.Source = state.Source[match.Length..];
             state.Column += match.Length;
+            return true;
+        }
+    }
+
+    private class SelectorTokenDefinition : ITokenDefinition
+    {
+        public bool TryInterpret(ref LexerState state, [NotNullWhen(true)] out Token? token)
+        {
+            if (!state.Source.StartsWith('@'))
+            {
+                token = null;
+                return false;
+            }
+            if(!"aenprs".Contains(state.Source[1])) throw new LanguageException("Invalid selector: Expected a, e, n, p, r or s after @", state.Line, state.Column);
+            int offset = 2;
+            if (state.Source[2] == '[')
+            {
+                offset++;
+                int opened = 1;
+                for (;offset < state.Source.Length && opened != 0;offset++)
+                {
+                    if (state.Source[offset] == '\n') throw new LanguageException("Invalid syntax at selector", state.Line, state.Column);
+                    if(state.Source[offset] == '[') opened++;
+                    if(state.Source[offset] == ']') opened--;
+                }
+
+                if (opened == 0)
+                {
+                    token = new()
+                    {
+                        Line = state.Line,
+                        Column = state.Column,
+                        Type = TokenType.Selector,
+                        Content = state.Source[..(offset)],
+                    };
+                    state.Column += offset;
+                    state.Source = state.Source[offset..];
+                    return true;
+                }
+
+                throw new LanguageException("Invalid syntax at selector", state.Line, state.Column);
+            }
+
+            token = new()
+            {
+                Line = state.Line,
+                Column = state.Column,
+                Type = TokenType.Selector,
+                Content = state.Source[..offset],
+            };
+            state.Column += offset;
+            state.Source = state.Source[offset..];
             return true;
         }
     }

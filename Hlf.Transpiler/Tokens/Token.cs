@@ -46,6 +46,7 @@ public enum TokenType
     CloseBrace,
     OpenBracket,
     CloseBracket,
+    Selector,
     
     Comma,
     Semicolon,

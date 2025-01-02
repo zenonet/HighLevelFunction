@@ -365,6 +365,16 @@ public class Parser
         }
 
         #endregion
+        
+        // Selector
+        if (tokens.StartsWith(TokenType.Selector))
+        {
+            Token token = tokens.Pop();
+            SelectorExpression selector = new();
+            InitStatement(selector);
+            selector.Selector = token.Content;
+            return selector;
+        }
 
         // Variable accessor
         if (tokens.StartsWith(TokenType.Identifier))
