@@ -51,7 +51,7 @@ public class Transpiler
             string processedCode = PostProcessCode(code, options);
             if(name is "main" or "load")
             {
-                sb.Append(processedCode);
+                sb.Append('\n' + processedCode);
                 continue;
             }
             
