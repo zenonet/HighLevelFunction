@@ -280,6 +280,7 @@ public class Parser
                 InitStatement(assignment);
                 assignment.Expression = Parse(tokens, scope);
                 assignment.VariableName = declaration.VariableName;
+                assignment.IsInitialization = true;
                 declaration.Assignment = assignment;
             }
 

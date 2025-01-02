@@ -42,7 +42,7 @@ public class Scope
         return functionDefinition != null;
     }
 
-    public DataId? AddVariable(string variableName, HlfType hlfType)
+    public DataId AddVariable(string variableName, HlfType hlfType)
     {
         DataId dataId = hlfType.NewDataId();
         dataId.IsVariable = true;

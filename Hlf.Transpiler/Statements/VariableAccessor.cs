@@ -12,6 +12,7 @@ public class VariableAccessor : Statement
     {
         if (ParentScope.TryGetVariable(VariableName, out DataId? dataId))
         {
+            if (Increment != null && dataId.IsImmutable) throw new LanguageException($"Immutable variable '{VariableName}' cannot be {(Increment > 0 ? "in" : "de")}cremented", Line, Column);
             if (Increment != 0 && dataId.Type != HlfType.Int) throw new LanguageException("Increment/Decrement expression can only be used on variables of type int", Line, Column, VariableName.Length);
 
             this.dataId = dataId;

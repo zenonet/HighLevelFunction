@@ -6,6 +6,7 @@ public abstract class DataId
 {
     public HlfType Type { get; set; }
     public bool IsVariable { get; set; }
+    public bool IsImmutable { get; set; }
 
     public abstract string Generate(GeneratorOptions options);
 

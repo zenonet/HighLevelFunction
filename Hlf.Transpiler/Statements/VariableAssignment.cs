@@ -9,12 +9,24 @@ public class VariableAssignment : Statement
     public Statement Expression { get; set; }
     private DataId variableId;
 
+    private bool IsExpressionParsed = false;
+    public bool IsInitialization;
+    public HlfType GetExpressionType()
+    {
+        if(!IsExpressionParsed) Expression.Parse();
+        return Expression.Result.Type;
+    }
     public override void Parse()
     {
-        Expression.Parse();
+        if(!IsExpressionParsed)
+        {
+            Expression.Parse();
+            IsExpressionParsed = true;
+        }
 
         if (!ParentScope.TryGetVariable(VariableName, out DataId? variable))
             throw new LanguageException($"Trying to assign a value to the undeclared variable {VariableName}.", Line, Column, VariableName.Length);
+        if (variable.IsImmutable && !IsInitialization) throw new LanguageException("Cannot reassign an immutable variable", Line, Column);
         variableId = variable;
 
         if (!Expression.Result.Type.IsAssignableTo(variable.Type))
