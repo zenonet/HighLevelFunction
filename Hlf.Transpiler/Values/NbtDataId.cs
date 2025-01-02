@@ -20,6 +20,6 @@ public class NbtDataId : DataId
     public override string Generate(GeneratorOptions options) => Id;
     public override string Free(GeneratorOptions gen)
     {
-        return $"data remove storage {gen.StorageNamespace} {Id}";
+        return $";fr:data remove storage {gen.StorageNamespace} {Id}";
     }
 }

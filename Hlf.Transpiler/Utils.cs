@@ -33,6 +33,14 @@ public static partial class Utils
         if (string.IsNullOrWhiteSpace(value)) return;
         builder.AppendLine(value);
     }
+    public static void AppendFree(this StringBuilder builder, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return;
+        string s = CommandPrefixRegex().Replace(value, ";fr:$&");
+        builder.Append(s);
+    }
+
+    public static string Free(this string freeStatement) => $";fr:{freeStatement}";
     
     [GeneratedRegex(@"^\w.*", RegexOptions.Multiline)]
     public static partial Regex CommandPrefixRegex();

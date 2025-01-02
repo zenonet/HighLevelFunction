@@ -46,13 +46,7 @@ public class ForLoop : Loop
         sb.AppendCommands(LoopScope, conditionEvalCode);
         sb.AppendCommands(LoopScope, conditionalFuncCallCode); // Recursive call in loop here
 
-        Function loopFunction = new()
-        {
-            Name = funcName,
-            SourceCode = sb.ToString(),
-        };
-
-        gen.ExtraFunctionsToGenerate.Add(loopFunction);
+        gen.ExtraFunctionsToGenerate.Add((funcName, sb.ToString()));
 
         sb = new();
         if(InitStatement != null) sb.AppendCommands(HeaderScope, InitStatement.Generate(gen));

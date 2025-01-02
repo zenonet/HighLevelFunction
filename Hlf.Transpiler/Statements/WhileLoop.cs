@@ -52,14 +52,8 @@ public class WhileLoop : Loop
             // Also run cleanup when the loop was stopped by a break statement
             loopSb.AppendWithPrefix($"execute if data storage {gen.StorageNamespace} {{{ControlFlowDataId.Generate(gen)}:1b}} run", endSb.ToString());
         }
-
-        Function loopFunction = new()
-        {
-            Name = funcName,
-            SourceCode = loopSb.ToString(),
-        };
         
-        gen.ExtraFunctionsToGenerate.Add(loopFunction);
+        gen.ExtraFunctionsToGenerate.Add((funcName, loopSb.ToString()));
 
 
         return startupSb.ToString();

@@ -45,26 +45,34 @@ public class Transpiler
         
         // Create extra functions for statements
 
-        datapack.Functions.AddRange(options.ExtraFunctionsToGenerate);
-        
-        var loadFunction = options.ExtraFunctionsToGenerate.FirstOrDefault(x => x.Name is "main" or "load");
-        if (loadFunction != null)
+        List<(string, string)> extraFunctions = options.ExtraFunctionsToGenerate;
+        foreach ((string name, string code) in extraFunctions)
         {
-            sb.Append(loadFunction.SourceCode);
-            datapack.Functions.Remove(loadFunction);
+            string processedCode = PostProcessCode(code, options);
+            if(name is "main" or "load")
+            {
+                sb.Append(processedCode);
+                continue;
+            }
+            
+            Function function = new(name, processedCode);
+            if (name is "tick") datapack.OnTickFunction = function;
+            
+            datapack.Functions.Add(function);
         }
-
+        
         var combinedLoadFunction = new Function("load", sb.ToString());
         datapack.Functions.Add(combinedLoadFunction);
         datapack.OnLoadFunction = combinedLoadFunction;
-        
-        var tickFunction = options.ExtraFunctionsToGenerate.FirstOrDefault(x => x.Name == "tick");
-        if (tickFunction != null) datapack.OnTickFunction = tickFunction;
-        
 
         Console.WriteLine($"Variable translation table in root scope: {string.Join(", ", rootScope.Variables.Select(x => $"{x.Key} -> {x.Value.Generate(options)}"))}");
         
         return datapack;
+    }
+
+    private static string PostProcessCode(string code, GeneratorOptions options)
+    {
+        return code.Replace(";fr:", "");
     }
 
     private static TR MeasureTime<TR>(string regionName, Func<TR> action)

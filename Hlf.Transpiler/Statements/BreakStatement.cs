@@ -12,8 +12,7 @@ public class BreakStatement : Statement
 
     public override string Generate(GeneratorOptions gen)
     {
-        return $"data modify storage {gen.StorageNamespace} {ParentScope.ClosestLoop!.ControlFlowDataId!.Generate(gen)} set value 1b\n" +
-               $"{ParentScope.ClosestLoop!.LoopScope.GenerateScopeDeallocation(gen)}\n" +
-               $"{ParentScope.ClosestLoop!.ControlFlowDataId.Free(gen)}";
+        return gen.Comment("Break from this loop:\n") +
+               $"data modify storage {gen.StorageNamespace} {ParentScope.ClosestLoop!.ControlFlowDataId!.Generate(gen)} set value 1b\n";
     }
 }
