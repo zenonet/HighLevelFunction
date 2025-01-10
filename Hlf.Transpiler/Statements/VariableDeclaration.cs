@@ -12,7 +12,7 @@ public class VariableDeclaration : Statement
     {
         if (TypeName is "var" or "val")
         {
-            if (Assignment == null) throw new LanguageException($"Type of variable '{VariableName}' cannot be inferred because assignment is missing.", Line, Column);
+            if (Assignment == null) throw new LanguageException($"Type of variable '{VariableName}' cannot be inferred because assignment is missing.", Line, Column, length:3);
             type = Assignment.GetExpressionType();
         }
         else
