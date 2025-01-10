@@ -9,10 +9,10 @@
         function getMonarchDef(){
             return {
                 // Set defaultToken to invalid to see what you do not tokenize yet
-                // defaultToken: 'invalid',
+                defaultToken: 'invalid',
 
                 keywords: [
-                    "if", "while", "for", "else"
+                    "if", "while", "for", "else", "val", "var"
                 ],
 
                 typeKeywords: [
@@ -31,12 +31,21 @@
 
                 // The main tokenizer for our languages
                 tokenizer: {
-                    root: [
+                    root:[
+                        { include:'@rootWithoutCustomTypes' },
+
+                        // custom types
+                        [/(?<!\.)[A-Z][\w\$]*/, 'type.identifier']  // to show class names nicely
+                    ],
+                    rootWithoutCustomTypes: [
                         // identifiers and keywords
                         [/[a-z_$][\w$]*/, { cases: { '@typeKeywords': 'keyword',
                                 '@keywords': 'keyword',
                                 '@default': 'identifier' } }],
-                        [/[A-Z][\w\$]*/, 'type.identifier' ],  // to show class names nicely
+
+                        [/[A-Z]\w+/, {
+                            cases: {'@typeKeywords': 'type.keyword', '@default': 'identifier'}
+                        }],
 
                         // whitespace
                         { include: '@whitespace' },
@@ -52,7 +61,8 @@
                         [/-?\d+/, 'number'],
 
                         // delimiter: after number because of .\d floats
-                        [/[;,.]/, 'delimiter'],
+                        [/[;,]/, 'delimiter'],
+                        [/\./, 'delimiter', '@rootWithoutCustomTypes'],
 
                         // strings
                         [/"([^"\\]|\\.)*$/, 'string.invalid' ],  // non-teminated string
@@ -87,12 +97,68 @@
         require(["vs/editor/editor.main"], () => {
             monaco.languages.register({ id: "hlf" });
             document.editorModel = monaco.editor.createModel(`
-Vector v = Vector(-35, 63, -18);
+killOwned();
+
+Entity player = getEntityWithTag("player");
+int c = 10;
+Vector playerPos = player.Position;
+BlockType block = BlockType("cyan_terracotta");
+
+void place(){
+    for(int x = -1*c; x < c; x = x+1){
+        for(int y = -1*c; y < c; y = y+1){
+            for(int z = -1*c; z < c; z = z+1){
+                int dist_squared = x*x+y*y+z*z;
+                if(dist_squared < 49){
+                    Vector v = Vector(int(playerPos.x) + x, int(playerPos.y) + y, int(playerPos.z) + z);
+                    setBlock(v, block);
+                }
+            }
+        }
+    }
+}
+
+void undo(){
+    block = BlockType("air");
+    place();
+}
+
+place();
+
+
+/*
+Entity player = getEntityWithTag("player");
+
+Entity sheep = summon("sheep");
+sheep.Position = Vector(-35, 63, -18);
+
+Entity sheep2 = summon("sheep");
+sheep2.Position = Vector(-33, 63, -18);
+
+void tick()
+{
+    sheep.Motion = sheep2.Motion;
+    //say(player.Motion);
+}*/
+
+/*
+Entity sheep = getEntityWithTag("yeet");
+Entity player = getEntityWithTag("player");
+Vector v = player.Position;
+say(v);
+sheep.Motion = Vector(0, 0, 0);
+*/
+/*
+Vector v = vec(-35, 63, -18);
 BlockType block = getBlock(v);
 
-Vector i = Vector(-32, 63, -22);
+Vector i = vec(-32, 63, -22);
 setBlock(i, block);
 say("Block placed!");
+
+/# this is a comment as well!
+
+*/
 `,
                 "hlf"
             );
