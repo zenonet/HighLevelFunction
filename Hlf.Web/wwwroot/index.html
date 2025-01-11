@@ -97,7 +97,6 @@
         require(["vs/editor/editor.main"], () => {
             monaco.languages.register({ id: "hlf" });
             document.editorModel = monaco.editor.createModel(`
-killOwned();
 
 Entity player = getEntityWithTag("player");
 int c = 10;
@@ -123,7 +122,12 @@ void undo(){
     place();
 }
 
-place();
+void main(){
+    killOwned();
+    place();
+}
+
+
 
 
 /*
@@ -172,6 +176,7 @@ say("Block placed!");
                 useTabStops:true,
                 model:document.editorModel,
                 autoClosingBrackets: true,
+                automaticLayout: true
             });
             monaco.languages.setMonarchTokensProvider("hlf", getMonarchDef());
             monaco.languages.setLanguageConfiguration('hlf', {
@@ -298,18 +303,23 @@ say("Block placed!");
         // Initializing dotnet runtime and invoking entry point.
         await bootsharp.boot();
 
-        let srcTextArea = document.getElementById("hlfTextArea");
         const wasmWorker = new Worker("worker.js", {type:"module"});
         
         wasmWorker.onmessage = (e) => {
             onResult(e.data)
         };
         export function transpile(isAuto = false){
+            
+            let options = {
+                GenerateComments: document.getElementById("generateComments").checked
+            }
+            
             window.TranspileStart = performance.now()
             if(document.getElementById("useWorkerCheckbox").checked)
-                wasmWorker.postMessage(document.editorModel.getValue());
+                wasmWorker.postMessage(
+                        [document.editorModel.getValue(), options]);
             else{
-                const resp = HlfTranspilerJs.transpileToString(document.editorModel.getValue());
+                const resp = HlfTranspilerJs.transpileToString(document.editorModel.getValue(), options);
                 onResult(resp);
             }
         }
@@ -436,8 +446,8 @@ say("Block placed!");
     <div style="display: flex; flex-direction: row; height: 70vh; margin-bottom: 10pt">
         <div class="inputBox" id="codeContainer"></div>
         <div style="display: flex; flex-direction: column; width: 30vw;">
-            <textarea class="outputBox output-stuff" id="outputTextArea"></textarea>
-            <div style="padding:3pt" class="output-stuff" autocapitalize="off" spellcheck="false">
+            <textarea class="outputBox output-stuff" id="outputTextArea" autocapitalize="off" spellcheck="false"></textarea>
+            <div style="padding:3pt" class="output-stuff">
                 <select id="file-view-select" style="min-width: 100pt" onchange="switchFile()">
                     <option>No files generated</option>
                 </select>
@@ -453,7 +463,8 @@ say("Block placed!");
     <div style="background:gray; display: flex; gap:15pt; padding: 10pt">
         <input type="checkbox" id="transpileInRealtimeCheckbox" checked>Transpile in realtime</input>
         <input type="checkbox" id="saveInRealtimeCheckbox" disabled>Save to filesystem in realtime</input>
-        <input type="checkbox" id="useWorkerCheckbox">Use worker for transpiling</input>
+        <input type="checkbox" id="useWorkerCheckbox" checked>Use worker for transpiling</input>
+        <input type="checkbox" id="generateComments">Generate comments</input>
     </div>
     <h2 style="color: red;" id="errorMsg">
         
