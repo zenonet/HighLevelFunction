@@ -1,11 +1,10 @@
-﻿using System.Text;
-using Hlf.Transpiler.CodeGen;
+﻿using Hlf.Transpiler.CodeGen;
 
 namespace Hlf.Transpiler;
 
 public class EntityDataId : DataId
 {
-    private static int counter;
+    internal static int counter;
     private static string Allocate()
     {
         return $"dataid{counter++}";

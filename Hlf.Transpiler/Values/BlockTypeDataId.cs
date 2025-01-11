@@ -4,7 +4,7 @@ namespace Hlf.Transpiler;
 
 public class BlockTypeDataId : DataId
 {
-    private static int counter = 0;
+    internal static int counter = 0;
     public BlockTypeDataId()
     {
         X = counter++;

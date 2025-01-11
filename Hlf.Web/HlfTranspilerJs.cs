@@ -2,6 +2,7 @@
 using System.Web;
 using Bootsharp;
 using Hlf.Transpiler;
+using Hlf.Transpiler.CodeGen;
 using File = Hlf.Transpiler.DatapackGen.File;
 
 [SupportedOSPlatform("browser")]
@@ -24,11 +25,11 @@ public static partial class HlfTranspilerJs
 
     //[JSInvokable] // Invoked from JS as Program.GetBackendName()
     [JSInvokable]
-    public static string TranspileToString(string src)
+    public static string TranspileToString(string src, GeneratorOptions options)
     {
         try
         {
-            var dp = new Transpiler().Transpile(src, new ());
+            var dp = new Transpiler().Transpile(src, options);
             List<File> generate = dp.Generate();
             Dictionary<string, string> files = generate.ToDictionary(x =>x.Path, y => y.Content);
             return SerializeDictionary(files);

@@ -4,7 +4,7 @@ namespace Hlf.Transpiler;
 
 public class NbtDataId : DataId
 {
-    private static int counter;
+    internal static int counter;
     private static string Allocate()
     {
         return $"dataid{counter++}";

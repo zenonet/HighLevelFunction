@@ -9,6 +9,8 @@ public class Transpiler
 {
     public Datapack Transpile(string sourceCode, GeneratorOptions options)
     {
+        ResetAllocationCounters();
+        
         Datapack datapack = new();
         datapack.Namespace = options.DatapackNamespace;
         
@@ -90,5 +92,12 @@ public class Transpiler
         action();
         sw.Stop();
         Console.WriteLine($"{regionName} took {sw.Elapsed.TotalMilliseconds}ms");
+    }
+
+    public static void ResetAllocationCounters()
+    {
+        NbtDataId.counter = 0;
+        EntityDataId.counter = 0;
+        BlockTypeDataId.counter = 0;
     }
 }
