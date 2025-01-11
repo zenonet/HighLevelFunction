@@ -33,12 +33,20 @@ public class Transpiler
         
         // Clear old stuff
         sb.AppendLine($"kill @e[tag={options.MarkerTag}]");
-        
+
+        List<VariableAssignment> globalVarInitializers = [];
         foreach (Statement s in statements)
         {
             if (s is not VariableDeclaration and not FunctionDefinitionStatement)
             {
                 throw new LanguageException("Only variable declarations and function definitions are allowed as top-level statements!", s.Line, s.Column);
+            }
+
+            if (s is VariableDeclaration {Assignment: {} assignment} declaration)
+            {
+                // The declaration shouldn't generate that here
+                declaration.Assignment = null;
+                globalVarInitializers.Add(assignment);
             }
             sb.AppendCommands(rootScope, s.Generate(options));
         }
@@ -51,6 +59,12 @@ public class Transpiler
         foreach ((string name, string code) in extraFunctions)
         {
             string processedCode = PostProcessCode(code, options);
+            
+            // Generate initializers for global variables here
+            sb.SmartAppendL(options.Comment("Initializing global variables declared in root scope:"));
+            globalVarInitializers.ForEach(x => sb.SmartAppendL(PostProcessCode(x.Generate(options), options)));
+            if(options.GenerateComments) sb.AppendLine(); // Actually an intentional line break here
+            
             if(name is "main" or "load")
             {
                 sb.Append('\n' + processedCode);
