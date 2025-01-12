@@ -1,5 +1,6 @@
 ﻿import bootsharp, {HlfTranspilerJs} from "./../bin/bootsharp/index.mjs";
-bootsharp.boot();
+await bootsharp.boot();
+postMessage(0)
 
 onmessage = (e) => {
     const src = e.data[0];

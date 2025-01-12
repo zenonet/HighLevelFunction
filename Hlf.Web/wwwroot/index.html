@@ -104,9 +104,9 @@ Vector playerPos = player.Position;
 BlockType block = BlockType("cyan_terracotta");
 
 void place(){
-    for(int x = -1*c; x < c; x = x+1){
-        for(int y = -1*c; y < c; y = y+1){
-            for(int z = -1*c; z < c; z = z+1){
+    for(int x = -1*c; x < c; x++){
+        for(int y = -1*c; y < c; y++){
+            for(int z = -1*c; z < c; z++){
                 int dist_squared = x*x+y*y+z*z;
                 if(dist_squared < 49){
                     Vector v = Vector(int(playerPos.x) + x, int(playerPos.y) + y, int(playerPos.z) + z);
@@ -203,6 +203,8 @@ say("Block placed!");
                     window.transpile(true);
                 }
             });
+            console.log("Initial transpile from editor")
+            window.transpile()
         });
     </script>
     
@@ -301,11 +303,17 @@ say("Block placed!");
         //import bootsharp, {HlfTranspilerJs} from "./index.mjs";
 
         // Initializing dotnet runtime and invoking entry point.
-        await bootsharp.boot();
 
         const wasmWorker = new Worker("worker.js", {type:"module"});
         
         wasmWorker.onmessage = (e) => {
+            if(e.data === 0){
+                // worker is ready!
+                console.log("Initial transpile from editor")
+                window.transpile()
+                if(document.getElementById("useWorkerCheckbox").checked) document.getElementById("transpileButton").disabled = false;
+                return;
+            }
             onResult(e.data)
         };
         export function transpile(isAuto = false){
@@ -406,17 +414,24 @@ say("Block placed!");
         }
         
         window.transpile = transpile;
-/*        srcTextArea.addEventListener('input', function() {
-            if(document.getElementById("transpileInRealtimeCheckbox").checked){
-                transpile(true);
-            }
-        }, false);*/
+        console.log("set window.transpile")
+
+        /*        srcTextArea.addEventListener('input', function() {
+                    if(document.getElementById("transpileInRealtimeCheckbox").checked){
+                        transpile(true);
+                    }
+                }, false);*/
         document.getElementById("transpileButton").onclick = transpile;
-/*
-        if(document.getElementById("hlfTextArea").value.length > 0){
-            console.log("Source code area already has a value so we'll transpile right away");
-            transpile(true);
-        }*/
+        await bootsharp.boot();
+        if(!document.getElementById("useWorkerCheckbox").checked) document.getElementById("transpileButton").disabled = false;
+
+        console.log("Transpiling initially...")
+        transpile(true)
+        /*
+                if(document.getElementById("hlfTextArea").value.length > 0){
+                    console.log("Source code area already has a value so we'll transpile right away");
+                    transpile(true);
+                }*/
     </script>
     
     <style>
@@ -425,10 +440,10 @@ say("Block placed!");
         }
         .inputBox {
             width: 70vw;
+            font-family: Consolas, "Courier New", monospace;
         }
 
         .output-stuff{
-            background: cyan
         }
         .outputBox {
             height: 100%;
@@ -446,7 +461,7 @@ say("Block placed!");
     <div style="display: flex; flex-direction: row; height: 70vh; margin-bottom: 10pt">
         <div class="inputBox" id="codeContainer"></div>
         <div style="display: flex; flex-direction: column; width: 30vw;">
-            <textarea class="outputBox output-stuff" id="outputTextArea" autocapitalize="off" spellcheck="false"></textarea>
+            <textarea class="outputBox output-stuff monaco-editor mtk1" id="outputTextArea" autocapitalize="off" spellcheck="false"></textarea>
             <div style="padding:3pt" class="output-stuff">
                 <select id="file-view-select" style="min-width: 100pt" onchange="switchFile()">
                     <option>No files generated</option>
@@ -457,7 +472,7 @@ say("Block placed!");
         </div>
     </div>
     <div style="display: flex; flex-direction: row; gap: 15pt">
-        <button id="transpileButton" style="margin-bottom: 10pt">Transpile</button>
+        <button id="transpileButton" style="margin-bottom: 10pt" disabled>Transpile</button>
         <span id="stats"></span>
     </div>
     <div style="background:gray; display: flex; gap:15pt; padding: 10pt">
