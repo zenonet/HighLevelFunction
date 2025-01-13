@@ -50,6 +50,9 @@
                         // whitespace
                         { include: '@whitespace' },
 
+                        // selector
+                        [/@[aenprs](?:\[.*])?/, 'attribute.value'],
+
                         // delimiters and operators
                         [/[{}()\[\]]/, '@brackets'],
                         [/[<>](?!@symbols)/, '@brackets'],
@@ -166,19 +169,51 @@ say("Block placed!");
 `,
                 "hlf"
             );
-            /*monaco.languages.setLanguageConfiguration("hlf", {
-                autoClosingPairs: true,
-            });*/
             document.codeEditor = monaco.editor.create(document.getElementById('codeContainer'), {
                 theme: 'vs-dark',
                 tabSize: 4,
-                directIndentation:true,
-                useTabStops:true,
-                model:document.editorModel,
+                directIndentation: true,
+                useTabStops: true,
+                model: document.editorModel,
                 autoClosingBrackets: true,
                 automaticLayout: true,
                 mouseWheelZoom: true
             });
+
+            document.codeEditor.addAction(
+                {
+                    id:"transpile",
+                    label:"Transpile to mcfunction",
+                    run: function(){
+                        window.transpile(false)
+                    }
+                }
+            );
+            
+            // I add vs keybindings first and then the default vscode ones so that the vscode ones are displayed but mine are still usable
+            monaco.editor.addKeybindingRules([
+                {
+                    keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.NumpadDivide,
+                    command: "editor.action.commentLine",
+                    when: "textInputFocus",
+                },
+                {
+                    keybinding: monaco.KeyMod.CtrlCmd  | monaco.KeyCode.Slash,
+                        command: "editor.action.commentLine",
+                    when: "textInputFocus",
+                },
+                {
+                    keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.NumpadDivide,
+                    command: "editor.action.blockComment",
+                    when: "textInputFocus",
+                },
+                {
+                    keybinding: monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyA,
+                        command: "editor.action.blockComment",
+                    when: "textInputFocus",
+                }
+            ]);
+
             monaco.languages.setMonarchTokensProvider("hlf", getMonarchDef());
             monaco.languages.setLanguageConfiguration('hlf', {
                 brackets: [
@@ -198,6 +233,10 @@ say("Block placed!");
                     { open: '(', close: ')' },
                     { open: '"', close: '"' },
                 ],
+                comments: {
+                    blockComment: ["/*", "*/"],
+                    lineComment: "//",
+                }
             });
             document.editorModel.onDidChangeContent((event) => {
                 if(document.getElementById("transpileInRealtimeCheckbox").checked){
