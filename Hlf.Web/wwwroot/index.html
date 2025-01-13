@@ -176,7 +176,8 @@ say("Block placed!");
                 useTabStops:true,
                 model:document.editorModel,
                 autoClosingBrackets: true,
-                automaticLayout: true
+                automaticLayout: true,
+                mouseWheelZoom: true
             });
             monaco.languages.setMonarchTokensProvider("hlf", getMonarchDef());
             monaco.languages.setLanguageConfiguration('hlf', {
