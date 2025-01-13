@@ -350,6 +350,38 @@ public class Parser
             return lit;
         }
 
+        if (tokens.StartsWith(TokenType.StartStringInterpolationLiteral))
+        {
+            List<Token> stringParts = [tokens.Pop(),];
+            List<Statement> contentParts = [];
+
+            while (true)
+            {
+                Statement content = ParseStatementLvl3(ref tokens, scope);
+                contentParts.Add(content);
+
+                if (tokens.StartsWith(TokenType.EndStringInterpolationLiteral))
+                {
+                    stringParts.Add(tokens.Pop());
+                    break;
+                }
+                if (tokens.StartsWith(TokenType.CenterStringInterpolationLiteral))
+                {
+                    stringParts.Add(tokens.Pop());
+                    continue;
+                }
+                throw new LanguageException("Expected string part after expression in string interpolation.", line, column);
+            }
+
+            var interpolation = new StringInterpolationExpression
+            {
+                ContentParts = contentParts,
+                StringPartTokens = stringParts,
+            };
+            InitStatement(interpolation);
+            return interpolation;
+        }
+
         if (tokens.StartsWith(TokenType.IntLiteral))
         {
             var lit = new LiteralExpression(HlfType.Int, tokens.Pop().Content);

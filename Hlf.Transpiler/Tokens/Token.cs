@@ -37,6 +37,9 @@ public enum TokenType
 {
     Identifier,
     StringLiteral,
+    StartStringInterpolationLiteral, // eg.: $" bla bla {
+    CenterStringInterpolationLiteral, // eg.: } and also {
+    EndStringInterpolationLiteral, // eg.: } yeah"
     IntLiteral,
     FloatLiteral,
     BoolLiteral,

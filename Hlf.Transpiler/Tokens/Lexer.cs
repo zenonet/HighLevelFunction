@@ -9,8 +9,6 @@ public static class Lexer
     [
         new RawTokenDefinition(TokenType.OpenParenthesis, "("),
         new RawTokenDefinition(TokenType.CloseParenthesis, ")"),
-        new RawTokenDefinition(TokenType.OpenBrace, "{"),
-        new RawTokenDefinition(TokenType.CloseBrace, "}"),
         new RawTokenDefinition(TokenType.Comma, ","),
         new RawTokenDefinition(TokenType.Dot, "."),
         new RawTokenDefinition(TokenType.DoubleEquals, "=="),
@@ -25,11 +23,26 @@ public static class Lexer
         new RawTokenDefinition(TokenType.Colon, ":"),
         new RawTokenDefinition(TokenType.Semicolon, ";"),
         
+        new RegexTokenDefinition(TokenType.StringLiteral, """
+                                                          ^(?:".*?(?:[^\\](?:\\\\)+"|[^\\]")|\$?""|\$"(?:[^{]|[^\\](?:\\\\)*\\{)*?(?:[^\\](?:\\\\)+"|(?:[^{\\]|[^\\](?:\\\\)*\\{)"))
+                                                          """),
+        new RegexTokenDefinition(TokenType.StartStringInterpolationLiteral, """
+                                                                            ^(?:\$".*?(?:[^\\](?:\\\\)+{|[^\\]{)|\$"{)
+                                                                            """),
+        new RegexTokenDefinition(TokenType.CenterStringInterpolationLiteral, """
+                                                                             (?:}.*?(?:[^\\](?:\\\\)+{|[^\\]{))
+                                                                             """),
+        
+        new RegexTokenDefinition(TokenType.EndStringInterpolationLiteral, """
+                                                                          ^(?:}.*?(?:[^\\](?:\\\\)+"|[^\\]"))
+                                                                          """),
+        new RawTokenDefinition(TokenType.OpenBrace, "{"),
+        new RawTokenDefinition(TokenType.CloseBrace, "}"),
+        
         new SelectorTokenDefinition(),
         
         new RegexTokenDefinition(TokenType.FloatLiteral, @"(-?(?:\.\d+|\d+\.\d+|\d+))(?:[fFdD])"),
         new RegexTokenDefinition(TokenType.IntLiteral, @"-?\d+"),
-        new RegexTokenDefinition(TokenType.StringLiteral, "\".*\""),
         new RegexTokenDefinition(TokenType.Identifier, @"\w+"),
         new RegexTokenDefinition(TokenType.PersistentComment, @"\/#(.*)"),
         
