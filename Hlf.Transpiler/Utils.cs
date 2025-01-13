@@ -33,6 +33,11 @@ public static partial class Utils
         if (string.IsNullOrWhiteSpace(value)) return;
         builder.AppendLine(value);
     }
+    public static void SmartAppend(this StringBuilder builder, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return;
+        builder.Append(value);
+    }
     public static void AppendFree(this StringBuilder builder, string value)
     {
         if (string.IsNullOrWhiteSpace(value)) return;
