@@ -38,10 +38,10 @@ public class VariableAssignment : Statement
         DataId dataId = Expression.Result!.ConvertImplicitly(options, variableId.Type, out string conversionCode);
         StringBuilder sb = new();
 
-        sb.AppendCommands(ParentScope, options.Comment($"Assigning value of type {variableId.Type.Name} to variable {VariableName}{(conversionCode.Length > 0 ? $" and converting it implcitly into a {variableId.Type.Name}" : "")}\n"));
-        sb.AppendCommands(ParentScope, Expression.Generate(options));
-        sb.AppendCommands(ParentScope, conversionCode);
-        sb.AppendCommands(ParentScope, variableId.Type.Kind switch
+        sb.SmartAppendL(options.Comment($"Assigning value of type {variableId.Type.Name} to variable {VariableName}{(conversionCode.Length > 0 ? $" and converting it implcitly into a {variableId.Type.Name}" : "")}"));
+        sb.SmartAppendL(Expression.Generate(options));
+        sb.SmartAppendL(conversionCode);
+        sb.SmartAppendL(variableId.Type.Kind switch
         {
             ValueKind.Nbt => $"data modify storage {options.StorageNamespace} {variableId.Generate(options)} set from storage {options.StorageNamespace} {dataId.Generate(options)}",
             ValueKind.Block => $"clone {dataId.Generate(options)} {dataId.Generate(options)} {variableId.Generate(options)}",

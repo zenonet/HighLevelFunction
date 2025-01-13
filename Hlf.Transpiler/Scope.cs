@@ -62,7 +62,7 @@ public class Scope
     {
         StringBuilder sb = new();
         if(Variables.Count > 0)
-            sb.AppendLine(gen.Comment($"# Scope deallocation for scope at depth {Depth}"));
+            sb.AppendLine(gen.Comment($"Scope deallocation for scope at depth {Depth}"));
         foreach ((string name, DataId variable) in Variables)
         {
             sb.AppendCommands(this, variable.Free(gen));
