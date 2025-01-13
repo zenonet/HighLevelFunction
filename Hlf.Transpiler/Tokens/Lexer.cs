@@ -30,11 +30,11 @@ public static class Lexer
                                                                             ^(?:\$".*?(?:[^\\](?:\\\\)+{|[^\\]{)|\$"{)
                                                                             """),
         new RegexTokenDefinition(TokenType.CenterStringInterpolationLiteral, """
-                                                                             (?:}.*?(?:[^\\](?:\\\\)+{|[^\\]{))
+                                                                             ^(?:}.*?(?:[^\\](?:\\\\)+{|[^\\]{))
                                                                              """),
         
         new RegexTokenDefinition(TokenType.EndStringInterpolationLiteral, """
-                                                                          ^(?:}.*?(?:[^\\](?:\\\\)+"|[^\\]"))
+                                                                          ^(?:}.*?(?:[^\\](?:\\\\)+"|[^\\]")|}")
                                                                           """),
         new RawTokenDefinition(TokenType.OpenBrace, "{"),
         new RawTokenDefinition(TokenType.CloseBrace, "}"),
