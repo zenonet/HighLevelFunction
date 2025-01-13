@@ -60,13 +60,12 @@ public class Transpiler
         {
             string processedCode = PostProcessCode(code, options);
             
-            // Generate initializers for global variables here
-            sb.SmartAppendL(options.Comment("Initializing global variables declared in root scope:"));
-            globalVarInitializers.ForEach(x => sb.SmartAppendL(PostProcessCode(x.Generate(options), options)));
-            if(options.GenerateComments) sb.AppendLine(); // Actually an intentional line break here
-            
             if(name is "main" or "load")
             {
+                // Generate initializers for global variables here
+                sb.SmartAppendL(options.Comment("Initializing global variables declared in root scope:"));
+                globalVarInitializers.ForEach(x => sb.SmartAppendL(PostProcessCode(x.Generate(options), options)));
+                if(options.GenerateComments) sb.AppendLine(); // Actually an intentional line break here
                 sb.Append('\n' + processedCode);
                 continue;
             }
