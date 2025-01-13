@@ -15,6 +15,7 @@ public struct GeneratorOptions()
 
     public string BlockMemoryDimension = "minecraft:overworld";
     public Vector3Int BlockMemoryBasePosition = new(0, 120, 0);
+    public McVersion TargetVersion { get; set; } = McVersion.OneDot(21);
 
     internal List<(string, string)> ExtraFunctionsToGenerate { get; set; } = new();
 
