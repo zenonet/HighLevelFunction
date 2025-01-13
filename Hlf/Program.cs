@@ -11,6 +11,29 @@ Transpiler transpiler = new();
 
 try
 {
+    if (args.Length > 0)
+    {
+        switch (args[0])
+        {
+            case "-lex":
+                var tokens = Lexer.Lex(src.Replace("\r\n", "\n").Replace('\r', '\n'));
+                if (tokens.Length < 1)
+                {
+                    Console.WriteLine("No tokens found");
+                    return;
+                }
+                Console.WriteLine($"{tokens.Length} Tokens:");
+                int typeWidth = tokens.Max(x => x.Type.ToString().Length);
+                int contentWidth = tokens.Max(x => x.Content.Length);
+                foreach (Token token in tokens)
+                {
+                    Console.WriteLine($"{token.Type.ToString().PadRight(typeWidth)} : {$"{token.Content}".PadRight(contentWidth)} | line: {token.Line.ToString(),3} | column: {token.Column.ToString(),3}");
+                }
+
+                return;
+        }
+    }
+    
     Stopwatch sw = Stopwatch.StartNew();
     var opt = new GeneratorOptions()
     {
