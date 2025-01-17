@@ -55,9 +55,9 @@ public class BuiltinFunctionCall : Statement
         new("setBlock", HlfType.Void, (gen, parameters, _) => 
                 gen.Comment("Placing a block\n") +
                 $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_setblock\"]}}\n" +
-                $"data modify entity @e[tag={gen.MarkerTag}, tag=hlf_setblock, limit=1] Pos set from storage {gen.StorageNamespace} {parameters["position"].Generate(gen)}\n" +
-                $"execute at @e[tag={gen.MarkerTag}, tag=hlf_setblock, limit=1] run clone {parameters["block"].Generate(gen)} {parameters["block"].Generate(gen)} ~ ~ ~\n" +
-                $"kill @e[tag={gen.MarkerTag}, tag=hlf_setblock]",
+                $"data modify entity @e[type=marker, tag={gen.MarkerTag}, tag=hlf_setblock, limit=1] Pos set from storage {gen.StorageNamespace} {parameters["position"].Generate(gen)}\n" +
+                $"execute at @e[type=marker, tag={gen.MarkerTag}, tag=hlf_setblock, limit=1] run clone {parameters["block"].Generate(gen)} {parameters["block"].Generate(gen)} ~ ~ ~\n" +
+                $"kill @e[type=marker, tag={gen.MarkerTag}, tag=hlf_setblock, limit=1]",
             [
                 new("position", HlfType.Vector),
                 new("block", HlfType.BlockType),
@@ -67,9 +67,9 @@ public class BuiltinFunctionCall : Statement
         new("getBlock", HlfType.BlockType, (gen, parameters, resultId) => 
                 gen.Comment("Copying block into memory\n") +
                 $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_getblock\"]}}\n" +
-                $"data modify entity @e[tag={gen.MarkerTag}, tag=hlf_getblock, limit=1] Pos set from storage {gen.StorageNamespace} {parameters["position"].Generate(gen)}\n" +
-                $"execute at @e[tag={gen.MarkerTag}, tag=hlf_getblock, limit=1] run clone ~ ~ ~ ~ ~ ~ {resultId.Generate(gen)}\n" +
-                $"kill @e[tag={gen.MarkerTag}, tag=hlf_getblock]",
+                $"data modify entity @e[type=marker, tag={gen.MarkerTag}, tag=hlf_getblock, limit=1] Pos set from storage {gen.StorageNamespace} {parameters["position"].Generate(gen)}\n" +
+                $"execute at @e[type=marker, tag={gen.MarkerTag}, tag=hlf_getblock, limit=1] run clone ~ ~ ~ ~ ~ ~ {resultId.Generate(gen)}\n" +
+                $"kill @e[type=marker, tag={gen.MarkerTag}, tag=hlf_getblock]",
             [
                 new("position", HlfType.Vector),
             ]
@@ -117,7 +117,7 @@ public class BuiltinFunctionCall : Statement
         new("sin", HlfType.Float, (gen, parameters, resultId) => 
                 $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[0]\n" +
-                $"kill @e[tag={gen.MarkerTag}, tag=hlf_sin_calc]",
+                $"kill @e[type=armor_stand, tag={gen.MarkerTag}, tag=hlf_sin_calc]",
             [
                 new("x", HlfType.Int),
             ]
@@ -125,7 +125,7 @@ public class BuiltinFunctionCall : Statement
         new("cos", HlfType.Float, (gen, parameters, resultId) => 
                 $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[2]\n" +
-                $"kill @e[tag={gen.MarkerTag}, tag=hlf_sin_calc]",
+                $"kill @e[type=armor_stand, tag={gen.MarkerTag}, tag=hlf_sin_calc]",
             [
                 new("x", HlfType.Int),
             ]
@@ -137,9 +137,9 @@ public class BuiltinFunctionCall : Statement
     private static string CalculateSinAndCos(GeneratorOptions gen, string inputVariable) => $"{gen.CopyDataToScoreboard(inputVariable, "dtf", "-10000000")}\n" +
                                                                                             $"{gen.CopyScoreToData("dtf", "sin_input", "0.0000001", "float")}\n" +
                                                                                             $"summon armor_stand 0 63 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_sin_calc\"]}}\n" +
-                                                                                            $"data modify entity @e[tag=hlf_sin_calc, limit=1] Pos set value [0d,0d,0d]\n" +
-                                                                                            $"data modify entity @e[tag=hlf_sin_calc, limit=1] Rotation[0] set from storage {gen.StorageNamespace} sin_input\n" +
-                                                                                            $"execute as @e[tag=hlf_sin_calc] at @s run tp @s ^ ^ ^1";
+                                                                                            $"data modify entity @e[type=armor_stand, tag=hlf_sin_calc, limit=1] Pos set value [0d,0d,0d]\n" +
+                                                                                            $"data modify entity @e[type=armor_stand, tag=hlf_sin_calc, limit=1] Rotation[0] set from storage {gen.StorageNamespace} sin_input\n" +
+                                                                                            $"execute as @e[type=armor_stand, tag=hlf_sin_calc] at @s run tp @s ^ ^ ^1";
 
     private BuiltinFunctionDefinition? definition;
     private CustomFunctionDefinition? customFunctionDefinition;
