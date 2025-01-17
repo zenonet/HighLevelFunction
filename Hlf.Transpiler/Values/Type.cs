@@ -53,6 +53,14 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
             OperationImplementations.FixedCompOperation(TokenType.LessThanOrEqual, "<="),
         ];
 
+        Vector.Operations =
+        [
+            OperationImplementations.ComponentwiseVectorFixedScoreboardOperation(TokenType.Plus, "+="),
+            OperationImplementations.ComponentwiseVectorFixedScoreboardOperation(TokenType.Minus, "-="),
+            OperationImplementations.ComponentwiseVectorFixedScoreboardOperation(TokenType.Asterisk, "*=", "0.000001"),
+            OperationImplementations.ComponentwiseVectorFixedScoreboardOperation(TokenType.Slash, "/=", "0.001", "1000000", "1000"),
+        ];
+
         BlockType.Operations =
         [
             OperationImplementations.BlockTypeEq,
@@ -222,6 +230,22 @@ public static class OperationImplementations
     $"{gen.CopyDataToScoreboard(b.Generate(gen), "b", scaleB)}\n" +
     $"{gen.ScoreboardOpIntoA("a", "b", mcOperator)}\n" +
     $"{gen.CopyScoreToData("a", result.Generate(gen), outputScale, type:"double")}");
+    
+    public static OperationDefinition ComponentwiseVectorFixedScoreboardOperation(TokenType hlfOperator, string mcOperator, string outputScale = InverseFixedPointScale, string scaleA = FixedPointScale, string scaleB = FixedPointScale) => new(hlfOperator, HlfType.Vector, HlfType.Vector, (gen, a, b, result) =>
+        $"{gen.CopyDataToScoreboard($"{a.Generate(gen)}[0]", "ax", scaleA)}\n" +
+        $"{gen.CopyDataToScoreboard($"{a.Generate(gen)}[1]", "ay", scaleB)}\n" +
+        $"{gen.CopyDataToScoreboard($"{a.Generate(gen)}[2]", "az", scaleB)}\n" +
+        $"{gen.CopyDataToScoreboard($"{b.Generate(gen)}[0]", "bx", scaleB)}\n" +
+        $"{gen.CopyDataToScoreboard($"{b.Generate(gen)}[1]", "by", scaleB)}\n" +
+        $"{gen.CopyDataToScoreboard($"{b.Generate(gen)}[2]", "bz", scaleB)}\n" +
+        $"{gen.ScoreboardOpIntoA("ax", "bx", mcOperator)}\n" +
+        $"{gen.ScoreboardOpIntoA("ay", "by", mcOperator)}\n" +
+        $"{gen.ScoreboardOpIntoA("az", "bz", mcOperator)}\n" +
+        $"data modify storage {gen.StorageNamespace} {result.Generate(gen)} set value [0d, 0d, 0d]\n" +
+        $"{gen.CopyScoreToData("ax", $"{result.Generate(gen)}[0]", outputScale, type:"double")}\n" +
+        $"{gen.CopyScoreToData("ay", $"{result.Generate(gen)}[1]", outputScale, type:"double")}\n" +
+        $"{gen.CopyScoreToData("az", $"{result.Generate(gen)}[2]", outputScale, type:"double")}"
+    );
 
     private static readonly Lazy<BlockTypeDataId> LazyDataCompBlockIdA = new(() => new());
     private static readonly Lazy<BlockTypeDataId> LazyDataCompBlockIdB = new(() => new());
