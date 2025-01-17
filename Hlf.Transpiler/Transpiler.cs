@@ -112,5 +112,8 @@ public class Transpiler
         NbtDataId.counter = 0;
         EntityDataId.counter = 0;
         BlockTypeDataId.counter = 0;
+        WhileLoop.loopCounter = 0;
+        ForLoop.loopCounter = 0;
+        StringInterpolationExpression.InterpolationMacroFunctionCounter = 0;
     }
 }

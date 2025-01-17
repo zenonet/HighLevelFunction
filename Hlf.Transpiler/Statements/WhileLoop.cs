@@ -19,7 +19,7 @@ public class WhileLoop : Loop
         base.InitializeControlFlow();
     }
 
-    private static int loopCounter = 0;
+    internal static int loopCounter = 0;
     public override string Generate(GeneratorOptions gen)
     {
 

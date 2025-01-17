@@ -24,7 +24,7 @@ public class ForLoop : Loop
             throw new LanguageException($"Condition expression of for-loop should be of type {HlfType.Bool.Name} but is of type {Condition.Result.Type.Name}", Condition.Line, Condition.Column);
     }
 
-    private static int loopCounter = 0;
+    internal static int loopCounter = 0;
     public override string Generate(GeneratorOptions gen)
     {
         StringBuilder sb = new();
