@@ -255,11 +255,7 @@ say("Block placed!");
                     lineComment: "//",
                 }
             });
-            document.editorModel.onDidChangeContent((event) => {
-                if(document.getElementById("transpileInRealtimeCheckbox").checked){
-                    window.transpile(true);
-                }
-            });
+            document.editorModel.onDidChangeContent(autoRetranspile);
             console.log("Initial transpile from editor")
             window.transpile()
         });
@@ -353,6 +349,12 @@ say("Block placed!");
             }
         }
         
+        function autoRetranspile(){
+            if(document.getElementById("transpileInRealtimeCheckbox").checked){
+                window.transpile(true);
+            }        
+        }
+        
     </script>
     <script lang="js" type="module">
         // Importing compiled ES module.
@@ -374,11 +376,29 @@ say("Block placed!");
             onResult(e.data)
         };
         let isAuto = false;
+        
+        function getTargetVersion(){
+            const strVal = document.getElementById("targetMcVersion").value;
+            const parts = strVal.split('.');
+            if(parts.length === 3){
+                return {
+                    Major: +parts[0],
+                    Minor: +parts[1],
+                    Patch: +parts[2],
+                }
+            }
+            return {
+                Major: +parts[0],
+                Minor: +parts[1],
+                Patch: 0,
+            }
+        }
         export function transpile(isAuto = false){
             
             isAuto = isAuto;
             let options = {
-                GenerateComments: document.getElementById("generateComments").checked
+                GenerateComments: document.getElementById("generateComments").checked,
+                TargetVersion: getTargetVersion()
             }
             
             window.TranspileStart = performance.now()
@@ -535,10 +555,62 @@ say("Block placed!");
         <span id="stats"></span>
     </div>
     <div style="background:gray; display: flex; gap:15pt; padding: 10pt">
-        <input type="checkbox" id="transpileInRealtimeCheckbox" checked>Transpile in realtime</input>
-        <input type="checkbox" id="saveInRealtimeCheckbox" disabled>Save to filesystem in realtime</input>
-        <input type="checkbox" id="useWorkerCheckbox" checked>Use worker for transpiling</input>
-        <input type="checkbox" id="generateComments">Generate comments</input>
+        <div>
+            <label for="transpileInRealtimeCheckbox">Transpile in realtime</label>
+            <input type="checkbox" id="transpileInRealtimeCheckbox" checked onchange="autoRetranspile()">
+        </div>
+        <div>
+            <label for="saveInRealtimeCheckbox">Save to filesystem in realtime</label>
+            <input type="checkbox" id="saveInRealtimeCheckbox" disabled>
+        </div>
+        <div>
+            <label for="useWorkerCheckbox">Use worker for transpiling</label>
+            <input type="checkbox" id="useWorkerCheckbox" checked>
+        </div>
+        <div>
+            <label for="generateComments">Generate comments</label>
+            <input type="checkbox" id="generateComments" onchange="autoRetranspile()">
+        </div>
+        <div>
+            <label for="targetMcVersion">Target Version</label>
+            <select id="targetMcVersion" onchange="autoRetranspile()">
+            <option selected>1.21</option>
+            <option>1.20.6</option>
+            <option>1.20.5</option>
+            <option>1.20.4</option>
+            <option>1.20.3</option>
+            <option>1.20.2</option>
+            <option>1.20.1</option>
+            <option>1.20</option>
+            <option>1.19.4</option>
+            <option>1.19.3</option>
+            <option>1.19.2</option>
+            <option>1.19.1</option>
+            <option>1.19</option>
+            <option>1.18.2</option>
+            <option>1.18.1</option>
+            <option>1.18</option>
+            <option>1.17.1</option>
+            <option>1.17</option>
+            <option>1.16.5</option>
+            <option>1.16.4</option>
+            <option>1.16.3</option>
+            <option>1.16.2</option>
+            <option>1.16.1</option>
+            <option>1.16</option>
+            <option>1.15.2</option>
+            <option>1.15.1</option>
+            <option>1.15</option>
+            <option>1.14.4</option>
+            <option>1.14.3</option>
+            <option>1.14.2</option>
+            <option>1.14.1</option>
+            <option>1.14</option>
+            <option>1.13.2</option>
+            <option>1.13.1</option>
+            <option>1.13</option>
+        </select>
+        </div>
     </div>
     <h2 style="color: red;" id="errorMsg">
         
