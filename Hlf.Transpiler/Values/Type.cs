@@ -39,6 +39,20 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
             OperationImplementations.IntCompOperation(TokenType.LessThanOrEqual, "<="),
         ];
 
+        // Yeah, as of now, floats are actually a scam and are actually fixed-point-numbers
+        Float.Operations =
+        [
+            OperationImplementations.FixedScoreboardOperation(TokenType.Plus, "+="),
+            OperationImplementations.FixedScoreboardOperation(TokenType.Minus, "-="),
+            OperationImplementations.FixedScoreboardOperation(TokenType.Asterisk, "*=", "0.000001"),
+            OperationImplementations.FixedScoreboardOperation(TokenType.Slash, "/=", "0.001", "1000000", "1000"),
+            OperationImplementations.FixedCompOperation(TokenType.GreaterThan, ">"),
+            OperationImplementations.FixedCompOperation(TokenType.LessThan, "<"),
+            OperationImplementations.FixedCompOperation(TokenType.DoubleEquals, "="),
+            OperationImplementations.FixedCompOperation(TokenType.GreaterThanOrEqual, ">="),
+            OperationImplementations.FixedCompOperation(TokenType.LessThanOrEqual, "<="),
+        ];
+
         BlockType.Operations =
         [
             OperationImplementations.BlockTypeEq,
@@ -184,9 +198,15 @@ public static class OperationImplementations
                $"{gen.CopyScoreToData("a", result.Generate(gen))}");
     
     public static OperationDefinition IntCompOperation(TokenType hlfOperator, string mcOperator) => new(hlfOperator, HlfType.Bool, HlfType.Int, (gen, a, b, result) =>
-            gen.Comment("Comaring 2 ints via scoreboard\n") +
+            gen.Comment("Comparing 2 ints via scoreboard\n") +
                    $"{gen.CopyDataToScoreboard(a.Generate(gen), "a")}\n" +
                    $"{gen.CopyDataToScoreboard(b.Generate(gen), "b")}\n" +
+                   $"execute store success storage {gen.StorageNamespace} {result.Generate(gen)} byte 1 if score a hlf {mcOperator} b hlf");
+    
+    public static OperationDefinition FixedCompOperation(TokenType hlfOperator, string mcOperator) => new(hlfOperator, HlfType.Bool, HlfType.Float, (gen, a, b, result) =>
+            gen.Comment("Comparing 2 ints via scoreboard\n") +
+                   $"{gen.CopyDataToScoreboard(a.Generate(gen), "a", FixedPointScale)}\n" +
+                   $"{gen.CopyDataToScoreboard(b.Generate(gen), "b", FixedPointScale)}\n" +
                    $"execute store success storage {gen.StorageNamespace} {result.Generate(gen)} byte 1 if score a hlf {mcOperator} b hlf");
     
     public static OperationDefinition BlockTypeEq = new(TokenType.DoubleEquals, HlfType.Bool, HlfType.BlockType, (gen, a, b, result) =>
@@ -194,6 +214,14 @@ public static class OperationImplementations
         return gen.Comment("Comparing 2 blocks by type\n") +
                $"execute store result storage {gen.StorageNamespace} {result.Generate(gen)} byte 1 if blocks {a.Generate(gen)} {a.Generate(gen)} {b.Generate(gen)} all\n";
     });
+
+    private const string FixedPointScale = "1000";
+    private const string InverseFixedPointScale = "0.001";
+    public static OperationDefinition FixedScoreboardOperation(TokenType hlfOperator, string mcOperator, string outputScale = InverseFixedPointScale, string scaleA = FixedPointScale, string scaleB = FixedPointScale) => new(hlfOperator, HlfType.Float, HlfType.Float, (gen, a, b, result) =>
+    $"{gen.CopyDataToScoreboard(a.Generate(gen), "a", scaleA)}\n" +
+    $"{gen.CopyDataToScoreboard(b.Generate(gen), "b", scaleB)}\n" +
+    $"{gen.ScoreboardOpIntoA("a", "b", mcOperator)}\n" +
+    $"{gen.CopyScoreToData("a", result.Generate(gen), outputScale, type:"double")}");
 
     private static readonly Lazy<BlockTypeDataId> LazyDataCompBlockIdA = new(() => new());
     private static readonly Lazy<BlockTypeDataId> LazyDataCompBlockIdB = new(() => new());
