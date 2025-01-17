@@ -42,7 +42,7 @@ public static class Lexer
         
         new SelectorTokenDefinition(),
         
-        new RegexTokenDefinition(TokenType.FloatLiteral, @"(-?(?:\.\d+|\d+\.\d+|\d+))(?:[fFdD])"),
+        new RegexTokenDefinition(TokenType.FloatLiteral, @"(?:-?(?:(\.\d+|\d+\.\d+)[fFdD]?|(\d+)[fFdD]))"),
         new RegexTokenDefinition(TokenType.IntLiteral, @"-?\d+"),
         new RegexTokenDefinition(TokenType.Identifier, @"\w+"),
         new RegexTokenDefinition(TokenType.PersistentComment, @"\/#(.*)"),
@@ -167,7 +167,7 @@ public static class Lexer
                 return false;
             }
             
-            string content = match.Groups.Count > 1 ? match.Groups[1].Value : match.Value;
+            string content = match.Groups.Count > 1 ? match.Groups.Values.Skip(1).First(x => x.Success).Value : match.Value;
 
             token = new()
             {
