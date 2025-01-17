@@ -39,7 +39,13 @@
                     ],
                     rootWithoutCustomTypes: [
                         // identifiers and keywords
-                        [/[a-z_][\w$]*/, { cases: { '@typeKeywords': 'keyword',
+                        [/[a-z_][\w$]*(?=\()/, { cases: {
+                                '@keywords': 'keyword',
+                                '@default': 'function'
+                            }
+                        }],
+                        [/[a-z_][\w$]*/, { cases: {
+                                '@typeKeywords': 'keyword',
                                 '@keywords': 'keyword',
                                 '@default': 'identifier' } }],
 
@@ -186,8 +192,18 @@ say("Block placed!");
 `,
                 "hlf"
             );
+
+            monaco.editor.defineTheme("hlf-vs-dark", {
+                base: "vs-dark",
+                inherit: true,
+                colors: {},
+                rules: [
+                    { token: "function", foreground: "39CC8F" },
+                ],
+            });
+            
             document.codeEditor = monaco.editor.create(document.getElementById('codeContainer'), {
-                theme: 'vs-dark',
+                theme: 'hlf-vs-dark',
                 tabSize: 4,
                 directIndentation: true,
                 useTabStops: true,
