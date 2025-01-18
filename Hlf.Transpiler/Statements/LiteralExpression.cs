@@ -22,6 +22,12 @@ public class LiteralExpression : Statement
 
     public override void Parse()
     {
+        if (HlfType == HlfType.Int)
+        {
+            if (long.Parse(Code) > int.MaxValue) throw new LanguageException("Integer value can't be greater than 2^31-1 = 2147483647", Line, Column, Code.Length);
+            if (long.Parse(Code) < int.MinValue) throw new LanguageException("Integer value can't be less than  -2^31 = -2147483648", Line, Column, Code.Length);
+        }
+
         if(Result is VoidDataId)
             Result = HlfType.NewDataId();
     }
