@@ -130,6 +130,24 @@ public class BuiltinFunctionCall : Statement
                 new("x", HlfType.Float),
             ]
         ),
+        new("dot", HlfType.Float, (gen, parameters, resultId) => 
+                $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[0]", "ax", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[1]", "ay", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[2]", "az", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["b"].Generate(gen)}[0]", "bx", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["b"].Generate(gen)}[1]", "by", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["b"].Generate(gen)}[2]", "bz", "1000")}\n" +
+                $"{gen.ScoreboardOpIntoA("ax", "bx", "*=")}\n" +
+                $"{gen.ScoreboardOpIntoA("ay", "by", "*=")}\n" +
+                $"{gen.ScoreboardOpIntoA("az", "bz", "*=")}\n" +
+                $"{gen.ScoreboardOpIntoA("ax", "ay", "+=")}\n" +
+                $"{gen.ScoreboardOpIntoA("ax", "az", "+=")}\n" +
+                $"{gen.CopyScoreToData("ax", resultId.Generate(gen), "0.000001")}",
+            [
+                new("a", HlfType.Vector),
+                new("b", HlfType.Vector),
+            ]
+        ),
 
         #endregion
     ];
