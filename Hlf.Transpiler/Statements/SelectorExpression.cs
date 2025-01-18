@@ -56,6 +56,7 @@ public class SelectorExpression : Statement
 
     public override string Generate(GeneratorOptions options)
     {
-        return $"tag {Selector} add {Result.Generate(options)}";
+        return $"tag @e[tag={Result.Generate(options)}] remove {Result.Generate(options)}\n" +
+               $"tag {Selector} add {Result.Generate(options)}";
     }
 }
