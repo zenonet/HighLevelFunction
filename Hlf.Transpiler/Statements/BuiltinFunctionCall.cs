@@ -119,7 +119,7 @@ public class BuiltinFunctionCall : Statement
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[0]\n" +
                 $"kill @e[type=armor_stand, tag={gen.MarkerTag}, tag=hlf_sin_calc]",
             [
-                new("x", HlfType.Int),
+                new("x", HlfType.Float),
             ]
         ),
         new("cos", HlfType.Float, (gen, parameters, resultId) => 
@@ -127,15 +127,15 @@ public class BuiltinFunctionCall : Statement
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[2]\n" +
                 $"kill @e[type=armor_stand, tag={gen.MarkerTag}, tag=hlf_sin_calc]",
             [
-                new("x", HlfType.Int),
+                new("x", HlfType.Float),
             ]
         ),
 
         #endregion
     ];
     
-    private static string CalculateSinAndCos(GeneratorOptions gen, string inputVariable) => $"{gen.CopyDataToScoreboard(inputVariable, "dtf", "-10000000")}\n" +
-                                                                                            $"{gen.CopyScoreToData("dtf", "sin_input", "0.0000001", "float")}\n" +
+    private static string CalculateSinAndCos(GeneratorOptions gen, string inputVariable) => $"{gen.CopyDataToScoreboard(inputVariable, "dtf", "-100000")}\n" +
+                                                                                            $"{gen.CopyScoreToData("dtf", "sin_input", "0.00001", "float")}\n" +
                                                                                             $"summon armor_stand 0 63 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_sin_calc\"]}}\n" +
                                                                                             $"data modify entity @e[type=armor_stand, tag=hlf_sin_calc, limit=1] Pos set value [0d,0d,0d]\n" +
                                                                                             $"data modify entity @e[type=armor_stand, tag=hlf_sin_calc, limit=1] Rotation[0] set from storage {gen.StorageNamespace} sin_input\n" +
