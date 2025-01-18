@@ -124,7 +124,14 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
                 {
                     Type = Vector,
                     GetterGenerator = (gen, self, resultId) => $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag={self.Generate(gen)}, limit=1] Pos",
-                    SetterGenerator = (gen, self, valueId) => $"data modify entity @e[tag={self.Generate(gen)}, limit=1] Pos set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
+                    SetterGenerator = (gen, self, valueId) =>
+                    {
+                        return $"execute if entity @e[tag={self.Generate(gen)}, limit=1, type=player] run summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\", \"player_pos_marker\"]}}\n" +
+                               $"execute if entity @e[tag={self.Generate(gen)}, limit=1, type=player] run data modify entity @e[type=marker, tag=player_pos_marker, limit=1] Pos set from storage {gen.StorageNamespace} {valueId.Generate(gen)}\n" +
+                               $"execute if entity @e[tag={self.Generate(gen)}, limit=1, type=player] at @e[type=marker, tag=player_pos_marker, limit=1] run tp @e[tag={self.Generate(gen)}, limit=1, type=player] ~ ~ ~\n" +
+                               $"execute if entity @e[tag={self.Generate(gen)}, limit=1, type=player] run kill @e[type=marker, tag=player_pos_marker, limit=1]\n" +
+                               $"execute if entity @e[tag={self.Generate(gen)}, limit=1, type=!player] run data modify entity @e[tag={self.Generate(gen)}, limit=1] Pos set from storage {gen.StorageNamespace} {valueId.Generate(gen)}";
+                    },
                 }
             },
             {
