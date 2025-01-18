@@ -130,6 +130,17 @@ public class BuiltinFunctionCall : Statement
                 new("x", HlfType.Float),
             ]
         ),
+        new("tan", HlfType.Float, (gen, parameters, resultId) => 
+                $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
+                $"execute store result score sin {gen.Scoreboard} run data get entity @e[tag=hlf_sin_calc, limit=1] Pos[0] 1000000\n" +
+                $"execute store result score cos {gen.Scoreboard} run data get entity @e[tag=hlf_sin_calc, limit=1] Pos[2] 1000\n" +
+                $"kill @e[type=armor_stand, tag={gen.MarkerTag}, tag=hlf_sin_calc]\n" +
+                $"{gen.ScoreboardOpIntoA("sin", "cos", "/=")}\n" +
+                $"{gen.CopyScoreToData("sin", resultId.Generate(gen), "0.001", "double")}",
+            [
+                new("x", HlfType.Float),
+            ]
+        ),
         new("dot", HlfType.Float, (gen, parameters, resultId) => 
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[0]", "ax", "1000")}\n"+
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[1]", "ay", "1000")}\n"+
