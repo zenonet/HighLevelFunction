@@ -1,4 +1,5 @@
-﻿using Hlf.Transpiler.CodeGen;
+﻿using System.Text;
+using Hlf.Transpiler.CodeGen;
 using Hlf.Transpiler.Values;
 
 namespace Hlf.Transpiler;
@@ -26,9 +27,11 @@ public class MemberSetter : Statement
 
     public override string Generate(GeneratorOptions gen)
     {
-        return gen.Comment($"Assigning property '{MemberName}' in type {BaseExpression.Result.Type.Name}\n") +
-               $"{BaseExpression.Generate(gen)}\n" +
-               $"{Expression.Generate(gen)}\n" +
-               $"{member.SetterGenerator!.Invoke(gen, BaseExpression.Result, Expression.Result)}";
+        StringBuilder sb = new();
+        sb.SmartAppendL(gen.Comment($"Assigning property '{MemberName}' in type {BaseExpression.Result.Type.Name}"));
+        sb.SmartAppendL($"{BaseExpression.Generate(gen)}");
+        sb.SmartAppendL($"{Expression.Generate(gen)}");
+        sb.SmartAppend($"{member.SetterGenerator!.Invoke(gen, BaseExpression.Result, Expression.Result)}");
+        return sb.ToString();
     }
 }
