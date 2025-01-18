@@ -9,10 +9,17 @@ public class BuiltinFunctionDefinition(string name, HlfType returnType, CodeGene
     public ParameterDefinition[] Parameters { get; set; } = parameters;
     public CodeGenerator CodeGenerator { get; init; } = codeGenerator;
     public McVersion MinVersion = McVersion.OneDot(13);
+    public string? Description;
 
     public BuiltinFunctionDefinition WithMinVersion(McVersion minVersion)
     {
         MinVersion = minVersion;
+        return this;
+    }
+
+    public BuiltinFunctionDefinition WithDescription(string description)
+    {
+        Description = description;
         return this;
     }
 }

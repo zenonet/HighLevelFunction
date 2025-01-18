@@ -42,9 +42,24 @@ public static partial class HlfTranspilerJs
         }
 
     }
+    
+    [JSInvokable]
+    public static FunctionMetadata GetFunctionDescription(string functionName)
+    {
+        var overloads = BuiltinFunctionCall.BuiltinFunctionDefinitions.Where(x => x.Name == functionName).ToArray();
+
+        if (!overloads.Any()) return new(false, "", []);
+        
+        var definition = overloads.First();
+
+        var overloadStrings = overloads.Select(ov => $"{functionName}({string.Join(", ", ov.Parameters.Select(x => x.Type.Name))})").ToArray();
+        return new(true, definition.Description, overloadStrings);
+    }
 
     private static string SerializeDictionary(Dictionary<string, string> dict)
     {
         return $"{{{string.Join(",", dict.Select(x => $"\"{HttpUtility.JavaScriptStringEncode(x.Key)}\":\"{HttpUtility.JavaScriptStringEncode(x.Value)}\""))}}}";
     }
 }
+
+public record FunctionMetadata(bool success, string? Description, string[] Overloads);

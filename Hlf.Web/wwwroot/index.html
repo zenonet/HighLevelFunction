@@ -271,6 +271,54 @@ say("Block placed!");
                     lineComment: "//",
                 }
             });
+            
+            monaco.languages.registerHoverProvider("hlf", {
+                provideHover: function (model, position) {
+                    let word = model.getWordAtPosition(position)
+                    if(word === null) return
+                    let afterWord = model.getValueInRange(new monaco.Range(position.lineNumber, word.endColumn, position.lineNumber, word.endColumn+1));
+                    if(afterWord !== '(') return
+                    
+                    let data = window.getFunctionData(word.word);
+                    console.log(data)
+                    if(!data.success) return
+
+                    return {
+                        range: new monaco.Range(
+                            position.lineNumber,
+                            word.startColumn,
+                            position.lineNumber,
+                            word.endColumn,
+                        ),
+                        contents: [
+                           /* { value: "**SOURCE**" },*/
+                            {
+                                value: "**" + data.overloads[0] + "**"
+                                /*"```html\n" +
+                                "deeznuts" +
+                                "\n```",*/
+                            },
+                            {
+                                value: data.description
+                                    /*"```html\n" +
+                                    "deeznuts" +
+                                    "\n```",*/
+                            },
+                            {
+                                value: "**Overloads:**"
+                            },
+                            {
+                                 value: data.overloads.map(function (str) {
+                                    return "- " + str + "\n"
+                                }).join('\n')
+                                    /*"```html\n" +
+                                    "deeznuts" +
+                                    "\n```",*/
+                            },
+                        ],
+                    };
+                },
+            });
             document.editorModel.onDidChangeContent(autoRetranspile);
             console.log("Initial transpile from editor")
             window.transpile()
