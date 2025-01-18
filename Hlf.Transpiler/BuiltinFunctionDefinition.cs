@@ -8,6 +8,13 @@ public class BuiltinFunctionDefinition(string name, HlfType returnType, CodeGene
     public HlfType ReturnType { get; init; } = returnType;
     public ParameterDefinition[] Parameters { get; set; } = parameters;
     public CodeGenerator CodeGenerator { get; init; } = codeGenerator;
+    public McVersion MinVersion = McVersion.OneDot(13);
+
+    public BuiltinFunctionDefinition WithMinVersion(McVersion minVersion)
+    {
+        MinVersion = minVersion;
+        return this;
+    }
 }
 
 public delegate string CodeGenerator(GeneratorOptions options, Dictionary<string, DataId> parameters, DataId resultId);

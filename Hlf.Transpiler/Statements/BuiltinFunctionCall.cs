@@ -186,6 +186,11 @@ public class BuiltinFunctionCall : Statement
     {
         if (definition == null && customFunctionDefinition == null) throw new ArgumentNullException();
 
+        if (definition != null && options.TargetVersion < definition.MinVersion)
+        {
+            throw new LanguageException($"The {definition.Name}() function requires a target version of at least {definition.MinVersion}", Line, Column, FunctionName.Length);
+        }
+        
         StringBuilder sb = new();
         Dictionary<string, DataId> parameterDataIds = new();
         for (int i = 0; i < Parameters.Count; i++)
