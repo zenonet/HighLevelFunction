@@ -7,11 +7,11 @@ public class BuiltinFunctionCall : Statement
 {
     public static BuiltinFunctionDefinition[] BuiltinFunctionDefinitions { get; } =
     [
-        new("say", HlfType.Void, (gen, parameters, _) => $"tellraw @a \"{parameters["content"].Generate(gen)}\"",
+        new BuiltinFunctionDefinition("say", HlfType.Void, (gen, parameters, _) => $"tellraw @a \"{parameters["content"].Generate(gen)}\"",
             [
                 new("content", HlfType.ConstString),
             ]
-        ),
+        ).WithDescription("Writes a value to the chat"),
         new("say", HlfType.Void, (gen, parameters, _) => $"tellraw @a {{\"storage\":\"{gen.StorageNamespace}\", \"nbt\":\"{parameters["content"].Generate(gen)}\"}}",
             [
                 new("content", HlfType.String),
@@ -32,7 +32,7 @@ public class BuiltinFunctionCall : Statement
                 new("content", HlfType.Vector),
             ]
         ),
-        new("Vector", HlfType.Vector, (gen, parameters, resultId) => 
+        new BuiltinFunctionDefinition("Vector", HlfType.Vector, (gen, parameters, resultId) => 
                 gen.Comment("Constructing a 3d vector from individual values\n") + 
                 $"data remove storage {gen.StorageNamespace} {resultId.Generate(gen)}\n" +
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} append from storage {gen.StorageNamespace} {parameters["x"].Generate(gen)}\n" +
@@ -43,7 +43,7 @@ public class BuiltinFunctionCall : Statement
                 new("y", HlfType.Float),
                 new("z", HlfType.Float),
             ]
-        ),
+        ).WithDescription("Constructs a 3d vector from individual values"),
         
         new("int", HlfType.Int, (gen, parameters, resultId) => 
                 $"{gen.Convert(parameters["x"].Generate(gen), resultId.Generate(gen), "int")}",
@@ -52,7 +52,7 @@ public class BuiltinFunctionCall : Statement
             ]
         ),
         
-        new("setBlock", HlfType.Void, (gen, parameters, _) => 
+        new BuiltinFunctionDefinition("setBlock", HlfType.Void, (gen, parameters, _) => 
                 gen.Comment("Placing a block\n") +
                 $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_setblock\"]}}\n" +
                 $"data modify entity @e[type=marker, tag={gen.MarkerTag}, tag=hlf_setblock, limit=1] Pos set from storage {gen.StorageNamespace} {parameters["position"].Generate(gen)}\n" +
@@ -62,9 +62,9 @@ public class BuiltinFunctionCall : Statement
                 new("position", HlfType.Vector),
                 new("block", HlfType.BlockType),
             ]
-        ),
+        ).WithDescription("Places a block of a specified type at a specified position"),
         
-        new("getBlock", HlfType.BlockType, (gen, parameters, resultId) => 
+        new BuiltinFunctionDefinition("getBlock", HlfType.BlockType, (gen, parameters, resultId) => 
                 gen.Comment("Copying block into memory\n") +
                 $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_getblock\"]}}\n" +
                 $"data modify entity @e[type=marker, tag={gen.MarkerTag}, tag=hlf_getblock, limit=1] Pos set from storage {gen.StorageNamespace} {parameters["position"].Generate(gen)}\n" +
@@ -73,9 +73,9 @@ public class BuiltinFunctionCall : Statement
             [
                 new("position", HlfType.Vector),
             ]
-        ),
+        ).WithDescription("Gets the type of a block at a specified position"),
         
-        new("BlockType", HlfType.BlockType, (gen, parameters, resultId) => 
+        new ("BlockType", HlfType.BlockType, (gen, parameters, resultId) => 
                 $"setblock {resultId.Generate(gen)} {parameters["blockType"].Generate(gen)}",
             [
                 new("blockType", HlfType.ConstString),
@@ -91,46 +91,46 @@ public class BuiltinFunctionCall : Statement
             new("tag", HlfType.ConstString),
         ]),
         
-        new("summon", HlfType.Entity, (gen, parameters, resultId) =>
+        new BuiltinFunctionDefinition("summon", HlfType.Entity, (gen, parameters, resultId) =>
         {
             string tag = resultId.Generate(gen);
             return $"summon {parameters["type"].Generate(gen)} 0 0 0 {{Tags:[\"{tag}\", \"{gen.OwnedEntityTag}\"]}}";
         }, [
             new("type", HlfType.ConstString),
-        ]),
+        ]).WithDescription("Creates an instance of the specified entity type at Position 0 0 0."),
         
-        new("kill", HlfType.Void, (gen, parameters, _) =>
+        new BuiltinFunctionDefinition("kill", HlfType.Void, (gen, parameters, _) =>
         {
             return $"kill @e[tag={parameters["entity"].Generate(gen)}]";
         }, [
             new("entity", HlfType.Entity),
-        ]),
+        ]).WithDescription("Kills the specified entity"),
         
-        new("killOwned", HlfType.Void, (gen, _, _) =>
+        new BuiltinFunctionDefinition("killOwned", HlfType.Void, (gen, _, _) =>
         {
             return $"execute as @e[tag={gen.OwnedEntityTag}] run data modify entity @s Health set value 0";
-        }),
+        }).WithDescription("Kills all entities owned (e.g. created) by the datapack"),
 
         #region Mathematics
 
                 
-        new("sin", HlfType.Float, (gen, parameters, resultId) => 
+        new BuiltinFunctionDefinition("sin", HlfType.Float, (gen, parameters, resultId) => 
                 $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[0]\n" +
                 $"kill @e[type=armor_stand, tag={gen.MarkerTag}, tag=hlf_sin_calc]",
             [
                 new("x", HlfType.Float),
             ]
-        ),
-        new("cos", HlfType.Float, (gen, parameters, resultId) => 
+        ).WithDescription("Calculates the sine of the supplied value"),
+        new BuiltinFunctionDefinition("cos", HlfType.Float, (gen, parameters, resultId) => 
                 $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[2]\n" +
                 $"kill @e[type=armor_stand, tag={gen.MarkerTag}, tag=hlf_sin_calc]",
             [
                 new("x", HlfType.Float),
             ]
-        ),
-        new("tan", HlfType.Float, (gen, parameters, resultId) => 
+        ).WithDescription("Calculates the cosine of the supplied value"),
+        new BuiltinFunctionDefinition("tan", HlfType.Float, (gen, parameters, resultId) => 
                 $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
                 $"execute store result score sin {gen.Scoreboard} run data get entity @e[tag=hlf_sin_calc, limit=1] Pos[0] 1000000\n" +
                 $"execute store result score cos {gen.Scoreboard} run data get entity @e[tag=hlf_sin_calc, limit=1] Pos[2] 1000\n" +
@@ -140,8 +140,8 @@ public class BuiltinFunctionCall : Statement
             [
                 new("x", HlfType.Float),
             ]
-        ),
-        new("dot", HlfType.Float, (gen, parameters, resultId) => 
+        ).WithDescription("Calculates the tangent of the supplied value"),
+        new BuiltinFunctionDefinition("dot", HlfType.Float, (gen, parameters, resultId) => 
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[0]", "ax", "1000")}\n"+
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[1]", "ay", "1000")}\n"+
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[2]", "az", "1000")}\n"+
@@ -158,8 +158,8 @@ public class BuiltinFunctionCall : Statement
                 new("a", HlfType.Vector),
                 new("b", HlfType.Vector),
             ]
-        ),
-        new("cross", HlfType.Vector, (gen, parameters, resultId) => 
+        ).WithDescription("Calculates the [dot product](https://en.wikipedia.org/wiki/Dot_product) of the 2 supplied vectors"),
+        new BuiltinFunctionDefinition("cross", HlfType.Vector, (gen, parameters, resultId) => 
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[0]", "ax", "1000")}\n"+
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[1]", "ay", "1000")}\n"+
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[2]", "az", "1000")}\n"+
@@ -196,7 +196,7 @@ public class BuiltinFunctionCall : Statement
                 new("a", HlfType.Vector),
                 new("b", HlfType.Vector),
             ]
-        ),
+        ).WithDescription("Calculates the [cross product](https://en.wikipedia.org/wiki/Cross_product) of the 2 supplied vectors"),
 
         #endregion
     ];
