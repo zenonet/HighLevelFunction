@@ -11,6 +11,11 @@ public static class MemoryHelpers
     public static string CopyDataToData(this GeneratorOptions gen, string dataPath, string destDataPath)
     {
         return $"data modify storage {gen.StorageNamespace} {destDataPath} set from storage {gen.StorageNamespace} {dataPath}";
+    }    
+    
+    public static string CopyScoreToScore(this GeneratorOptions gen, string src, string dest)
+    {
+        return $"scoreboard players operation {dest} {gen.Scoreboard} = {src} {gen.Scoreboard}";
     }
     
     public static string CopyScoreToData(this GeneratorOptions gen, string scoreboardName, string dataPath, string scale = "1", string type = "int")
