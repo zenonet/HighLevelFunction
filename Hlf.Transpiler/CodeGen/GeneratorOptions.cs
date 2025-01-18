@@ -22,4 +22,10 @@ public struct GeneratorOptions()
     public string Comment(string comment) => GenerateComments ? $"# {comment}" : "";
 }
 
-public record struct Vector3Int(int X, int Y, int Z);
+public record struct Vector3Int(int X, int Y, int Z)
+{
+    public override string ToString()
+    {
+        return $"{X} {Y} {Z}";
+    }
+}
