@@ -52,8 +52,8 @@ public static partial class HlfTranspilerJs
         
         var definition = overloads.First();
 
-        var overloadStrings = overloads.Select(ov => $"{functionName}({string.Join(", ", ov.Parameters.Select(x => x.Type.Name))})").ToArray();
-        return new(true, definition.Description, overloadStrings);
+        var overloadStrings = overloads.Select(ov => $"{ov.ReturnType.Name} {functionName}({string.Join(", ", ov.Parameters.Select(x => $"{x.Type.Name} {x.Name}"))})").ToArray();
+        return new(true, definition.Description ?? "", overloadStrings);
     }
 
     private static string SerializeDictionary(Dictionary<string, string> dict)
@@ -62,4 +62,4 @@ public static partial class HlfTranspilerJs
     }
 }
 
-public record FunctionMetadata(bool success, string? Description, string[] Overloads);
+public record FunctionMetadata(bool success, string Description, string[] Overloads);

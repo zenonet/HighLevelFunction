@@ -280,7 +280,6 @@ say("Block placed!");
                     if(afterWord !== '(') return
                     
                     let data = window.getFunctionData(word.word);
-                    console.log(data)
                     if(!data.success) return
 
                     return {
@@ -291,18 +290,8 @@ say("Block placed!");
                             word.endColumn,
                         ),
                         contents: [
-                           /* { value: "**SOURCE**" },*/
-                            {
-                                value: "**" + data.overloads[0] + "**"
-                                /*"```html\n" +
-                                "deeznuts" +
-                                "\n```",*/
-                            },
                             {
                                 value: data.description
-                                    /*"```html\n" +
-                                    "deeznuts" +
-                                    "\n```",*/
                             },
                             {
                                 value: "**Overloads:**"
@@ -311,9 +300,6 @@ say("Block placed!");
                                  value: data.overloads.map(function (str) {
                                     return "- " + str + "\n"
                                 }).join('\n')
-                                    /*"```html\n" +
-                                    "deeznuts" +
-                                    "\n```",*/
                             },
                         ],
                     };
@@ -440,6 +426,8 @@ say("Block placed!");
             onResult(e.data)
         };
         let isAuto = false;
+        
+        window.getFunctionData = HlfTranspilerJs.getFunctionDescription;
         
         function getTargetVersion(){
             const strVal = document.getElementById("targetMcVersion").value;
