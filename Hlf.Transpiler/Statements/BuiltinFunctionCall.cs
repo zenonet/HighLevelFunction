@@ -148,6 +148,44 @@ public class BuiltinFunctionCall : Statement
                 new("b", HlfType.Vector),
             ]
         ),
+        new("cross", HlfType.Vector, (gen, parameters, resultId) => 
+                $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[0]", "ax", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[1]", "ay", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[2]", "az", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["b"].Generate(gen)}[0]", "bx", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["b"].Generate(gen)}[1]", "by", "1000")}\n"+
+                $"{gen.CopyDataToScoreboard($"{parameters["b"].Generate(gen)}[2]", "bz", "1000")}\n" +
+                
+                // Calculate x-value
+                $"{gen.CopyScoreToScore("ay", "x")}\n" +
+                $"{gen.ScoreboardOpIntoA("x", "bz", "*=")}\n" +
+                $"{gen.CopyScoreToScore("az", "x2")}\n" +
+                $"{gen.ScoreboardOpIntoA("x2", "by", "*=")}\n" +
+                $"{gen.ScoreboardOpIntoA("x", "x2", "-=")}\n" +
+                
+                // Calculate y-value
+                $"{gen.CopyScoreToScore("az", "y")}\n" +
+                $"{gen.ScoreboardOpIntoA("y", "bx", "*=")}\n" +
+                $"{gen.CopyScoreToScore("ax", "y2")}\n" +
+                $"{gen.ScoreboardOpIntoA("y2", "bz", "*=")}\n" +
+                $"{gen.ScoreboardOpIntoA("y", "y2", "-=")}\n" +
+                
+                // Calculate z-value
+                $"{gen.CopyScoreToScore("ax", "z")}\n" +
+                $"{gen.ScoreboardOpIntoA("z", "by", "*=")}\n" +
+                $"{gen.CopyScoreToScore("ay", "z2")}\n" +
+                $"{gen.ScoreboardOpIntoA("z2", "bx", "*=")}\n" +
+                $"{gen.ScoreboardOpIntoA("z", "z2", "-=")}\n" +
+                
+                $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set value [0d,0d,0d]\n" +
+                $"execute store result storage {gen.StorageNamespace} {resultId.Generate(gen)}[0] double 0.000001 run scoreboard players get x {gen.Scoreboard}\n" +
+                $"execute store result storage {gen.StorageNamespace} {resultId.Generate(gen)}[1] double 0.000001 run scoreboard players get y {gen.Scoreboard}\n" +
+                $"execute store result storage {gen.StorageNamespace} {resultId.Generate(gen)}[2] double 0.000001 run scoreboard players get z {gen.Scoreboard}\n",
+            [
+                new("a", HlfType.Vector),
+                new("b", HlfType.Vector),
+            ]
+        ),
 
         #endregion
     ];
