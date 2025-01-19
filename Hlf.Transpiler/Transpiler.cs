@@ -33,6 +33,7 @@ public class Transpiler
         
         // Clear old stuff
         sb.AppendLine($"kill @e[tag={options.MarkerTag}]");
+        sb.AppendLine("forceload add 0 0");
 
         List<VariableAssignment> globalVarInitializers = [];
         foreach (Statement s in statements)
