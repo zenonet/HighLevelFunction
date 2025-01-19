@@ -56,6 +56,13 @@ public class Transpiler
         
         // Create extra functions for statements
 
+        // Generate initializers for global variables here
+        sb.SmartAppendL(options.Comment("Initializing global variables declared in root scope:"));
+        globalVarInitializers.ForEach(x => sb.SmartAppendL(PostProcessCode(x.Generate(options), options)));
+        // Create obsidian block around block storage
+        if(BlockTypeDataId.counter > 0)
+            sb.SmartAppendL($"fill {BlockTypeDataId.GetReservedAreaBox(options)} obsidian");
+        
         List<(string, string)> extraFunctions = options.ExtraFunctionsToGenerate;
         foreach ((string name, string code) in extraFunctions)
         {
@@ -63,13 +70,6 @@ public class Transpiler
             
             if(name is "main" or "load")
             {
-                // Generate initializers for global variables here
-                sb.SmartAppendL(options.Comment("Initializing global variables declared in root scope:"));
-                globalVarInitializers.ForEach(x => sb.SmartAppendL(PostProcessCode(x.Generate(options), options)));
-                // Create obsidian block around block storage
-                if(BlockTypeDataId.counter > 0)
-                    sb.SmartAppendL($"fill {BlockTypeDataId.GetReservedAreaBox(options)} obsidian");
-                
                 if(options.GenerateComments) sb.AppendLine(); // Actually an intentional line break here
                 sb.Append('\n' + processedCode);
                 continue;
