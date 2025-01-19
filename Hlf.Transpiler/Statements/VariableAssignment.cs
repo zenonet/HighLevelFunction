@@ -45,7 +45,8 @@ public class VariableAssignment : Statement
         {
             ValueKind.Nbt => $"data modify storage {options.StorageNamespace} {variableId.Generate(options)} set from storage {options.StorageNamespace} {dataId.Generate(options)}",
             ValueKind.Block => $"clone {dataId.Generate(options)} {dataId.Generate(options)} {variableId.Generate(options)}",
-            ValueKind.EntityTag => $"tag @e[tag={dataId.Generate(options)}] add {variableId.Generate(options)}",
+            ValueKind.EntityTag => $"tag @e remove {variableId.Generate(options)}\n" +
+                                   $"tag @e[tag={dataId.Generate(options)}] add {variableId.Generate(options)}",
             _ => throw new NotImplementedException($"Variable assignment is not implemented for type {variableId.Type.Name}")
         });
         
