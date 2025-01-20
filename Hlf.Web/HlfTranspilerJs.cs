@@ -48,13 +48,25 @@ public static partial class HlfTranspilerJs
     {
         var overloads = BuiltinFunctionCall.BuiltinFunctionDefinitions.Where(x => x.Name == functionName).ToArray();
 
-        if (!overloads.Any()) return new(false, "", []);
+        if (!overloads.Any()) return new(false, "", "", []);
         
         var definition = overloads.First();
 
         var overloadStrings = overloads.Select(ov => $"{ov.ReturnType.Name} {functionName}({string.Join(", ", ov.Parameters.Select(x => $"{x.Type.Name} {x.Name}"))})").ToArray();
-        return new(true, definition.Description ?? "", overloadStrings);
+        return new(true, definition.Name, definition.Description ?? "", overloadStrings);
     }
+
+    [JSInvokable]
+    public static FunctionMetadata[] GetAllBuiltinFunctionDefinitions() => 
+        BuiltinFunctionCall.BuiltinFunctionDefinitions.GroupBy(x => x.Name).ToArray().Select(overloads =>
+    {
+            if (!overloads.Any()) return new FunctionMetadata(false, "", "", []);
+
+            var definition = overloads.First();
+
+            var overloadStrings = overloads.Select(ov => $"{ov.ReturnType.Name} {definition.Name}({string.Join(", ", ov.Parameters.Select(x => $"{x.Type.Name} {x.Name}"))})").ToArray();
+            return new(true,  definition.Name, definition.Description ?? "", overloadStrings);
+    }).ToArray();
 
     private static string SerializeDictionary(Dictionary<string, string> dict)
     {
@@ -62,4 +74,4 @@ public static partial class HlfTranspilerJs
     }
 }
 
-public record FunctionMetadata(bool success, string Description, string[] Overloads);
+public record FunctionMetadata(bool success, string Name, string Description, string[] Overloads);
