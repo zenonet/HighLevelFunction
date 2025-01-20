@@ -22,6 +22,8 @@ public class ForLoop : Loop
         
         if (Condition != null && !Condition.Result.Type.IsAssignableTo(HlfType.Bool))
             throw new LanguageException($"Condition expression of for-loop should be of type {HlfType.Bool.Name} but is of type {Condition.Result.Type.Name}", Condition.Line, Condition.Column);
+        
+        base.InitializeControlFlow();
     }
 
     internal static int loopCounter = 0;
