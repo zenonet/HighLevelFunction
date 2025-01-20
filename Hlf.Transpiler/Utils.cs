@@ -45,6 +45,8 @@ public static partial class Utils
         builder.Append(s);
     }
 
+    public static string RegexReplace(this string input, string pattern, string replacement) => Regex.Replace(input, pattern, replacement);
+    
     public static string Free(this string freeStatement) => $";fr:{freeStatement}";
     
     [GeneratedRegex(@"^\w.*", RegexOptions.Multiline)]
