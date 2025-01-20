@@ -357,6 +357,45 @@ void tick(){
         }
         
     </script>
+    <script type="module">
+        import { downloadZip } from "./node_modules/client-zip/index.js"
+        
+        document.downloadDatapack = async function () {
+            console.log("Downloading...")
+            if(document.transpiledJson === undefined) return
+            
+            // define what we want in the ZIP
+            const now = new Date();
+            const files = []
+
+            for (const name in document.transpiledJson) {
+                const content = document.transpiledJson[name];
+                files.push({
+                    name: name,
+                    input: content,
+                    lastModified: now
+                });
+            }
+            
+            // get the ZIP stream in a Blob
+            const blob = await downloadZip(files).blob()
+
+            // make and click a temporary link to download the Blob
+            const link = document.createElement("a")
+            link.href = URL.createObjectURL(blob)
+            link.download = "datapack.zip"
+            link.click()
+            link.remove()
+
+            // in real life, don't forget to revoke your Blob URLs if you use them
+        }
+        console.log("Added download function")
+        document.getElementById("downloadZipButton").onclick = async function (){
+            await window.transpile(false);
+            await document.downloadDatapack();
+        }
+        document.getElementById("downloadZipButton").disabled = false;
+    </script>
     <script lang="js" type="module">
         // Importing compiled ES module.
         import bootsharp, {HlfTranspilerJs} from "./../bin/bootsharp/index.mjs";
@@ -396,22 +435,27 @@ void tick(){
                 Patch: 0,
             }
         }
+        let transpileResolve;
+        let transpileReject;
         export function transpile(isAuto = false){
-            
-            isAuto = isAuto;
-            let options = {
-                GenerateComments: document.getElementById("generateComments").checked,
-                TargetVersion: getTargetVersion()
-            }
-            
-            window.TranspileStart = performance.now()
-            if(document.getElementById("useWorkerCheckbox").checked)
-                wasmWorker.postMessage(
+            return new Promise(function(resolve, reject){
+                transpileResolve = resolve;
+                transpileReject = reject;
+                isAuto = isAuto;
+                let options = {
+                    GenerateComments: document.getElementById("generateComments").checked,
+                    TargetVersion: getTargetVersion()
+                }
+
+                window.TranspileStart = performance.now()
+                if(document.getElementById("useWorkerCheckbox").checked)
+                    wasmWorker.postMessage(
                         [document.editorModel.getValue(), options]);
-            else{
-                const resp = HlfTranspilerJs.transpileToString(document.editorModel.getValue(), options);
-                onResult(resp);
-            }
+                else{
+                    const resp = HlfTranspilerJs.transpileToString(document.editorModel.getValue(), options);
+                    onResult(resp);
+                }
+            });
         }
         
         function onResult(resp){
@@ -437,8 +481,7 @@ void tick(){
                 msgField.style.visibility = "visible";
                 msgField.innerText = err;
                 successField.style.visibility = "hidden";
-
-
+                
 
                 // show errors:
                 require(["vs/editor/editor.main"], () => {
@@ -453,6 +496,7 @@ void tick(){
                         }
                     ]);
                 });
+                transpileReject(err)
                 return;
             }
             // clear errors in editor:
@@ -493,6 +537,7 @@ void tick(){
             if(document.dirHandle !== undefined && (!isAuto || document.getElementById("saveInRealtimeCheckbox").checked)){
                 saveDatapackLocally();
             }
+            transpileResolve(json);
         }
         
         window.transpile = transpile;
@@ -581,6 +626,7 @@ void tick(){
     <div style="display: flex; flex-direction: row; gap: 15pt">
         <button id="transpileButton" style="margin-bottom: 10pt" disabled>Transpile</button>
         <span id="stats"></span>
+        <button id="downloadZipButton" style="margin-bottom: 10pt" disabled>Download datapack as ZIP</button>
     </div>
     <div style="background:gray; display: flex; gap:15pt; padding: 10pt">
         <div>
