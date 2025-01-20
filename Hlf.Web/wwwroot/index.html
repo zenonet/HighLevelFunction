@@ -571,10 +571,10 @@ void tick(){
                 console.log(def)
                 const content = template.cloneNode(true)
                 document.getElementById("functionDefinitions").appendChild(content)
-                content.innerHTML = content.innerHTML
-                    .replace("$DESCRIPTION", def.description)
-                    .replace("$NAME", def.name)
-                    .replace("$OVERLOADS", def.overloads.join("<br>"))
+                content.querySelector("#description").innerHTML = def.description.replace(/\[(.*)]\((.*)\)/, '<a href="$2">$1</a>'); // we have to translate Markdown links to html here using regex rq.
+                content.querySelector("#functionName").innerHTML = def.name;
+                content.querySelector("#overloads").innerHTML = def.overloads.join("<br>");
+                
                 content.style.display = "unset";
             }
         //})
@@ -722,12 +722,12 @@ void tick(){
     <h2>Documentation</h2>
     <li style="display: none" class="function-explanation" id="template">
         <b class="function-name">
-            <span style="color:#39CC8F">$NAME</span><span style="color: var(--code-foreground)">()</span></b>
+            <span style="color:#39CC8F" id="functionName">$NAME</span><span style="color: var(--code-foreground)">()</span></b>
         <br>
-        <span>$DESCRIPTION</span><br>
+        <span id="description">$DESCRIPTION</span><br>
         <div class="separator"></div>
         <b>Overloads:</b><br>
-        <span class="overload">$OVERLOADS</span>
+        <span id="overloads" class="overload">$OVERLOADS</span>
     </li>
     <ul id="functionDefinitions" style="gap: 20pt;display: flex;flex-direction: column;">
     </ul>
