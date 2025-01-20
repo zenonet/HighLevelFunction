@@ -51,6 +51,18 @@ public class BuiltinFunctionCall : Statement
                 new("x", HlfType.Float),
             ]
         ),
+        new("string", HlfType.String, (gen, parameters, resultId) => 
+                gen.CopyDataToData(parameters["x"].Generate(gen), resultId.Generate(gen)), // basically trust me bro
+            [
+                new("x", HlfType.Int),
+            ]
+        ),
+        new("string", HlfType.String, (gen, parameters, resultId) => 
+                gen.CopyDataToData(parameters["x"].Generate(gen), resultId.Generate(gen)), // basically trust me bro
+            [
+                new("x", HlfType.Float),
+            ]
+        ),
         
         new BuiltinFunctionDefinition("setBlock", HlfType.Void, (gen, parameters, _) => 
                 gen.Comment("Placing a block\n") +
@@ -81,15 +93,6 @@ public class BuiltinFunctionCall : Statement
                 new("blockType", HlfType.ConstString),
             ]
         ),
-
-        new("getEntityWithTag", HlfType.Entity, (gen, parameters, resultId) =>
-        {
-            string tag = parameters["tag"].Generate(gen);
-            string newTag = resultId.Generate(gen);
-            return $"execute as @e[tag={tag}, limit=1] run tag @s add {newTag}";
-        }, [
-            new("tag", HlfType.ConstString),
-        ]),
         
         new BuiltinFunctionDefinition("summon", HlfType.Entity, (gen, parameters, resultId) =>
         {
