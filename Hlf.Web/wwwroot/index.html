@@ -579,16 +579,19 @@ void tick(){
             }
         //})
     </script>
-    <script>
-        // load documentation
-        
-
-        
-    </script>
     
     <style>
-        html{
-            font-family: Arial,sans-serif;
+
+        html {
+            font-family: Arial, sans-serif;
+            background: black;
+            color: white;
+            --code-background: #1e1e1e;
+            --code-foreground: #bdbdbd;
+            
+            a{
+                color:white;
+            }
         }
         .inputBox {
             width: 70vw;
@@ -605,6 +608,28 @@ void tick(){
             padding: 3pt;
             border: 1px solid black;
             border-radius: 2px;
+        }
+        .function-explanation{
+            background: var(--code-background);
+            color:white;
+            line-height: 1.4em;
+            border: black solid 2px;
+            padding: 10pt;
+            border-radius: 2px;
+            .function-name{
+                font-family: Consolas, "Courier New", monospace;
+                font-size:1.3em; 
+                margin-bottom: 0.4em;
+            }
+            .overload{
+                font-family: Consolas, "Courier New", monospace;
+            }
+        }
+        
+        .separator{
+            background: gray;
+            height: 1px; 
+            margin: 5px 0 5px 0;
         }
     </style>
 </head>
@@ -693,15 +718,18 @@ void tick(){
         Transpiled successfully!
     </h2>
 </div>
-<div style="flex-direction: column">
+<div style="flex-direction: column;">
     <h2>Documentation</h2>
-    <li style="display: none" id="template">
-        <b>$NAME()</b><br>
+    <li style="display: none" class="function-explanation" id="template">
+        <b class="function-name">
+            <span style="color:#39CC8F">$NAME</span><span style="color: var(--code-foreground)">()</span></b>
+        <br>
         <span>$DESCRIPTION</span><br>
+        <div class="separator"></div>
         <b>Overloads:</b><br>
-        $OVERLOADS
+        <span class="overload">$OVERLOADS</span>
     </li>
-    <ul id="functionDefinitions">
+    <ul id="functionDefinitions" style="gap: 20pt;display: flex;flex-direction: column;">
     </ul>
 </div>
 </body>
