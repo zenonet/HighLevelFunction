@@ -230,8 +230,8 @@ public static class OperationImplementations
                $"execute store result storage {gen.StorageNamespace} {result.Generate(gen)} byte 1 if blocks {a.Generate(gen)} {a.Generate(gen)} {b.Generate(gen)} all\n";
     });
 
-    private const string FixedPointScale = "1000";
-    private const string InverseFixedPointScale = "0.001";
+    public const string FixedPointScale = "1000";
+    public const string InverseFixedPointScale = "0.001";
     public static OperationDefinition FixedScoreboardOperation(TokenType hlfOperator, string mcOperator, string outputScale = InverseFixedPointScale, string scaleA = FixedPointScale, string scaleB = FixedPointScale) => new(hlfOperator, HlfType.Float, HlfType.Float, (gen, a, b, result) =>
     $"{gen.CopyDataToScoreboard(a.Generate(gen), "a", scaleA)}\n" +
     $"{gen.CopyDataToScoreboard(b.Generate(gen), "b", scaleB)}\n" +
