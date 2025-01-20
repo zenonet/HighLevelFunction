@@ -577,6 +577,16 @@ void tick(){
                 
                 content.style.display = "unset";
             }
+            
+            document.getElementById("search").oninput = function(ev){
+                const text = document.getElementById("search").value.toLowerCase();
+
+                for (let explanation of document.querySelectorAll("#functionDefinitions > .function-explanation")) {
+                    const titleContains = explanation.querySelector("#functionName").innerText.toLowerCase().includes(text);
+                    const descriptionContains = explanation.querySelector("#description").innerText.toLowerCase().includes(text);
+                    explanation.style.display = titleContains || (descriptionContains && text.length >= 2) ? "block" : "none";
+                }
+            };
         //})
     </script>
     
@@ -720,6 +730,7 @@ void tick(){
 </div>
 <div style="flex-direction: column;">
     <h2>Documentation</h2>
+    <input id="search" placeholder="Search functions..." style="font-size: 1.3em;padding: 8pt;"/>
     <li style="display: none" class="function-explanation" id="template">
         <b class="function-name">
             <span style="color:#39CC8F" id="functionName">$NAME</span><span style="color: var(--code-foreground)">()</span></b>
@@ -729,7 +740,7 @@ void tick(){
         <b>Overloads:</b><br>
         <span id="overloads" class="overload">$OVERLOADS</span>
     </li>
-    <ul id="functionDefinitions" style="gap: 20pt;display: flex;flex-direction: column;">
+    <ul id="functionDefinitions" style="gap: 20pt;display: flex;flex-direction: column; min-height: 60vh">
     </ul>
 </div>
 </body>
