@@ -45,18 +45,18 @@ public class BuiltinFunctionCall : Statement
             ]
         ).WithDescription("Constructs a 3d vector from individual values"),
         
-        new("int", HlfType.Int, (gen, parameters, resultId) => 
+        new BuiltinFunctionDefinition("int", HlfType.Int, (gen, parameters, resultId) => 
                 $"{gen.Convert(parameters["x"].Generate(gen), resultId.Generate(gen), "int")}",
             [
                 new("x", HlfType.Float),
             ]
-        ),
-        new("string", HlfType.String, (gen, parameters, resultId) => 
+        ).WithDescription("Converts a float into an integer"),
+        new BuiltinFunctionDefinition("string", HlfType.String, (gen, parameters, resultId) => 
                 gen.CopyDataToData(parameters["x"].Generate(gen), resultId.Generate(gen)), // basically trust me bro
             [
                 new("x", HlfType.Int),
             ]
-        ),
+        ).WithDescription("Converts a value to a string"),
         new("string", HlfType.String, (gen, parameters, resultId) => 
                 gen.CopyDataToData(parameters["x"].Generate(gen), resultId.Generate(gen)), // basically trust me bro
             [
@@ -87,12 +87,12 @@ public class BuiltinFunctionCall : Statement
             ]
         ).WithDescription("Gets the type of a block at a specified position"),
         
-        new ("BlockType", HlfType.BlockType, (gen, parameters, resultId) => 
+        new BuiltinFunctionDefinition("BlockType", HlfType.BlockType, (gen, parameters, resultId) => 
                 $"setblock {resultId.Generate(gen)} {parameters["blockType"].Generate(gen)}",
             [
                 new("blockType", HlfType.ConstString),
             ]
-        ),
+        ).WithDescription("Returns the BlockType corresponding to the given string"),
         
         new BuiltinFunctionDefinition("summon", HlfType.Entity, (gen, parameters, resultId) =>
         {
@@ -124,7 +124,7 @@ public class BuiltinFunctionCall : Statement
             [
                 new("x", HlfType.Float),
             ]
-        ).WithDescription("Calculates the sine of the supplied value"),
+        ).WithDescription("Calculates the sine of the supplied value in degrees"),
         new BuiltinFunctionDefinition("cos", HlfType.Float, (gen, parameters, resultId) => 
                 $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
                 $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_sin_calc, limit=1] Pos[2]\n" +
@@ -132,7 +132,7 @@ public class BuiltinFunctionCall : Statement
             [
                 new("x", HlfType.Float),
             ]
-        ).WithDescription("Calculates the cosine of the supplied value"),
+        ).WithDescription("Calculates the cosine of the supplied value in degrees"),
         new BuiltinFunctionDefinition("tan", HlfType.Float, (gen, parameters, resultId) => 
                 $"{CalculateSinAndCos(gen, parameters["x"].Generate(gen))}\n" +
                 $"execute store result score sin {gen.Scoreboard} run data get entity @e[tag=hlf_sin_calc, limit=1] Pos[0] 1000000\n" +
@@ -143,7 +143,7 @@ public class BuiltinFunctionCall : Statement
             [
                 new("x", HlfType.Float),
             ]
-        ).WithDescription("Calculates the tangent of the supplied value"),
+        ).WithDescription("Calculates the tangent of the supplied value in degrees"),
         new BuiltinFunctionDefinition("dot", HlfType.Float, (gen, parameters, resultId) => 
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[0]", "ax", "1000")}\n"+
                 $"{gen.CopyDataToScoreboard($"{parameters["a"].Generate(gen)}[1]", "ay", "1000")}\n"+
