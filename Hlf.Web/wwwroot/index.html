@@ -124,71 +124,22 @@
             monaco.languages.register({ id: "hlf" });
             document.editorModel = monaco.editor.createModel(`
 
-Entity player = getEntityWithTag("player");
-int c = 10;
-Vector playerPos = player.Position;
-BlockType block = BlockType("cyan_terracotta");
-
-void place(){
-    for(int x = -1*c; x < c; x++){
-        for(int y = -1*c; y < c; y++){
-            for(int z = -1*c; z < c; z++){
-                int dist_squared = x*x+y*y+z*z;
-                if(dist_squared < 49){
-                    Vector v = Vector(int(playerPos.x) + x, int(playerPos.y) + y, int(playerPos.z) + z);
-                    setBlock(v, block);
+Entity player = @p;
+val radius = 4;
+void tick(){
+    val belowPlayer = player.Position;
+    for(int x = -1*radius; x < radius;x++){
+        for(int z = -1*radius; z < radius; z++){
+            say($"Calculating for block ({x}; {z})");
+            val v = belowPlayer+Vector(x, -1, z);
+            if(x*x + z*z < 5){
+                if(getBlock(v) == BlockType("water")){
+                    setBlock(v, BlockType("ice"));
                 }
             }
         }
     }
 }
-
-void undo(){
-    block = BlockType("air");
-    place();
-}
-
-void main(){
-    killOwned();
-    place();
-}
-
-
-
-
-/*
-Entity player = getEntityWithTag("player");
-
-Entity sheep = summon("sheep");
-sheep.Position = Vector(-35, 63, -18);
-
-Entity sheep2 = summon("sheep");
-sheep2.Position = Vector(-33, 63, -18);
-
-void tick()
-{
-    sheep.Motion = sheep2.Motion;
-    //say(player.Motion);
-}*/
-
-/*
-Entity sheep = getEntityWithTag("yeet");
-Entity player = getEntityWithTag("player");
-Vector v = player.Position;
-say(v);
-sheep.Motion = Vector(0, 0, 0);
-*/
-/*
-Vector v = vec(-35, 63, -18);
-BlockType block = getBlock(v);
-
-Vector i = vec(-32, 63, -22);
-setBlock(i, block);
-say("Block placed!");
-
-/# this is a comment as well!
-
-*/
 `,
                 "hlf"
             );
@@ -554,15 +505,40 @@ say("Block placed!");
                 }, false);*/
         document.getElementById("transpileButton").onclick = transpile;
         await bootsharp.boot();
+        console.log(document.readyState)
         if(!document.getElementById("useWorkerCheckbox").checked) document.getElementById("transpileButton").disabled = false;
-
+        
+        window.definitions = HlfTranspilerJs.getAllBuiltinFunctionDefinitions
+        
+        /*
         console.log("Transpiling initially...")
         transpile(true)
-        /*
-                if(document.getElementById("hlfTextArea").value.length > 0){
-                    console.log("Source code area already has a value so we'll transpile right away");
-                    transpile(true);
-                }*/
+        */
+        //document.addEventListener('DOMContentLoaded', function (){
+            const definitions = window.definitions()
+            console.log("Found " + definitions.length + " definitions")
+            const template = document.getElementById("template")
+            for (const i in definitions) {
+                const def = definitions[i]
+                
+                
+                
+                console.log(def)
+                const content = template.cloneNode(true)
+                document.getElementById("functionDefinitions").appendChild(content)
+                content.innerHTML = content.innerHTML
+                    .replace("$DESCRIPTION", def.description)
+                    .replace("$NAME", def.name)
+                    .replace("$OVERLOADS", def.overloads.join("<br>"))
+                content.style.display = "unset";
+            }
+        //})
+    </script>
+    <script>
+        // load documentation
+        
+
+        
     </script>
     
     <style>
@@ -670,6 +646,17 @@ say("Block placed!");
     <h2 style="color: #45e445; visibility: hidden" id="successMsg">
         Transpiled successfully!
     </h2>
+</div>
+<div style="flex-direction: column">
+    <h2>Documentation</h2>
+    <li style="display: none" id="template">
+        <b>$NAME()</b><br>
+        <span>$DESCRIPTION</span><br>
+        <b>Overloads:</b><br>
+        $OVERLOADS
+    </li>
+    <ul id="functionDefinitions">
+    </ul>
 </div>
 </body>
 </html>
