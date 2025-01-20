@@ -6,7 +6,7 @@ public class BreakStatement : Statement
 {
     public override void Parse()
     {
-        if (ParentScope.ClosestLoop is not { } loop) throw new LanguageException("Break statement can only be used in a loop", Line, Column);
+        if (ParentScope.ClosestLoop is not { } loop) throw new LanguageException("Break statement can only be used in a loop", Line, Column, length:5);
         loop.HasControlFlowStatements = true;
     }
 
