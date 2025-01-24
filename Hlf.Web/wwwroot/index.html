@@ -4,6 +4,132 @@
     <meta charset="UTF-8">
     <title>HLF-Transpiler</title>
     <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>
+
+    <!--Utils-->
+    <script lang="js">
+        // https://stackoverflow.com/a/30810322
+        function fallbackCopyTextToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                var successful = document.execCommand('copy');
+                var msg = successful ? 'successful' : 'unsuccessful';
+                console.log('Fallback: Copying text command was ' + msg);
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+
+            document.body.removeChild(textArea);
+        }
+        function copyOutputToClipboard() {
+            const text = document.getElementById("outputTextArea").value;
+            console.log("copying: " + text);
+            if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(text);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+
+        function switchFile(){
+            let file = document.getElementById("file-view-select").value;
+            console.log("Switching to file " + file);
+            let outputWindow = document.getElementById("outputTextArea");
+            outputWindow.value = document.transpiledJson[file];
+        }
+
+        async function openLocalDir(){
+
+            if(!('showOpenFilePicker' in window)){
+                alert("Your browser currently does not support FileSystemAccessAPI which is needed for modifying local files. Try using a chromium-based browser");
+                return;
+            }
+
+            document.dirHandle = await window.showDirectoryPicker({mode:"readwrite"});
+
+            const dir = document.dirHandle;
+
+            if(document.dirHandle === undefined) return;
+
+            console.log("got file handle: " + document.dirHandle);
+
+            const srcFileHandle = await dir.getFileHandle("source.hlf", {create: false});
+            if(srcFileHandle !== undefined && window.confirm("The opened datapack contains hlf code. Do you want to load it? (Your current code will be gone)")){
+                console.log("Loading hlf code from opened datapack...");
+                // existing hlf datapack has been opened, load source code:
+                const src = await (await srcFileHandle.getFile()).text()
+
+                document.editorModel.setValue(src);
+            }
+
+            document.getElementById("saveInRealtimeCheckbox").disabled = false;
+            document.getElementById("workInLocalDirButton").innerText = "Change working directory";
+        }
+
+        async function saveDatapackLocally(){
+            let json = document.transpiledJson;
+
+            for(const o in json){
+
+                let subdirs = o.split("/");
+                let fileName = subdirs.pop()
+                console.log("Creating subdirs:" + subdirs)
+                // Iterate over the subdirectory names and create them
+                let currentDir = document.dirHandle;
+                for (const subdir of subdirs) {
+                    currentDir = await currentDir.getDirectoryHandle(subdir, { create: true });
+                }
+
+                const fileHandle = await currentDir.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(json[o]);
+                await writable.close();
+            }
+
+            // write the source code to an additional file:
+            const fileHandle = await document.dirHandle.getFileHandle("source.hlf", { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(document.editorModel.getValue());
+            await writable.close();
+        }
+
+        function onCodeChange(){
+            if(document.getElementById("transpileInRealtimeCheckbox").checked){
+                window.transpile(true);
+            }
+
+            // if saving via file-system-access-api is enabled, don't save source code
+            if(document.dirHandle === undefined){
+                saveSrcCodeInLocalStorage()
+            }
+        }
+
+        function saveSrcCodeInLocalStorage(){
+            const src = document.editorModel.getValue();
+            window.localStorage.setItem("srcCode", src);
+        }
+        function loadSrcCodeFromLocalStorage(){
+            const src = window.localStorage.getItem("srcCode");
+            if(src !== null) document.editorModel.setValue(src)
+        }
+
+    </script>
+    
+    <!--Monaco editor:-->
     <script>
         
         function getMonarchDef(){
@@ -256,107 +382,15 @@ void tick(){
                     };
                 },
             });
-            document.editorModel.onDidChangeContent(autoRetranspile);
+            document.editorModel.onDidChangeContent(onCodeChange);
+            
+            loadSrcCodeFromLocalStorage();
             console.log("Initial transpile from editor")
             window.transpile()
         });
     </script>
     
-    <script>
-        // https://stackoverflow.com/a/30810322
-        function fallbackCopyTextToClipboard(text) {
-            var textArea = document.createElement("textarea");
-            textArea.value = text;
-
-            // Avoid scrolling to bottom
-            textArea.style.top = "0";
-            textArea.style.left = "0";
-            textArea.style.position = "fixed";
-
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-
-            try {
-                var successful = document.execCommand('copy');
-                var msg = successful ? 'successful' : 'unsuccessful';
-                console.log('Fallback: Copying text command was ' + msg);
-            } catch (err) {
-                console.error('Fallback: Oops, unable to copy', err);
-            }
-
-            document.body.removeChild(textArea);
-        }
-        function copyOutputToClipboard() {
-            const text = document.getElementById("outputTextArea").value;
-            console.log("copying: " + text);
-            if (!navigator.clipboard) {
-                fallbackCopyTextToClipboard(text);
-                return;
-            }
-            navigator.clipboard.writeText(text).then(function() {
-                console.log('Async: Copying to clipboard was successful!');
-            }, function(err) {
-                console.error('Async: Could not copy text: ', err);
-            });
-        }
-        
-        function switchFile(){
-            let file = document.getElementById("file-view-select").value;
-            console.log("Switching to file " + file);
-            let outputWindow = document.getElementById("outputTextArea");
-            outputWindow.value = document.transpiledJson[file];
-        }
-        
-        async function openLocalDir(){
-
-            if(!('showOpenFilePicker' in window)){
-                alert("Your browser currently does not support FileSystemAccessAPI which is needed for modifying local files. Try using a chromium-based browser");
-                return;
-            }
-            
-            document.dirHandle = await window.showDirectoryPicker();
-            console.log("got file handle: " + document.dirHandle);
-            document.getElementById("saveInRealtimeCheckbox").disabled = false;
-            document.getElementById("workInLocalDirButton").innerText = "Change working directory";
-        }
-        
-        async function saveDatapackLocally(){
-            let json = document.transpiledJson;
-            
-            for(const o in json){
-
-                let subdirs = o.split("/");
-                let fileName = subdirs.pop()
-                console.log("Creating subdirs:" + subdirs)
-                // Iterate over the subdirectory names and create them
-                let currentDir = document.dirHandle;
-                for (const subdir of subdirs) {
-                    currentDir = await currentDir.getDirectoryHandle(subdir, { create: true });
-                }
-                /*
-                const index = o.lastIndexOf('/');
-                const path = o.substring(0, index+1);
-                const name = o.substring(index);
-                console.log("Full path:" + o + " Location: " + path)*/
-/*                let subDirHandle = document.dirHandle;
-                if(path !== ""){
-                    subDirHandle = await document.dirHandle.getDirectoryHandle(path, { create: true });
-                }*/
-                const fileHandle = await currentDir.getFileHandle(fileName, { create: true });
-                const writable = await fileHandle.createWritable();
-                await writable.write(json[o]);
-                await writable.close();
-            }
-        }
-        
-        function autoRetranspile(){
-            if(document.getElementById("transpileInRealtimeCheckbox").checked){
-                window.transpile(true);
-            }        
-        }
-        
-    </script>
+    <!--Zipping and downloading datapack:-->
     <script type="module">
         import { downloadZip } from "./node_modules/client-zip/index.js"
         
@@ -396,6 +430,7 @@ void tick(){
         }
         document.getElementById("downloadZipButton").disabled = false;
     </script>
+    <!--Transpilation and loading of function definitions:-->
     <script lang="js" type="module">
         // Importing compiled ES module.
         import bootsharp, {HlfTranspilerJs} from "./../bin/bootsharp/index.mjs";
@@ -403,12 +438,12 @@ void tick(){
 
         // Initializing dotnet runtime and invoking entry point.
 
-        const wasmWorker = new Worker("worker.js", {type:"module"});
+        const wasmWorker = new Worker("./worker.js", {type:"module"});
         
         wasmWorker.onmessage = (e) => {
             if(e.data === 0){
                 // worker is ready!
-                console.log("Initial transpile from editor")
+                console.log("Worker is ready. Transpiling...")
                 window.transpile()
                 if(document.getElementById("useWorkerCheckbox").checked) document.getElementById("transpileButton").disabled = false;
                 return;
@@ -559,26 +594,27 @@ void tick(){
         console.log("Transpiling initially...")
         transpile(true)
         */
-        //document.addEventListener('DOMContentLoaded', function (){
-            const definitions = window.definitions()
+
+        
+        function loadDefinitions() {
+            const definitions = HlfTranspilerJs.getAllBuiltinFunctionDefinitions()
             console.log("Found " + definitions.length + " definitions")
             const template = document.getElementById("template")
             for (const i in definitions) {
                 const def = definitions[i]
-                
-                
-                
+
+
                 console.log(def)
                 const content = template.cloneNode(true)
                 document.getElementById("functionDefinitions").appendChild(content)
                 content.querySelector("#description").innerHTML = def.description.replace(/\[(.*)]\((.*)\)/, '<a href="$2">$1</a>'); // we have to translate Markdown links to html here using regex rq.
                 content.querySelector("#functionName").innerHTML = def.name;
                 content.querySelector("#overloads").innerHTML = def.overloads.join("<br>");
-                
+
                 content.style.display = "unset";
             }
-            
-            document.getElementById("search").oninput = function(ev){
+
+            document.getElementById("search").oninput = function (ev) {
                 const text = document.getElementById("search").value.toLowerCase();
 
                 for (let explanation of document.querySelectorAll("#functionDefinitions > .function-explanation")) {
@@ -587,6 +623,15 @@ void tick(){
                     explanation.style.display = titleContains || (descriptionContains && text.length >= 2) ? "block" : "none";
                 }
             };
+        }
+
+        if(document.readyState === "interactive" || document.readyState === "complete"){
+            console.log("loading definitions immediately")
+            loadDefinitions()
+        }else{
+            console.log("loading definitions asa dom is loaded")
+            document.addEventListener('DOMContentLoaded', loadDefinitions);
+        }
         //})
     </script>
     
@@ -666,7 +711,7 @@ void tick(){
     <div style="background:gray; display: flex; gap:15pt; padding: 10pt">
         <div>
             <label for="transpileInRealtimeCheckbox">Transpile in realtime</label>
-            <input type="checkbox" id="transpileInRealtimeCheckbox" checked onchange="autoRetranspile()">
+            <input type="checkbox" id="transpileInRealtimeCheckbox" checked onchange="onCodeChange()">
         </div>
         <div>
             <label for="saveInRealtimeCheckbox">Save to filesystem in realtime</label>
@@ -678,11 +723,11 @@ void tick(){
         </div>
         <div>
             <label for="generateComments">Generate comments</label>
-            <input type="checkbox" id="generateComments" onchange="autoRetranspile()">
+            <input type="checkbox" id="generateComments" onchange="onCodeChange()">
         </div>
         <div>
             <label for="targetMcVersion">Target Version</label>
-            <select id="targetMcVersion" onchange="autoRetranspile()">
+            <select id="targetMcVersion" onchange="onCodeChange()">
             <option selected>1.21</option>
             <option>1.20.6</option>
             <option>1.20.5</option>
