@@ -201,6 +201,15 @@ public class BuiltinFunctionCall : Statement
             ]
         ).WithDescription("Calculates the [cross product](https://en.wikipedia.org/wiki/Cross_product) of the 2 supplied vectors"),
 
+        
+        new BuiltinFunctionDefinition("abs", HlfType.Float, (gen, parameters, resultId) =>
+            $"{gen.CopyDataToScoreboard(parameters["x"].Generate(gen), "a", OperationImplementations.FixedPointScale)}\n" +
+            $"execute if score a {gen.Scoreboard} matches ..0 store result storage {gen.StorageNamespace} {resultId} float -{OperationImplementations.InverseFixedPointScale} run scoreboard players get a {gen.Scoreboard}\n" +
+            $"execute unless score a {gen.Scoreboard} matches ..0 run {gen.CopyDataToData(parameters["x"].Generate(gen), resultId.Generate(gen))}",
+            [
+                new("x", HlfType.Float)
+            ]
+        ).WithDescription("Calculates the absolute value of the supplied number"),
         #endregion
     ];
     
