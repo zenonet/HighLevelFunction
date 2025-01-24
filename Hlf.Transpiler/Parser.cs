@@ -450,7 +450,11 @@ public class Parser
             if (statement.NeedsSemicolon)
             {
                 if (!tokens.StartsWith(TokenType.Semicolon))
-                    throw new LanguageException("Expected semicolon after statement.", tokens.Peek(-1));
+                {
+                    // Throw the error later so that the dev gets more useful exceptions first.
+                    statements.Add(new ThrowErrorLater(new("Expected semicolon after statement.", tokens.Peek(-1))));
+                    break;
+                }
                 tokens.Pop(); // semicolon
             }
         }
