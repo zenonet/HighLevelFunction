@@ -115,6 +115,19 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
                     SetterGenerator = (gen, value, valueId) => $"data modify storage {gen.StorageNamespace} {value.Generate(gen)}[2] set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
                 }
             },
+            {
+                "Normalized", new()
+                {
+                    Type = Vector,
+                    GetterGenerator = (gen, self, resultId) => 
+                        $"summon marker 0 0 0 {{Tags:[\"hlf_normalization_marker\", \"{gen.MarkerTag}\"]}}\n" +
+                        $"data modify entity @e[tag=hlf_normalization_marker, limit=1] Pos set from storage {gen.StorageNamespace} {self.Generate(gen)}\n" +
+                        $"execute as @e[tag=hlf_normalization_marker, limit=1] at @s run tp @s 0.0 0.0 0.0 facing ~ ~ ~\n" +
+                        $"execute as @e[tag=hlf_normalization_marker, limit=1] at @s run tp @s ^ ^ ^1\n" +
+                        $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[tag=hlf_normalization_marker, limit=1] Pos\n" +
+                        $"kill @e[tag=hlf_normalization_marker, limit=1]",
+                }
+            }
         };
         
         Entity.Members = new()
