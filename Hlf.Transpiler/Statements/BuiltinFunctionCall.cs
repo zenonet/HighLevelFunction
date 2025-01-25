@@ -156,7 +156,7 @@ public class BuiltinFunctionCall : Statement
                 $"{gen.ScoreboardOpIntoA("az", "bz", "*=")}\n" +
                 $"{gen.ScoreboardOpIntoA("ax", "ay", "+=")}\n" +
                 $"{gen.ScoreboardOpIntoA("ax", "az", "+=")}\n" +
-                $"{gen.CopyScoreToData("ax", resultId.Generate(gen), "0.000001")}",
+                $"{gen.CopyScoreToData("ax", resultId.Generate(gen), "0.000001", "float")}",
             [
                 new("a", HlfType.Vector),
                 new("b", HlfType.Vector),
