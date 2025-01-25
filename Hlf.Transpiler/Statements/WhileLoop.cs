@@ -23,27 +23,38 @@ public class WhileLoop : Loop
     public override string Generate(GeneratorOptions gen)
     {
 
-        string funcName = $"while{loopCounter++}";
+        loopFunctionName = $"while{loopCounter++}";
         
         DataId conditionVal = Condition.Result.ConvertImplicitly(gen, HlfType.Bool, out string conditionConversionCode);
         string conditionEvalCode = Condition.Generate(gen) + "\n" + conditionConversionCode;
-        string conditionalFuncCallCode = $"execute if data storage {gen.StorageNamespace} {{{conditionVal.Generate(gen)}:1b}} run function {gen.DatapackNamespace}:{funcName}";
+        string conditionalFuncCallCode = $"execute if data storage {gen.StorageNamespace} {{{conditionVal.Generate(gen)}:1b}} run function {gen.DatapackNamespace}:{loopFunctionName}";
         
         StringBuilder startupSb = new();
         startupSb.SmartAppendL(PrepareGenForControlFlow(gen));
         startupSb.SmartAppendL(conditionEvalCode);
         startupSb.SmartAppendL(conditionalFuncCallCode);
         
+        StringBuilder loopSb = new();
+        loopSb.AppendCommands(LoopScope, string.Join('\n', Block.Select(x => x.Generate(gen))));
+        
+        loopSb.AppendLine();
+        
+        loopSb.SmartAppendL(gen.Comment($"Evaluating condition for while-loop in line {Line}"));
+        loopSb.SmartAppendL(conditionEvalCode);
+
+        if(HasControlFlowStatements){
+            loopSb.SmartAppendL(gen.Comment($"Recursively call the function again unless break-statement was hit (indicated by {ControlFlowDataId!.Generate(gen)} being 1b)"));
+            loopSb.SmartAppendL(ResetControlFlowState(gen));
+            loopSb.SmartAppendL($"execute unless data storage {gen.StorageNamespace} {{{ControlFlowDataId!.Generate(gen)}:1b}} run {conditionalFuncCallCode}");
+        }
+        else
+            loopSb.AppendCommands(LoopScope, conditionalFuncCallCode); // Recursive call in loop here
+        
         StringBuilder endSb = new();
         endSb.AppendLine(gen.Comment($"Cleaning up after while loop in line {Line}"));
         endSb.SmartAppendL(LoopScope.GenerateScopeDeallocation(gen));
         endSb.SmartAppendL(conditionVal.FreeIfTemporary(gen));
         if(ControlFlowDataId != null) endSb.SmartAppendL(ControlFlowDataId.Free(gen));
-        
-        StringBuilder loopSb = new();
-        loopSb.AppendCommands(LoopScope, string.Join('\n', Block.Select(x => x.Generate(gen))));
-        loopSb.AppendCommands(LoopScope, conditionEvalCode);
-        loopSb.AppendCommands(LoopScope, conditionalFuncCallCode); // Recursive call in loop here
         
         // Finish loop execution cleanly by running cleanup if condition is no longer met
         loopSb.AppendWithPrefix($"execute unless data storage {gen.StorageNamespace} {{{conditionVal.Generate(gen)}:1b}} run", endSb.ToString());
@@ -53,7 +64,7 @@ public class WhileLoop : Loop
             loopSb.AppendWithPrefix($"execute if data storage {gen.StorageNamespace} {{{ControlFlowDataId.Generate(gen)}:1b}} run", endSb.ToString());
         }
         
-        gen.ExtraFunctionsToGenerate.Add((funcName, loopSb.ToString()));
+        gen.ExtraFunctionsToGenerate.Add((loopFunctionName, loopSb.ToString()));
 
 
         return startupSb.ToString();

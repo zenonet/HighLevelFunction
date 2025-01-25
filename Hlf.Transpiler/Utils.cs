@@ -17,7 +17,7 @@ public static partial class Utils
     {
         if (string.IsNullOrWhiteSpace(commands)) return;
         if (builder.Length > 0 && builder[^1] != '\n') builder.Append('\n');
-        builder.Append(scope.ApplyScopedPrefixes(commands));
+        builder.Append(scope.ApplyScopedPrefixes(commands.Trim('\n')));
     }
     
     public static void AppendWithPrefix(this StringBuilder builder, string prefix, string commands)

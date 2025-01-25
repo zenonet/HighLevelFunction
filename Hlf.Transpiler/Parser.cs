@@ -411,10 +411,12 @@ public class Parser
         // Variable accessor
         if (tokens.StartsWith(TokenType.Identifier))
         {
-            if (tokens.Peek().Content == "break")
+            if (tokens.Peek().Content is "break" or "continue")
             {
-                tokens.Pop();
-                BreakStatement breakStatement = new();
+                BreakStatement breakStatement = new()
+                {
+                    Type = tokens.Pop().Content == "break" ? ControlFlowStatementType.Break : ControlFlowStatementType.Continue,
+                };
                 InitStatement(breakStatement);
                 return breakStatement;
             }

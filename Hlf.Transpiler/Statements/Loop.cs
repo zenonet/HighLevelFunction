@@ -10,6 +10,8 @@ public abstract class Loop : Statement
     public Scope LoopScope;
     protected string ControlFlowConditionalPrefix = "";
 
+    protected string loopFunctionName;
+
     protected void InitializeControlFlow()
     {
         if (!HasControlFlowStatements) return; 
@@ -24,5 +26,11 @@ public abstract class Loop : Statement
         ControlFlowConditionalPrefix = $"execute if data storage {gen.StorageNamespace} {{{ControlFlowDataId.Generate(gen)}:0b}} run";
         LoopScope.ConditionPrefix = ControlFlowConditionalPrefix;
         return $"data modify storage {gen.StorageNamespace} {ControlFlowDataId.Generate(gen)} set value 0b";
+    }
+    
+    protected string ResetControlFlowState(GeneratorOptions gen)
+    {
+        if (ControlFlowDataId == null) return "";
+        return $"execute unless data storage {gen.StorageNamespace} {{{ControlFlowDataId.Generate(gen)}:1b}} run data modify storage {gen.StorageNamespace} {ControlFlowDataId!.Generate(gen)} set value 0b";
     }
 }
