@@ -97,7 +97,8 @@ public class BuiltinFunctionCall : Statement
         new BuiltinFunctionDefinition("summon", HlfType.Entity, (gen, parameters, resultId) =>
         {
             string tag = resultId.Generate(gen);
-            return $"summon {parameters["type"].Generate(gen)} 0 0 0 {{Tags:[\"{tag}\", \"{gen.OwnedEntityTag}\"]}}";
+            return $"tag @e remove {tag}\n" +
+                   $"summon {parameters["type"].Generate(gen)} 0 0 0 {{Tags:[\"{tag}\", \"{gen.OwnedEntityTag}\"]}}";
         }, [
             new("type", HlfType.ConstString),
         ]).WithDescription("Creates an instance of the specified entity type at Position 0 0 0."),
