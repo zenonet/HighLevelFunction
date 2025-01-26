@@ -80,11 +80,22 @@
             document.getElementById("workInLocalDirButton").innerText = "Change working directory";
         }
 
+        
+        let lastJson = undefined;
         async function saveDatapackLocally(){
             let json = document.transpiledJson;
 
+            document.getElementById("savingLocallySpan").style.display = "unset";
+            
             for(const o in json){
 
+                if(lastJson !== undefined && lastJson.hasOwnProperty(o)){
+                    if(json[o] === lastJson[o]){
+                        console.log("File didn't change, not writing!");
+                        continue;
+                    }
+                }
+                
                 let subdirs = o.split("/");
                 let fileName = subdirs.pop()
                 console.log("Creating subdirs:" + subdirs)
@@ -93,18 +104,21 @@
                 for (const subdir of subdirs) {
                     currentDir = await currentDir.getDirectoryHandle(subdir, { create: true });
                 }
-
                 const fileHandle = await currentDir.getFileHandle(fileName, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(json[o]);
                 await writable.close();
             }
+            console.log("build files written")
 
             // write the source code to an additional file:
             const fileHandle = await document.dirHandle.getFileHandle("source.hlf", { create: true });
             const writable = await fileHandle.createWritable();
             await writable.write(document.editorModel.getValue());
             await writable.close();
+            document.getElementById("savingLocallySpan").style.display = "none";
+            
+            lastJson = json;
         }
 
         function onCodeChange(){
@@ -769,7 +783,7 @@ void tick(){
         
     </h2>
     <h2 style="color: #45e445; visibility: hidden" id="successMsg">
-        Transpiled successfully!
+        Transpiled successfully! <span id="savingLocallySpan" style="display: none">(saving to directory...)</span>
     </h2>
 </div>
 <div style="flex-direction: column;">
