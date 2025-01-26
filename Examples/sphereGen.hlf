@@ -1,4 +1,4 @@
-﻿
+﻿// after loading the datapack, you can run this function using /function hlf:generate_sphere
 void generate_sphere(){
 
     // Place the sphere 10 blocks below the nearest player

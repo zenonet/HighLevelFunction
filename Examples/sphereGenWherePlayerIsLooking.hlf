@@ -1,4 +1,4 @@
-﻿
+﻿// after loading the datapack, you can run this function using /function hlf:generate_sphere
 void generate_sphere(){
 
     Vector pos = raycast(@p.Position+Vector(0, 1.7, 0), @p.Forward, 10000);

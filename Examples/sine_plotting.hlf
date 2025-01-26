@@ -1,6 +1,8 @@
 ﻿float xFactor = 360/32;
 float yFactor = 20;
 int length = 100;
+
+// after loading the datapack, you can run this function using /function hlf:plot
 void plot(){
     // start the graph at the player's current position
     Vector startPosition = @p.Position;
