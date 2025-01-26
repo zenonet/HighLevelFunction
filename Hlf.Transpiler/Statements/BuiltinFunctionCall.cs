@@ -209,7 +209,7 @@ public class BuiltinFunctionCall : Statement
             [
                 new("x", HlfType.Float)
             ]
-        ).WithDescription("Calculates base to the power of exponent"),
+        ).WithDescription("Calculates the absolute value of the supplied number"),
         new BuiltinFunctionDefinition("pow", HlfType.Int, (gen, parameters, resultId) =>
             $"{gen.CopyDataToScoreboard(parameters["base"].Generate(gen), "a")}\n" +
             $"{gen.CopyDataToScoreboard(parameters["exponent"].Generate(gen), "b")}\n" +
@@ -221,7 +221,8 @@ public class BuiltinFunctionCall : Statement
                 new("base", HlfType.Int),
                 new("exponent", HlfType.Int),
             ]
-        ).WithDescription("Calculates the absolute value of the supplied number")
+        )
+        .WithDescription("Calculates base to the power of exponent")
         .WithDependencies(ResourceFunctions.Pow),
         #endregion
     ];
