@@ -62,7 +62,7 @@ public class Transpiler
         globalVarInitializers.ForEach(x => sb.SmartAppendL(PostProcessCode(x.Generate(options), options)));
         // Create obsidian block around block storage
         if(BlockTypeDataId.counter > 0)
-            sb.SmartAppendL($"fill {BlockTypeDataId.GetReservedAreaBox(options)} obsidian");
+            sb.SmartAppendL($"fill {BlockTypeDataId.GetReservedAreaBox(options)} structure_void");
         
         List<(string, string)> extraFunctions = options.ExtraFunctionsToGenerate;
         foreach ((string name, string code) in extraFunctions)
