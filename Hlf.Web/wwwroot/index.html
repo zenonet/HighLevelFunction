@@ -140,6 +140,47 @@
             const src = window.localStorage.getItem("srcCode");
             if(src !== null) document.editorModel.setValue(src)
         }
+        
+        async function loadExampleUrls(){
+            const response = await fetch("https://api.github.com/repos/zenonet/HighLevelFunction/contents/Examples");
+            let examples;
+            if(response.ok) {
+                const content = await response.json();
+
+                examples = [];
+                for (let responseElement of content) {
+                    examples.push({
+                        name: responseElement.name,
+                        downloadUrl: responseElement.download_url,
+                    })
+                }
+                window.localStorage.setItem("exampleCache", JSON.stringify(examples));
+            }else{
+                console.log("GitHub-API doesn't respond, trying to load examples from cache");
+                examples = JSON.parse(window.localStorage.getItem("exampleCache"));
+            }
+
+            const list = document.getElementById("exampleList");
+            const template = document.getElementById("exampleLinkTemplate");
+            for (const example of examples) {
+                const content = template.cloneNode(true)
+                content.style.display = "unset";
+                list.appendChild(content)
+                content.querySelector("#link").onclick = function (event){
+                    loadExample(example.downloadUrl);
+                    event.preventDefault();
+                };
+                    
+                content.querySelector("#link").innerText = example.name;
+                console.log("Generated link")
+            }
+        }
+        
+        async function loadExample(url){
+            const response = await fetch(url);
+            const text = await response.text();
+            document.editorModel.setValue(text);
+        }
 
     </script>
     
@@ -678,8 +719,8 @@ void tick(){
             height: 100%;
         }
         
-        button select input{
-            padding: 3pt;
+        button, select, input{
+            padding: 5pt;
             border: 1px solid black;
             border-radius: 2px;
         }
@@ -714,6 +755,13 @@ void tick(){
             height: 1px; 
             margin: 5px 0 5px 0;
         }
+        
+        #exampleList #exampleLinkTemplate{
+            background: transparent;
+            a{
+                text-decoration: white underline;
+            }
+        }
     </style>
 </head>
 <body>
@@ -743,7 +791,7 @@ void tick(){
         </div>
         <div>
             <label for="saveInRealtimeCheckbox">Save to filesystem in realtime</label>
-            <input type="checkbox" id="saveInRealtimeCheckbox" disabled>
+            <input type="checkbox" id="saveInRealtimeCheckbox" disabled checked>
         </div>
         <div>
             <label for="useWorkerCheckbox">Use worker for transpiling</label>
@@ -822,6 +870,17 @@ void tick(){
             document.getElementById("download-help").style.display = "unset";
             document.getElementById("downloadZipButton").classList.add("highlighted-button");
         }
+    </script>
+    
+    <h2>Example Scripts (click to load)</h2>
+    <li style="display: none" id="exampleLinkTemplate">
+        <a id="link" href="#" onclick="">$NAME</a>
+    </li>
+    <ul id="exampleList" style="display: flex; flex-direction: column;">
+        
+    </ul>
+    <script defer>
+        loadExampleUrls();
     </script>
 </div>
 <div style="flex-direction: column;">
