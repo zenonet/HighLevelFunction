@@ -631,9 +631,15 @@ void tick(){
                 const text = document.getElementById("search").value.toLowerCase();
 
                 for (let explanation of document.querySelectorAll("#functionDefinitions > .function-explanation")) {
+                    let show = false;
                     const titleContains = explanation.querySelector("#functionName").innerText.toLowerCase().includes(text);
-                    const descriptionContains = explanation.querySelector("#description").innerText.toLowerCase().includes(text);
-                    explanation.style.display = titleContains || (descriptionContains && text.length >= 2) ? "block" : "none";
+                    const description = explanation.querySelector("#description").innerText.toLowerCase();
+                    
+                    if(text.length >= 3) show = titleContains || description.includes(text);
+                    else if(text.length >= 2) show = titleContains || description.includes(" " + text) || description.startsWith(text);
+                    else show = titleContains;
+                    
+                    explanation.style.display = show ? "block" : "none";
                 }
             };
         }
