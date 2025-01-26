@@ -683,6 +683,15 @@ void tick(){
             border: 1px solid black;
             border-radius: 2px;
         }
+        
+        .highlighted-button{
+            background: yellow;
+            padding: 10px;
+            border: transparent;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+        
         .function-explanation{
             background: var(--code-background);
             color:white;
@@ -791,6 +800,29 @@ void tick(){
     <h2 style="color: #45e445; visibility: hidden" id="successMsg">
         Transpiled successfully! <span id="savingLocallySpan" style="display: none">(saving to directory...)</span>
     </h2>
+</div>
+<div style="flex-direction: column; font-size: 1.3em">
+    <h1>Quickstart</h1>
+    <p>Don't know where to start? Don't worry.</p>
+    <p id="filesystemaccessapi-help" style="display: none">
+        Your browser supports FileSystemAccessApi! <b>You can press the <span style="color:yellow">Work in local directory</span>-button and navigate to a minecraft world you want to work in.
+        Then navigate into the "datapacks" directory and create a new directory for your datapack. Open it in the 'work in local directory' dialog.</b>
+    </p>
+    <p id="download-help" style="display: none">
+        Your browser does not support editing files (e.g. your datapack) on your disk directly. I highly recommend using a Chromium-based browser instead.<br>
+        <b>You can still use this tool by pressing the <span style="color:yellow;">Download datapack as ZIP</span>-button and putting the ZIP into your data datapacks directory.</b>
+    </p>
+
+    <script defer>
+        if('showOpenFilePicker' in window){
+            document.getElementById("filesystemaccessapi-help").style.display = "unset";
+            document.getElementById("workInLocalDirButton").classList.add("highlighted-button");
+            console.log("This browser does not support File-System-Access-API");
+        }else{
+            document.getElementById("download-help").style.display = "unset";
+            document.getElementById("downloadZipButton").classList.add("highlighted-button");
+        }
+    </script>
 </div>
 <div style="flex-direction: column;">
     <h2>Documentation</h2>
