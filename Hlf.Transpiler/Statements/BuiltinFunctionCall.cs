@@ -113,6 +113,13 @@ public class BuiltinFunctionCall : Statement
         {
             return $"execute as @e[tag={gen.OwnedEntityTag}] run data modify entity @s Health set value 0";
         }).WithDescription("Kills all entities owned (e.g. created) by the datapack"),
+            
+        new BuiltinFunctionDefinition("glow", HlfType.Void, (gen, parameters, _) =>
+        {
+            return $"effect give @e[tag={parameters["target"].Generate(gen)}] glowing 10 1 true";
+        },
+            [
+            new("target", HlfType.Entity)]).WithDescription("Gives the supplied entity the glowing effect for 10 seconds"),
         
         
         new BuiltinFunctionDefinition("raycast", HlfType.Vector, (gen, parameters, resultId) =>
