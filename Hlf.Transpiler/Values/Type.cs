@@ -70,6 +70,19 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
         [
             OperationImplementations.EntityRefEq,
         ];
+        
+        Bool.Operations =
+        [
+            new(TokenType.DoubleAnd, Bool, Bool, (gen, a, b, result) =>
+                $"data modify storage {gen.StorageNamespace} {result.Generate(gen)} set value 0b\n" +
+                $"execute if data storage {gen.StorageNamespace} {{{a.Generate(gen)}:1b}} if data storage {gen.StorageNamespace} {{{b.Generate(gen)}:1b}} run data modify storage {gen.StorageNamespace} {result.Generate(gen)} set value 1b"
+            ),
+            new(TokenType.DoublePipe, Bool, Bool, (gen, a, b, result) =>
+                $"data modify storage {gen.StorageNamespace} {result.Generate(gen)} set value 0b\n" +
+                $"execute if data storage {gen.StorageNamespace} {{{a.Generate(gen)}:1b}} run data modify storage {gen.StorageNamespace} {result.Generate(gen)} set value 1b\n" +
+                $"execute if data storage {gen.StorageNamespace} {{{b.Generate(gen)}:1b}} run data modify storage {gen.StorageNamespace} {result.Generate(gen)} set value 1b"
+            ),            
+        ];
 
         Bool.ImplicitConversions =
         [

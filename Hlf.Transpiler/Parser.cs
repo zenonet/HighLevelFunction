@@ -396,6 +396,13 @@ public class Parser
             return lit;
         }
 
+        if (tokens.StartsWith(TokenType.BoolLiteral))
+        {
+            var lit = new LiteralExpression(HlfType.Bool, tokens.Pop().Content == "true" ? "1b" : "0b");
+            InitStatement(lit);
+            return lit;
+        }
+
         #endregion
         
         // Selector
