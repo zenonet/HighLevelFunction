@@ -15,10 +15,18 @@ public static class ResourceFunctions
     public static ResourceFunctionGenerator RecursiveBlockRaycast =
         gen =>
             ("hlf_raycast_block",
-                $"execute as @e[type=marker,tag=hlf_raycast,limit=1] at @s run tp @s ^ ^ ^0.1\n" +
-                (gen.VisualizeRaycasts ? $"execute as @e[type=marker,tag=hlf_raycast,limit=1] at @s run particle minecraft:crit ~ ~ ~ .2 .2 .2 0 10\n" : "") +
+                "execute as @e[type=marker,tag=hlf_raycast,limit=1] at @s run tp @s ^ ^ ^0.1\n" +
+                (gen.VisualizeRaycasts ? $"execute as @e[type=marker,tag=hlf_raycast,limit=1] at @s run particle minecraft:crit ~ ~ ~ 0 0 0 0 10\n" : "") +
                 $"scoreboard players remove ray_steps {gen.Scoreboard} 1\n" +
                 $"execute unless score ray_steps {gen.Scoreboard} matches ..0 as @e[type=marker,tag=hlf_raycast,limit=1] at @s if block ~ ~ ~ minecraft:air run function {gen.DatapackNamespace}:hlf_raycast_block"
+            );
+    public static ResourceFunctionGenerator RecursiveEntityRaycast =
+        gen =>
+            ("hlf_raycast_entity",
+                "execute as @e[type=marker,tag=hlf_raycast,limit=1] at @s run tp @s ^ ^ ^0.1\n" +
+                (gen.VisualizeRaycasts ? $"execute as @e[type=marker,tag=hlf_raycast,limit=1] at @s run particle minecraft:crit ~ ~ ~ 0 0 0 0 10\n" : "") +
+                $"scoreboard players remove ray_steps {gen.Scoreboard} 1\n" +
+                $"execute unless score ray_steps {gen.Scoreboard} matches ..0 as @e[type=marker,tag=hlf_raycast,limit=1] at @s unless entity @e[distance=..1, type=!marker,limit=1] run function {gen.DatapackNamespace}:hlf_raycast_entity"
             );
 }
 public delegate (string, string) ResourceFunctionGenerator(GeneratorOptions gen);

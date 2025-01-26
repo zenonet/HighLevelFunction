@@ -133,7 +133,26 @@ public class BuiltinFunctionCall : Statement
             new("direction", HlfType.Vector),
             new ("maxSteps", HlfType.Int),
         ]).WithDescription("Raycasts through the world. The ray is blocked by blocks only. Returns the position where the ray hit a block")
-        .WithDependencies(ResourceFunctions.RecursiveBlockRaycast),
+        .WithDependencies(ResourceFunctions.RecursiveBlockRaycast),        
+        new BuiltinFunctionDefinition("raycastForEntity", HlfType.Entity, (gen, parameters, resultId) =>
+        {
+            return $"summon marker 0.0 0.0 0.0 {{Tags:[\"{gen.MarkerTag}\",\"hlf_raycast\"]}}\n" +
+                   $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\",\"hlf_raycast_dir\"]}}\n" +
+                   $"data modify entity @e[type=marker,tag=hlf_raycast_dir,limit=1] Pos set from storage {gen.StorageNamespace} {parameters["direction"].Generate(gen)}\n" +
+                   $"execute as @e[type=marker,tag=hlf_raycast] at @s run tp @s ~ ~ ~ facing entity @e[type=marker,tag=hlf_raycast_dir,limit=1] eyes\n" +
+                   $"data modify entity @e[type=marker,tag=hlf_raycast,limit=1] Pos set from storage {gen.StorageNamespace} {parameters["origin"].Generate(gen)}\n" +
+                   $"kill @e[type=marker,tag=hlf_raycast_dir,limit=1]\n" +
+                   $"{gen.CopyDataToScoreboard(parameters["maxSteps"].Generate(gen), "ray_steps")}\n" +
+                   $"function {gen.DatapackNamespace}:hlf_raycast_entity\n" +
+                   $"tag @e[tag={resultId.Generate(gen)}] remove {resultId.Generate(gen)}\n" +
+                   $"execute as @e[type=marker,tag=hlf_raycast] at @s run tag @e[distance=..1,type=!marker,limit=1,sort=nearest] add {resultId.Generate(gen)}\n" +
+                   $"kill @e[type=marker,tag=hlf_raycast,limit=1]";
+        }, [
+            new ("origin", HlfType.Vector),
+            new("direction", HlfType.Vector),
+            new ("maxSteps", HlfType.Int),
+        ]).WithDescription("Raycasts through the world. The ray is blocked by entities only. Returns the the entity that has been hit.")
+        .WithDependencies(ResourceFunctions.RecursiveEntityRaycast),
 
         #region Mathematics
 
