@@ -264,6 +264,7 @@ public class BuiltinFunctionCall : Statement
             $"scoreboard players set pow {gen.Scoreboard} 1\n" +
             $"function {gen.DatapackNamespace}:hlf_res_pow\n" +
             $"{gen.CopyScoreToData("pow", resultId.Generate(gen))}\n" +
+            $"{gen.CopyDataToScoreboard(parameters["exponent"].Generate(gen), "b")}\n" +
             $"execute if score b hlf matches ..0 run data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set value 0\n",
             [
                 new("base", HlfType.Int),
