@@ -155,6 +155,21 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
                     SetterGenerator = (gen, self, valueId) => $"data modify entity @e[tag={self.Generate(gen)}, limit=1] Motion set from storage {gen.StorageNamespace} {valueId.Generate(gen)}",
                 }
             },
+            {
+                "Forward", new ()
+                {
+                    Type = Vector,
+                    GetterGenerator = (gen, self, resultId) => 
+                        $"execute as @e[tag={self.Generate(gen)}, limit=1] at @s positioned 0.0 0 0.0 run summon marker ^ ^ ^1 {{Tags:[\"{gen.MarkerTag}\", \"hlf_forward_dir\"]}}\n" +
+                        $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[type=marker, tag=hlf_forward_dir, limit=1] Pos\n" +
+                        $"kill @e[type=marker, tag=hlf_forward_dir, limit=1]\n",
+                    /*SetterGenerator = (gen, self, valueId) => TODO: Fix setter
+                        $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_forward_dir\"]}}\n" +
+                        $"data modify entity @e[type=marker, limit=1, tag=hlf_forward_dir] Pos set from storage {gen.StorageNamespace} {valueId.Generate(gen)}\n" +
+                        $"execute as @e[tag={self.Generate(gen)}] at @s facing entity @e[type=marker, limit=1, tag=hlf_forward_dir] feet run tp @s ~ ~ ~ ~ ~\n" +
+                        $"kill @e[type=marker, limit=1, tag=hlf_forward_dir]",*/
+                }
+            },
         };
     }
 
