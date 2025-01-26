@@ -113,6 +113,27 @@ public class BuiltinFunctionCall : Statement
         {
             return $"execute as @e[tag={gen.OwnedEntityTag}] run data modify entity @s Health set value 0";
         }).WithDescription("Kills all entities owned (e.g. created) by the datapack"),
+        
+        
+        new BuiltinFunctionDefinition("raycast", HlfType.Vector, (gen, parameters, resultId) =>
+        {
+            return $"summon marker 0.0 0.0 0.0 {{Tags:[\"{gen.MarkerTag}\",\"hlf_raycast\"]}}\n" +
+                   $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\",\"hlf_raycast_dir\"]}}\n" +
+                   $"data modify entity @e[type=marker,tag=hlf_raycast_dir,limit=1] Pos set from storage {gen.StorageNamespace} {parameters["direction"].Generate(gen)}\n" +
+                   $"execute as @e[type=marker,tag=hlf_raycast] at @s run tp @s ~ ~ ~ facing entity @e[type=marker,tag=hlf_raycast_dir,limit=1] eyes\n" +
+                   $"data modify entity @e[type=marker,tag=hlf_raycast,limit=1] Pos set from storage {gen.StorageNamespace} {parameters["origin"].Generate(gen)}\n" +
+                   $"kill @e[type=marker,tag=hlf_raycast_dir,limit=1]\n" +
+                   $"{gen.CopyDataToScoreboard(parameters["maxSteps"].Generate(gen), "ray_steps")}\n" +
+                   $"function {gen.DatapackNamespace}:hlf_raycast_block\n" +
+                   $"data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set from entity @e[type=marker,tag=hlf_raycast,limit=1] Pos\n" +
+                   $"kill @e[type=marker,tag=hlf_raycast,limit=1]"
+                   ;
+        }, [
+            new ("origin", HlfType.Vector),
+            new("direction", HlfType.Vector),
+            new ("maxSteps", HlfType.Int),
+        ]).WithDescription("Raycasts through the world. The ray is blocked by blocks only. Returns the position where the ray hit a block")
+        .WithDependencies(ResourceFunctions.RecursiveBlockRaycast),
 
         #region Mathematics
 
