@@ -21,6 +21,7 @@ public static class Lexer
         new RawTokenDefinition(TokenType.Asterisk, "*"),
         new RawTokenDefinition(TokenType.Colon, ":"),
         new RawTokenDefinition(TokenType.Semicolon, ";"),
+        new RawTokenDefinition(TokenType.ExclamationMark, "!"),
         new RawTokenDefinition(TokenType.DoubleAnd, "&&"),
         new RawTokenDefinition(TokenType.DoublePipe, "||"),
         new RawTokenDefinition(TokenType.BoolLiteral, "true"),

@@ -52,6 +52,7 @@ public enum TokenType
     CloseBrace,
     OpenBracket,
     CloseBracket,
+    ExclamationMark,
     Selector,
     
     Comma,

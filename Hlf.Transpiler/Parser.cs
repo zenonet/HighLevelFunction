@@ -72,7 +72,26 @@ public class Parser
 
     public Statement ParseStatementLvl2(ref TokenList tokens, Scope scope)
     {
+        Token? unaryOperator = null;
+        if (tokens.StartsWith(TokenType.ExclamationMark))
+        {
+            unaryOperator = tokens.Pop();
+        }
+        
         Statement statement = ParseStatementLvl1(ref tokens, scope);
+
+        if (unaryOperator != null)
+        {
+            statement = new UnaryOperator
+            {
+                Line = statement.Line,
+                Column = statement.Column,
+                Operand = statement,
+                ParentScope = scope,
+                Operator = unaryOperator,
+            };
+        }
+        
         if(!tokens.StartsWith(TokenType.Dot)) return statement;
 
         // Resolve type member path
