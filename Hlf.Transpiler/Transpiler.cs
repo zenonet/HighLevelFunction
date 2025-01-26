@@ -33,6 +33,7 @@ public class Transpiler
         
         // Clear old stuff
         sb.AppendLine($"kill @e[tag={options.MarkerTag}]");
+        sb.AppendLine($"scoreboard objectives add {options.Scoreboard} dummy"); // TODO: Maybe also add the storage (i dunno if that's required)
         sb.AppendLine("forceload add 0 0");
 
         List<VariableAssignment> globalVarInitializers = [];
