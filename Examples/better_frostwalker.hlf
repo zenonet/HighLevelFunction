@@ -1,0 +1,10 @@
+﻿// this function runs every tick
+void tick(){
+    // calculate the position of the block below the player
+    Vector positionBelowPlayer = @p.Position + Vector(0, -1, 0);
+
+    // if the block below the player is water, replace it with ice
+    if(getBlock(positionBelowPlayer) == BlockType("water")){
+        setBlock(positionBelowPlayer, BlockType("ice"));
+    }
+}

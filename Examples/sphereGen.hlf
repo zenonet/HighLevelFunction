@@ -1,0 +1,30 @@
+﻿
+void generate_sphere(){
+
+    // Place the sphere 10 blocks below the nearest player
+    Vector pos = @p.Position - Vector(0, 10, 0);
+
+    val c = 8;
+    // Iterate through a cube 
+    for(int x = -1*c; x < c; x++){
+        for(int y = -1*c; y < c; y++){
+            for(int z = -1*c; z < c; z++){
+
+                // Calculate the squared distance to the center of the sphere
+                int dist_squared = x*x+y*y+z*z;
+
+                // Don't do anything for this block if the block does not have the right distancce to the center
+                if(dist_squared > 49 || dist_squared < 36){
+                    continue;
+                }
+
+                // Calculate the absolute position of the block
+                Vector v = pos + Vector(x, y, z);
+
+                // place a stone block at the position
+                setBlock(v, BlockType("stone"));
+            }
+        }
+    }
+    say("DONE!");
+}

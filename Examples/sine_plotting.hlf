@@ -1,0 +1,15 @@
+﻿float xFactor = 360/32;
+float yFactor = 20;
+int length = 100;
+void plot(){
+    // start the graph at the player's current position
+    Vector startPosition = @p.Position;
+
+    for(int x = 0; x < length; x++){
+        float y = tan(x * xFactor) * yFactor; // replace this with any function you'd like to plot!
+
+        Vector blockPos = startPosition + Vector(x, 0, y);
+        setBlock(blockPos, BlockType("redstone_block"));
+    }
+    say("Done!");
+}

@@ -1,0 +1,32 @@
+﻿
+void generate_sphere(){
+
+    Vector pos = raycast(@p.Position+Vector(0, 1.7, 0), @p.Forward, 10000);
+    val c = 8;
+
+    // Iterate through a cube 
+    for(int x = -1*c; x < c; x++){
+        for(int y = -1*c; y < c; y++){
+            for(int z = -1*c; z < c; z++){
+
+                // Calculate the squared distance to the center of the sphere
+                int dist_squared = x*x+y*y+z*z;
+
+                // Don't do anything for this block if the block does not have the right distancce to the center
+                if(dist_squared > 25 || dist_squared < 16){
+                    continue;
+                }
+
+                // Calculate the absolute position of the block
+                Vector v = pos + Vector(x, y, z);
+
+                // place a stone block at the position
+                setBlock(v, BlockType("stone"));
+            }
+        }
+    }
+
+    // You enable this to be teleported above the newly generated sphere
+    //@p.Position = pos + Vector(0, 10, 0);
+    say("DONE!");
+}

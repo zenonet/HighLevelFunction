@@ -1,0 +1,8 @@
+﻿// this function is executed in every tick (20 times per seconds)
+void tick(){
+    // Do a raycast from the players eyes (around 1.7blocks above their position) in the direction the player is looking
+    val entity = raycastForEntity(@p.Position + Vector(0, 1.7, 0), @p.Forward, 10000);
+
+    // Set the velocity of the entity hit by the raycast (yeeting them upwards in this case)
+    entity.Motion = Vector(0, 4, 0);
+}

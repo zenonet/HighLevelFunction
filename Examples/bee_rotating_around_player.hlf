@@ -1,0 +1,31 @@
+﻿
+// declare global variables in the root scope
+Entity bee;
+float radius = 5;
+int tick = 0; // this will just count up the ticks
+val speedFactor = 5;
+
+// this function runs when the datapack is loaded
+void load(){
+    // Kill any entities that were created by this datapack
+    killOwned();
+
+    // summmon a new bee to circle the player
+    bee = summon("bee");
+}
+
+// this function runs every tick
+void tick(){
+    // calculate the position of the bee relative to the player using sine and cosine
+    val offset = Vector(radius*sin(tick*speedFactor), 1f, radius*cos(tick*speedFactor));
+
+    // Set the position of the bee
+    bee.Position = @p.Position + offset;
+    // Make sure it doesn't have any rest movement
+    bee.Motion = Vector(0, 0, 0);
+    tick += 1;
+    //if the angle exceeds 360°, reset it to 0
+    if(tick*speedFactor > 360.0){
+        tick = 0;
+    }
+}
