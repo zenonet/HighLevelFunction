@@ -855,6 +855,8 @@ void tick(){
     <p id="filesystemaccessapi-help" style="display: none">
         Your browser supports FileSystemAccessApi! <b>You can press the <span style="color:yellow">Work in local directory</span>-button and navigate to a minecraft world you want to work in.
         Then navigate into the "datapacks" directory and create a new directory for your datapack. Open it in the 'work in local directory' dialog.</b>
+        <span id="noteWhereMinecraftFolderIs" style="display: none"><br><br>(Your minecraft worlds are usually in <span style="font-family: monospace">%appdata%/.minecraft/saves</span>)</span>
+        
     </p>
     <p id="download-help" style="display: none">
         Your browser does not support editing files (e.g. your datapack) on your disk directly. I highly recommend using a Chromium-based browser instead.<br>
@@ -869,6 +871,9 @@ void tick(){
         }else{
             document.getElementById("download-help").style.display = "unset";
             document.getElementById("downloadZipButton").classList.add("highlighted-button");
+        }
+        if(navigator.userAgentData.platform.toLowerCase() === "windows"){
+            document.getElementById("noteWhereMinecraftFolderIs").style.display = "unset";
         }
     </script>
     
