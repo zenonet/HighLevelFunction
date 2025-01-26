@@ -84,6 +84,13 @@ public class Transpiler
         var combinedLoadFunction = new Function("load", sb.ToString());
         datapack.Functions.Add(combinedLoadFunction);
         datapack.OnLoadFunction = combinedLoadFunction;
+        
+        // Add resource functions this project depends on
+        foreach (ResourceFunctionGenerator generator in options.DependencyResources)
+        {
+            (string name, string code) = generator.Invoke(options);
+            datapack.Functions.Add(new(name, code));
+        }
 
         Console.WriteLine($"Variable translation table in root scope: {string.Join(", ", rootScope.Variables.Select(x => $"{x.Key} -> {x.Value.Generate(options)}"))}");
         

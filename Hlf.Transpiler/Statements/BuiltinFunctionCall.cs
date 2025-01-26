@@ -209,7 +209,20 @@ public class BuiltinFunctionCall : Statement
             [
                 new("x", HlfType.Float)
             ]
-        ).WithDescription("Calculates the absolute value of the supplied number"),
+        ).WithDescription("Calculates base to the power of exponent"),
+        new BuiltinFunctionDefinition("pow", HlfType.Int, (gen, parameters, resultId) =>
+            $"{gen.CopyDataToScoreboard(parameters["base"].Generate(gen), "a")}\n" +
+            $"{gen.CopyDataToScoreboard(parameters["exponent"].Generate(gen), "b")}\n" +
+            $"scoreboard players set pow {gen.Scoreboard} 1\n" +
+            $"function {gen.DatapackNamespace}:hlf_res_pow\n" +
+            $"{gen.CopyScoreToData("pow", resultId.Generate(gen))}\n" +
+            $"execute if score b hlf matches ..0 run data modify storage {gen.StorageNamespace} {resultId.Generate(gen)} set value 0\n",
+            [
+                new("base", HlfType.Int),
+                new("exponent", HlfType.Int),
+            ]
+        ).WithDescription("Calculates the absolute value of the supplied number")
+        .WithDependencies(ResourceFunctions.Pow),
         #endregion
     ];
     
@@ -290,6 +303,8 @@ public class BuiltinFunctionCall : Statement
         sb.AppendCommands(ParentScope, options.Comment("Freeing parameter values for function call.\n"));
         sb.AppendCommands(ParentScope, string.Join("\n", parameterDataIds.Values.Union(Parameters.Select(x => x.Result)).Select(x => x.FreeIfTemporary(options))));
         
+        // Add dependency to required resource functions
+        definition?.Dependencies.ForEach(x => options.DependencyResources.Add(x));
         return sb.ToString().TrimEnd('\n');
     }
 

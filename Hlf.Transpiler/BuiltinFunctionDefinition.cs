@@ -10,7 +10,7 @@ public class BuiltinFunctionDefinition(string name, HlfType returnType, CodeGene
     public CodeGenerator CodeGenerator { get; init; } = codeGenerator;
     public McVersion MinVersion = McVersion.OneDot(13);
     public string? Description;
-
+    public List<ResourceFunctionGenerator> Dependencies = [];
     public BuiltinFunctionDefinition WithMinVersion(McVersion minVersion)
     {
         MinVersion = minVersion;
@@ -20,6 +20,12 @@ public class BuiltinFunctionDefinition(string name, HlfType returnType, CodeGene
     public BuiltinFunctionDefinition WithDescription(string description)
     {
         Description = description;
+        return this;
+    }
+
+    public BuiltinFunctionDefinition WithDependencies(params ResourceFunctionGenerator[] dependencies)
+    {
+        Dependencies.AddRange(dependencies);
         return this;
     }
 }

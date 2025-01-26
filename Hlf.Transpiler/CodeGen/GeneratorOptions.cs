@@ -18,6 +18,7 @@ public struct GeneratorOptions()
     public McVersion TargetVersion { get; set; } = McVersion.OneDot(21);
 
     internal List<(string, string)> ExtraFunctionsToGenerate { get; set; } = new();
+    internal HashSet<ResourceFunctionGenerator> DependencyResources = [];
 
     public string Comment(string comment) => GenerateComments ? $"# {comment}" : "";
 }
