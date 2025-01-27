@@ -5,10 +5,9 @@
 A high-level programming language that runs as a Mineraft Datapack.
 HLF is statically typed and has syntax similar to C#.
 
-[![Transpiler build](https://github.com/picoHz/taxy/actions/workflows/rust.yml/badge.svg)](https://github.com/picoHz/taxy/actions/workflows/rust.yml)
-![GitHub License](https://img.shields.io/github/license/zenonet/HighLevelFunction)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zenonet/HighLevelFunction/dotnet.yml)
-[![Static Badge](https://img.shields.io/badge/WebEditor-available-blue)](https://zenonet.de/interactive/hlfTranspiler)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zenonet/HighLevelFunction/dotnet.yml)](https://github.com/zenonet/HighLevelFunction/actions/workflows/dotnet.yml)
+[![GitHub License](https://img.shields.io/github/license/zenonet/HighLevelFunction)](https://github.com/zenonet/HighLevelFunction/blob/master/LICENSE)
+[![WebTranspilerStatus](https://img.shields.io/badge/WebEditor-available-blue)](https://zenonet.de/interactive/hlfTranspiler)
 
 </div>
 
