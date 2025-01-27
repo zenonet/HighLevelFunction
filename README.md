@@ -11,19 +11,48 @@ HLF is statically typed and has syntax similar to C#.
 
 </div>
 
+## Overview
+- High-level language which transpiles to complete Mineraft Datapacks
+- Feature-rich web-based editor supporting syntax highlighting, realtime error annotations and hover info for symbols.
+- Static type system minimizing possible runtime errors.
+- Compiler (transpiler to be exact) runs fully in the web (no trust required)
+
 ## Quickstart
 
 To try it out, open [the web editor here](https://zenonet.de/interactive/hlfTranspiler). On the left, you have an integrated editor for HLF. On the right
 side, you can see the McFunction code being generated in realtime.
 
-Here's a Hello-World-script:
+Make sure to check out some of the [example scripts](Examples). You can also directly load them in the [web-editor](https://zenonet.de/interactive/hlfTranspiler#examples)
+
+Here's a little example of what HLF can do:
 ```c#
-void main(){
-    say("Hello world!");
+void load(){
+    say("let's say something 5 times:");
+    for(int i = 0; i < 5; i++){
+        if(i == 3){
+            say("Let's just skip the 3");
+            continue;
+        }
+        say($"Now, we're at {i}"); // You can use string interpolation (inserting values into strings) like this
+    }
+
+    // let's calculate some stuff
+    say($"2-8^2*3 = {2-pow(8, 2)*3}");
+
+
+    // Swap two blocks
+    Vector pos1 = Vector(127, 65, 2);
+    Vector pos2 = Vector(126, 65, 2);
+
+    BlockType block1 = getBlock(pos1);
+    BlockType block2 = getBlock(pos2);
+
+    setBlock(pos1, block2);
+    setBlock(pos2, block1);
 }
 ```
 
-## The editor
+## The web-editor
 
 There is a web-based editor featuring syntax highlighting and real-time transpilation and error logging. The web-editor can make use of File-System-Access-APIs to transpile your code into a datapack and save it to your PC on the fly. This means, you can write code in your browser and just run `/reload` in your Minecraft instance to run it immediately. The best part: **you don't have to install anything**
 
@@ -31,6 +60,7 @@ There is a web-based editor featuring syntax highlighting and real-time transpil
 
 - Syntax highlighting
 - Realtime transpilation
+- Saving datapack directly to your minecraft world using File-System-Access-API
 - Inline error annotations
 - Hover info for function calls
 - Hotkeys for commenting out
@@ -52,15 +82,11 @@ In McFunction and many of its existing abstraction languages, you have to think 
 
 ### Advanced control flow
 
-HLF provides users with advanced control flow system like for- and while-loops. You can even use `break`-statements in loops.
+HLF provides users with advanced control flow system like for- and while-loops. You can even use `break`- and `continue`-statements in loops.
 
 ### Backwards-compatibility
 
 We know that some people prefer older minecraft versions like 1.18. Because of this, HLF is built with backwards-compatibility in mind. We try to make every feature as backwards-compatible as possible. And if a feature is not supported in your target version, HLF will tell you.
-
-$$
-\sqrt{24}
-$$
 
 ### Builtin Types
 
