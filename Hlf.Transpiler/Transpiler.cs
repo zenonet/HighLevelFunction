@@ -34,7 +34,10 @@ public class Transpiler
         // Clear old stuff
         sb.AppendLine($"kill @e[tag={options.MarkerTag}]");
         sb.AppendLine($"scoreboard objectives add {options.Scoreboard} dummy"); // TODO: Maybe also add the storage (i dunno if that's required)
+        sb.SmartAppendL(options.Comment("Some calculations require the 0 0 chunk to be loaded"));
         sb.AppendLine("forceload add 0 0");
+        sb.SmartAppendL(options.Comment("Increase maxCommandChainLength for bigger loops to work. This is a temporary solution (I hope)"));
+        sb.AppendLine("gamerule maxCommandChainLength 10000000"); // todo: make this optional
 
         List<VariableAssignment> globalVarInitializers = [];
         foreach (Statement s in statements)
@@ -100,8 +103,11 @@ public class Transpiler
 
     private static string PostProcessCode(string code, GeneratorOptions options)
     {
-        return code.Replace(";fr:", "");
+        return code
+            .Replace(";fr:", "");
+        //.RegexReplace("(?<!\".*)run execute", "");
     }
+    
 
     private static TR MeasureTime<TR>(string regionName, Func<TR> action)
     {
