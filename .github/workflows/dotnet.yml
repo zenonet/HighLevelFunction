@@ -20,9 +20,11 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+    - name: Restore workloads
+      run: dotnet workload restore
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet workload restonewasm-tools-net8
     - name: Build
-      run: dotnet build --no-restore Hlf.Transpiler
+      run: dotnet build --no-restore
     # - name: Test
     #  run: dotnet test --no-build --verbosity normal
