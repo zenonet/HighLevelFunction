@@ -175,6 +175,17 @@ public class Parser
 
         if (tokens.StartsWithSequence(TokenType.Identifier, TokenType.Identifier, TokenType.OpenParenthesis))
         {
+            if (tokens.Peek().Content == "new")
+            {
+                tokens.Pop();
+                StructInstantiationStatement structInstantiation = new();
+                InitStatement(structInstantiation);
+                structInstantiation.StructName = tokens.Pop();
+                tokens.Pop();
+                if(!tokens.StartsWith(TokenType.CloseParenthesis)) throw new LanguageException("new-constructors with parameters are currently not supported", tokens.Peek(-1));
+                tokens.Pop();
+                return structInstantiation;
+            }
             if (tokens.Peek().Content == "void") // TODO: Actually allow for return types
             {
                 // Function definition
@@ -199,6 +210,33 @@ public class Parser
             }
             
         }
+
+        if (tokens.StartsWithSequence(TokenType.Identifier, TokenType.Identifier, TokenType.OpenBrace))
+        {
+            if (tokens.Peek().Content == "struct")
+            {
+                tokens.Pop();
+                StructDefinitionStatement structDefinition = new();
+                InitStatement(structDefinition);
+                
+                structDefinition.StructName = tokens.Pop().Content;
+                structDefinition.Fields = [];
+                TokenList betweenBraces = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
+                while (!betweenBraces.IsEmpty)
+                {
+                    if (!betweenBraces.StartsWithSequence(TokenType.Identifier, TokenType.Identifier, TokenType.Semicolon)) throw new LanguageException("Invalid syntax in struct definition", tokens.Peek());
+                    
+                    Token type = betweenBraces.Pop();
+                    Token name = betweenBraces.Pop();
+                    betweenBraces.Pop();
+                    
+                    structDefinition.Fields.Add((name, type));
+                }
+
+                return structDefinition;
+            }
+        }
+        
         if (tokens.StartsWithSequence(TokenType.Identifier, TokenType.OpenParenthesis))
         {
             string identifier = tokens.Pop().Content; // Pop identifier

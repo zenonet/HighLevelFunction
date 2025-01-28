@@ -45,6 +45,15 @@ public static partial class Utils
         builder.Append(s);
     }
 
+    public static LanguageException TypeDoesNotExistError(string typeName, int line, int column)
+    {
+        return new ($"Type '{typeName}' could not be found.", line,column, typeName.Length);
+    }
+    public static LanguageException TypeDoesNotExistError(Token typeNameToken)
+    {
+        return new ($"Type '{typeNameToken.Content}' could not be found.", typeNameToken.Line, typeNameToken.Column, typeNameToken.Content.Length);
+    }
+
     public static string RegexReplace(this string input, string pattern, string replacement) => Regex.Replace(input, pattern, replacement);
     
     public static string Free(this string freeStatement) => $";fr:{freeStatement}";

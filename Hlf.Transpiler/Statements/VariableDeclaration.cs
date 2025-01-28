@@ -17,8 +17,8 @@ public class VariableDeclaration : Statement
         }
         else
         {
-            type = HlfType.Types.FirstOrDefault(x => x.Name == TypeName);
-            if (type is null) throw new LanguageException($"Cannot declare a variable of type {TypeName} because that type does not exist.", Line, Column, TypeName.Length);
+            type = ParentScope.Types.FirstOrDefault(x => x.Name == TypeName);
+            if (type is null) throw Utils.TypeDoesNotExistError(TypeName, Line, Column);
         }
         
         if (ParentScope.Variables.ContainsKey(VariableName))

@@ -205,11 +205,6 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
     public OperationDefinition[] Operations = operations ?? [];
 
     public Dictionary<string, Member> Members;
-    public static bool TryGetTypeFromName(string name, [NotNullWhen(true)]out HlfType? type)
-    {
-        type = Types.FirstOrDefault(x => x.Name == name);
-        return type != null;
-    }
 
     public bool TryGenerateImplicitConversion(GeneratorOptions gen, HlfType otherType, DataId inputId, [NotNullWhen(true)]out string? code, [NotNullWhen(true)]out DataId? resultId)
     {

@@ -24,6 +24,18 @@ public class Scope
 
     public int Depth { get; set; }
     
+    public List<HlfType> CustomTypes = [];
+    
+    public IEnumerable<HlfType> Types {
+        get
+        {
+            var localTypes = CustomTypes;
+            if (Parent == null)
+                return localTypes.Concat(HlfType.Types);
+            return localTypes.Concat(Parent.Types);
+        }
+    }
+    
     public bool TryGetVariable(string name, [NotNullWhen(true)]out DataId? variable)
     {
         if (Variables.TryGetValue(name, out variable))

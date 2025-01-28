@@ -42,9 +42,9 @@ public class Transpiler
         List<VariableAssignment> globalVarInitializers = [];
         foreach (Statement s in statements)
         {
-            if (s is not VariableDeclaration and not FunctionDefinitionStatement)
+            if (s is not VariableDeclaration and not FunctionDefinitionStatement and not StructDefinitionStatement)
             {
-                throw new LanguageException("Only variable declarations and function definitions are allowed as top-level statements!", s.Line, s.Column);
+                throw new LanguageException("Only variable declarations, function definitions and struct declarations are allowed as top-level statements!", s.Line, s.Column);
             }
 
             if (s is VariableDeclaration {Assignment: {} assignment} declaration)
