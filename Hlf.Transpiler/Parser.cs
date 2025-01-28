@@ -388,6 +388,7 @@ public class Parser
                 InitStatement(accessor);
                 accessor.VariableName = tokens.Pop().Content;
                 accessor.Increment = (sbyte) (tokens.Pop().Type == TokenType.Plus ? 1 : -1);
+                tokens.Pop();
                 return accessor;
             }
         }
