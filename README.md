@@ -2,7 +2,7 @@
 
 # HighLevelFunction
 
-A high-level programming language that runs as a Mineraft Datapack.
+A high-level programming language that **runs as a Mineraft Datapack**.
 HLF is statically typed and has syntax similar to C#.
 
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zenonet/HighLevelFunction/dotnet.yml)](https://github.com/zenonet/HighLevelFunction/actions/workflows/dotnet.yml)
