@@ -9,7 +9,7 @@ public class Token
 
     public override string ToString() => $"{Type}: '{Content}' (line {Line}, column {Column})";
 
-    public static bool IsOperatorToken(TokenType type) => type is TokenType.DoubleEquals or TokenType.Asterisk or TokenType.Plus or TokenType.Minus or TokenType.Slash or TokenType.Percent or TokenType.GreaterThan or TokenType.GreaterThanOrEqual or TokenType.LessThan or TokenType.LessThanOrEqual or TokenType.DoubleAnd or TokenType.DoublePipe;
+    public static bool IsOperatorToken(TokenType type) => type is TokenType.DoubleEquals or TokenType.Asterisk or TokenType.Plus or TokenType.Minus or TokenType.Slash or TokenType.Percent or TokenType.GreaterThan or TokenType.GreaterThanOrEqual or TokenType.LessThan or TokenType.LessThanOrEqual or TokenType.NotEquals or TokenType.DoubleAnd or TokenType.DoublePipe;
 
     public static int GetOperatorPrecedence(TokenType type)
     {
@@ -20,6 +20,7 @@ public class Token
             TokenType.GreaterThan => 2,
             TokenType.LessThanOrEqual => 2,
             TokenType.GreaterThanOrEqual => 2,
+            TokenType.NotEquals => 2,
             
             TokenType.Asterisk => 5,
             TokenType.Slash => 5,
@@ -65,6 +66,7 @@ public enum TokenType
     LessThan,
     GreaterThanOrEqual,
     LessThanOrEqual,
+    NotEquals,
     DoubleAnd,
     DoublePipe,
     
