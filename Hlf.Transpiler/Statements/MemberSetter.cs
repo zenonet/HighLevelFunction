@@ -31,7 +31,11 @@ public class MemberSetter : Statement
         sb.SmartAppendL(gen.Comment($"Assigning property '{MemberName}' in type {BaseExpression.Result.Type.Name}"));
         sb.SmartAppendL($"{BaseExpression.Generate(gen)}");
         sb.SmartAppendL($"{Expression.Generate(gen)}");
-        sb.SmartAppend($"{member.SetterGenerator!.Invoke(gen, BaseExpression.Result, Expression.Result)}");
+
+        DataId value = Expression.Result.ConvertImplicitly(gen, member.Type, out string code);
+        sb.SmartAppendL(code);
+        
+        sb.SmartAppend($"{member.SetterGenerator!.Invoke(gen, BaseExpression.Result, value)}");
         return sb.ToString();
     }
 }
