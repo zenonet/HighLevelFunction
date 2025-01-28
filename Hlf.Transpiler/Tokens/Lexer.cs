@@ -31,7 +31,7 @@ public static class Lexer
                                                           ^(?:".*?(?:[^\\](?:\\\\)+"|[^\\]")|\$?""|\$"(?:[^{]|[^\\](?:\\\\)*\\{)*?(?:[^\\](?:\\\\)+"|(?:[^{\\]|[^\\](?:\\\\)*\\{)"))
                                                           """),
         new RegexTokenDefinition(TokenType.StartStringInterpolationLiteral, """
-                                                                            ^(?:\$".*?(?:[^\\](?:\\\\)+{|[^\\]{)|\$"{)
+                                                                            ^(?:\$"{|\$".*?(?:[^\\](?:\\\\)+{|[^\\]{))
                                                                             """),
         new RegexTokenDefinition(TokenType.CenterStringInterpolationLiteral, """
                                                                              ^(?:}.*?(?:[^\\](?:\\\\)+{|[^\\]{))
