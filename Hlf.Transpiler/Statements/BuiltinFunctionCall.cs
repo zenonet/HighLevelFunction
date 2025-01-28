@@ -64,15 +64,15 @@ public class BuiltinFunctionCall : Statement
             ]
         ),
         
-        new BuiltinFunctionDefinition("setBlock", HlfType.Void, (gen, parameters, _) => 
+        new("setBlock", HlfType.Void, (gen, parameters, _) => 
                 gen.Comment("Placing a block\n") +
                 $"summon marker 0 0 0 {{Tags:[\"{gen.MarkerTag}\", \"hlf_setblock\"]}}\n" +
                 $"data modify entity @e[type=marker, tag={gen.MarkerTag}, tag=hlf_setblock, limit=1] Pos set from storage {gen.StorageNamespace} {parameters["position"].Generate(gen)}\n" +
-                $"execute at @e[type=marker, tag={gen.MarkerTag}, tag=hlf_setblock, limit=1] run clone {parameters["block"].Generate(gen)} {parameters["block"].Generate(gen)} ~ ~ ~\n" +
+                $"execute at @e[type=marker, tag={gen.MarkerTag}, tag=hlf_setblock, limit=1] run setblock ~ ~ ~ {parameters["blockName"].Generate(gen)}\n" +
                 $"kill @e[type=marker, tag={gen.MarkerTag}, tag=hlf_setblock, limit=1]",
             [
                 new("position", HlfType.Vector),
-                new("block", HlfType.BlockType),
+                new("blockName", HlfType.ConstString),
             ]
         ),
         new BuiltinFunctionDefinition("setBlock", HlfType.Void, (gen, parameters, _) => 
