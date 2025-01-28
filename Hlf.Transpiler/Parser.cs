@@ -151,11 +151,14 @@ public class Parser
 
         }
 
-
-        
+        if(statement is MemberGetter getter)
+        if (tokens.StartsWithSequence(TokenType.Plus, TokenType.Plus) || tokens.StartsWithSequence(TokenType.Minus, TokenType.Minus))
+        {
+            getter.Increment = (sbyte) (tokens.Pop().Type == TokenType.Plus ? 1 : -1);
+            tokens.Pop();
+        }
         
         return statement;
-
     }
 
     public Statement ParseStatementLvl1(ref TokenList tokens, Scope scope)
