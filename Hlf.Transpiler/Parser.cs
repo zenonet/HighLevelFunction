@@ -227,13 +227,20 @@ public class Parser
                 TokenList betweenBraces = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
                 while (!betweenBraces.IsEmpty)
                 {
-                    if (!betweenBraces.StartsWithSequence(TokenType.Identifier, TokenType.Identifier, TokenType.Semicolon)) throw new LanguageException("Invalid syntax in struct definition", tokens.Peek());
+                    if (!betweenBraces.StartsWithSequence(TokenType.Identifier, TokenType.Identifier)) throw new LanguageException("Invalid syntax in struct definition", tokens.Peek());
                     
                     Token type = betweenBraces.Pop();
                     Token name = betweenBraces.Pop();
+                    Statement? fieldInitializer = null;
+                    if (betweenBraces.StartsWith(TokenType.Equals))
+                    {
+                        betweenBraces.Pop();
+                        fieldInitializer = Parse(betweenBraces, scope);
+                    }
+
+                    if (!betweenBraces.StartsWith(TokenType.Semicolon)) throw new LanguageException("Expected semicolon after field declaration in struct definition", tokens.Peek(-1));
                     betweenBraces.Pop();
-                    
-                    structDefinition.Fields.Add((name, type));
+                    structDefinition.Fields.Add((name, type, fieldInitializer));
                 }
 
                 return structDefinition;

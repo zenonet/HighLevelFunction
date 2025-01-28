@@ -6,15 +6,14 @@ namespace Hlf.Transpiler;
 public class StructDefinitionStatement : Statement
 {
     public string StructName;
-    public List<(Token fieldName, Token fieldType)> Fields;
-
+    public List<(Token fieldName, Token fieldType, Statement? initializer)> Fields;
     public override bool NeedsSemicolon => false;
 
     public override void Parse()
     {
-        HlfType type = new(StructName, ValueKind.Nbt);
+        StructType type = new (StructName, ValueKind.Nbt);
         type.Members = new();
-        foreach ((Token fieldNameToken, Token fieldTypeToken) in Fields)
+        foreach ((Token fieldNameToken, Token fieldTypeToken, Statement? initializer) in Fields)
         {
             HlfType? fieldType = ParentScope.Types.FirstOrDefault(x => x.Name == fieldTypeToken.Content);
             if (fieldType == null) throw Utils.TypeDoesNotExistError(fieldTypeToken);
@@ -36,6 +35,13 @@ public class StructDefinitionStatement : Statement
                     throw new LanguageException($"Type '{fieldType.Name}' cannot be used as a field of a struct.", fieldTypeToken);
             }
 
+            if (initializer != null)
+            {
+                initializer.Parse();
+                if (!initializer.Result.Type.IsAssignableTo(fieldType)) throw new LanguageException($"Initialization expression is of type '{initializer.Result.Type.Name}' and can't be assigned to field '{fieldNameToken.Content}' of type '{fieldType.Name}'", initializer.Line, initializer.Column);
+                type.Initializers.Add((member, fieldNameToken.Content, initializer));
+            }
+            
             type.Members.Add(fieldNameToken.Content, member);
         }
         
