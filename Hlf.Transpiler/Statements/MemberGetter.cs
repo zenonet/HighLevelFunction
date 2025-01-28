@@ -37,7 +37,8 @@ public class MemberGetter : Statement
                    : $"\n{gen.CopyDataToScoreboard(Result.Generate(gen), "a")}\n" +
                      $"scoreboard players {(Increment == -1 ? "remove" : "add")} a {gen.Scoreboard} 1\n" +
                      $"{gen.CopyScoreToData("a", tempIncrId.Generate(gen))}\n" +
-                     $"{Member.SetterGenerator!.Invoke(gen, BaseExpression.Result, tempIncrId)}"
+                     $"{Member.SetterGenerator!.Invoke(gen, BaseExpression.Result, tempIncrId)}\n" +
+                     $"{tempIncrId.Free(gen)}"
                );
     }
 }
