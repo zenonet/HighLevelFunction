@@ -193,7 +193,7 @@
                 defaultToken: 'invalid',
 
                 keywords: [
-                    "if", "while", "for", "else", "val", "var", "break", "continue", "true", "false"
+                    "if", "while", "for", "struct", "new", "else", "val", "var", "break", "continue", "true", "false"
                 ],
 
                 typeKeywords: [
@@ -211,13 +211,8 @@
                 escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
 
                 tokenizer: {
-                    root:[
-                        { include:'@rootWithoutCustomTypes' },
 
-                        // custom types
-                        [/(?<!\.)[A-Z][\w\$]*/, 'type.identifier']  // to show class names nicely
-                    ],
-                    rootWithoutCustomTypes: [
+                    root: [
                         // identifiers and keywords
                         [/[a-z_][\w$]*(?=\()/, { cases: {
                                 '@keywords': 'keyword',
@@ -229,9 +224,13 @@
                                 '@keywords': 'keyword',
                                 '@default': 'identifier' } }],
 
+                        // custom types
+                        [/[A-Z]\w*/, 'type.identifier'],  // to show class names nicely
+                        /*
                         [/[A-Z]\w+/, {
                             cases: {'@typeKeywords': 'type.keyword', '@default': 'identifier'}
                         }],
+                        */
 
                         // whitespace
                         { include: '@whitespace' },
@@ -257,7 +256,7 @@
 
                         // delimiter: after number because of .\d floats
                         [/[;,]/, 'delimiter'],
-                        [/\./, 'delimiter', '@rootWithoutCustomTypes'],
+                        [/\./, {token: 'delimiter', next:'@afterDot'}],
 
                         // strings
                         [/\$"/, { token: 'string.quote', next: '@interpolatedstring' }],
@@ -295,7 +294,13 @@
                         [/\/\/.*$/,    'comment'],
                         [/\/#.*$/,    'comment'],
                     ],
+
+                    afterDot:[
+                        [/[A-Z]\w*/, "identifier", "@pop"],
+                        { include:'@root' },
+                    ],
                 },
+                
             };
         }
         
@@ -852,7 +857,7 @@ void tick(){
 </div>
 <div style="flex-direction: column; font-size: 1.3em" id="quickstartstuff">
     <h1>Quickstart <a style="font-size: 0.4em; text-decoration: underline" href="javascript:void(document.getElementById('quickstartstuff').style.display = 'none')">hide</a></h1> 
-    <p>Don't know where to start? Don't worry.<br>
+    <p>Don't know where to start? Don't worry. You can read a quickstart guide in the <a href="https://github.com/zenonet/HighLevelFunction">GitHub Repo</a><br>
     <span id="filesystemaccessapi-help" style="display: none">
         <b>You can press the <span style="color:yellow">Work in local directory</span>-button and navigate to a minecraft world you want to work in.
         Then navigate into the "datapacks" directory and create a new directory for your datapack. Open it in the 'work in local directory' dialog.</b>
