@@ -1,7 +1,5 @@
 ﻿import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import bootsharp, {Hlf, HlfTranspilerJs} from "hlf-transpiler";
-import {match} from "monaco-editor/esm/vs/base/common/glob";
-
 
 let functionDefinitions;
 
@@ -76,22 +74,16 @@ monaco.languages.registerCompletionItemProvider("hlf", {
         
         var word = model.getWordUntilPosition(position);
         console.log(word.word);
-        var betterPosition = {
-            column: word.startColumn,
-            lineNumber: position.lineNumber,
-        }
-        const offset = model.getOffsetAt(betterPosition)
-        const codeBefore = model.getValue().substring(0, offset);
+        var codeBefore = model.getValueInRange({
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: position.lineNumber,
+            endColumn: word.startColumn,
+        });
         // Tokenize using monarch tokenizer
         const allTokens = monaco.editor.tokenize(codeBefore, "hlf").flat();
         const tokens = allTokens.filter((token) => token.type !== "white.hlf" && token.type !== "");
 
-        var textUntilPosition = model.getValueInRange({
-            startLineNumber: 1,
-            startColumn: 1,
-            endLineNumber: position.lineNumber,
-            endColumn: position.column,
-        });
         var range = {
             startLineNumber: position.lineNumber,
             endLineNumber: position.lineNumber,
