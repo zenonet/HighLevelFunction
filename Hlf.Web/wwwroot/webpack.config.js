@@ -6,8 +6,8 @@ module.exports = {
 /*    output: {
         publicPath: "/js/",
         path: path.join(__dirname, '/wwwroot/js/'),
-        filename: 'main.build.js'
-    }*/
+        filename: 'main.build.js',
+    },*/
 
     entry: './src/index.js',
     //devtool: "source-map",
@@ -16,8 +16,8 @@ module.exports = {
         "monaco-editor",
         "hlf-transpiler"
     ],
-    //mode: "development",
-    mode: "production",
+    mode: "development",
+    //mode: "production",
     module: {
         rules: [
             {
@@ -59,6 +59,5 @@ module.exports = {
     },
     performance: {
         hints: false,
-    }
-
+    },
 };

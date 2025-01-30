@@ -1,10 +1,9 @@
 ﻿
-console.log("Loading monao editor...")
-
 //import * as monaco from 'monaco-editor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 //const hlf = require("./hlf");
-import { transpile, getFunctionData } from "hlf";
+import { transpile, getFunctionData, loadDefinitions } from "hlf";
+import {setFunctionDefinitions} from "./editorCompletions";
 
 function getMonarchDef(){
     return {
@@ -20,11 +19,11 @@ function getMonarchDef(){
         ],
 
         operators: [
-            "==", '*', '+', '-', '/', '&&', '||', '!'
+            "==", '*', '+', '-', '/', '&&', '||', '!', '='
         ],
 
         // we include these common regular expressions
-        symbols:  /[=><!~?:&|+\-*\/\^%]+/,
+        symbols:  /[><!~?:&|+\-*\/\^%]+/,
 
         // C# style strings
         escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
@@ -66,7 +65,7 @@ function getMonarchDef(){
                 }],
                 [/[{()\[\]]/, '@brackets'],
                 [/[<>](?!@symbols)/, '@brackets'],
-                [/@symbols/, { cases: { '@operators': 'operator',
+                [/@symbols/, { cases: { '@operators': 'delimiter',
                         '@default'  : '' } } ],
 
                 // numbers
@@ -74,8 +73,10 @@ function getMonarchDef(){
                 [/-?\d+/, 'number'],
 
                 // delimiter: after number because of .\d floats
-                [/[;,]/, 'delimiter'],
-                [/\./, {token: 'delimiter', next:'@afterDot'}],
+                ['=', 'delimiter.equals'],
+                [',', 'delimiter.comma'],
+                [';', 'delimiter.semicolon'],
+                ['\\.', {token: 'delimiter.dot', next:'@afterDot'}],
 
                 // strings
                 [/\$"/, { token: 'string.quote', next: '@interpolatedstring' }],
@@ -123,8 +124,8 @@ function getMonarchDef(){
     };
 }
 
-export function transpileEditorCode(isAuto = false){
-    return transpile(isAuto, editorModel)
+export async function transpileEditorCode(isAuto = false){
+    return await transpile(isAuto, editorModel)
 }
 
 //require.config({ paths: { vs: 'node_modules/monaco-editor/min/vs' } });
@@ -150,7 +151,8 @@ void tick(){
 `,
     "hlf"
 );
-
+window.editorModel = editorModel;
+window.monaco = monaco;
 monaco.editor.defineTheme("hlf-vs-dark", {
     base: "vs-dark",
     inherit: true,
@@ -171,12 +173,14 @@ let codeEditor = monaco.editor.create(document.getElementById('codeContainer'), 
     mouseWheelZoom: true
 });
 
+
+codeEditor.comple
 codeEditor.addAction(
     {
         id:"transpile",
         label:"Transpile to mcfunction",
-        run: function(){
-            transpile(false, editorModel)
+        run: async function(){
+            await transpile(false, editorModel)
         }
     }
 );
@@ -229,6 +233,8 @@ monaco.languages.setLanguageConfiguration('hlf', {
         lineComment: "//",
     }
 });
+
+require("./editorCompletions");
 
 monaco.languages.registerHoverProvider("hlf", {
     provideHover: function (model, position) {

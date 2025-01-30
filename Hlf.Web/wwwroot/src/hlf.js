@@ -107,7 +107,7 @@ function onResult(resp){
                     severity: monaco.MarkerSeverity.Error
                 }
             ]);
-        transpileReject(err)
+        transpileResolve(err)
         return;
     }
     // clear errors in editor:
