@@ -16,7 +16,7 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
     public static HlfType Void = new("void", ValueKind.Void);
 
     
-    public static HlfType ConstString = new("const string", ValueKind.Constant,
+    public static HlfType ConstString = new("const_string", ValueKind.Constant,
     [
         new(String,
             (gen, from, to) =>
