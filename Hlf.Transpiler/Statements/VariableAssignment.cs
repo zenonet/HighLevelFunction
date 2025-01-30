@@ -14,6 +14,11 @@ public class VariableAssignment : Statement
     public HlfType GetExpressionType()
     {
         if(!IsExpressionParsed) Expression.Parse();
+        if (Expression.Result.Type is {Kind: ValueKind.Constant, ImplicitConversions.Length: > 0})
+        {
+            // Infer the converted non-constant type if possible
+            return Expression.Result.Type.ImplicitConversions[0].ResultType;
+        }
         return Expression.Result.Type;
     }
     public override void Parse()
