@@ -1,4 +1,5 @@
-﻿import bootsharp, {HlfTranspilerJs} from "./../bin/bootsharp/index.mjs";
+﻿import bootsharp, {HlfTranspilerJs} from "hlf-transpiler";
+//import bootsharp, {HlfTranspilerJs} from "./index.mjs";
 await bootsharp.boot();
 postMessage(0)
 

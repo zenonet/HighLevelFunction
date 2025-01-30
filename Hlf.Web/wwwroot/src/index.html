@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HLF-Transpiler</title>
+<!--    <script src="./node_modules/monaco-editor/min/vs/loader.js"></script>-->
+
+<!--
+    <script src="./main.js"></script>
+-->
+    
+    <!--Utils-->
+    
+    <!--Transpilation and loading of function definitions:-->
+    
+    <style>
+
+        html {
+            font-family: Arial, sans-serif;
+            background: black;
+            color: white;
+            --code-background: #1e1e1e;
+            --code-foreground: #bdbdbd;
+            
+            a{
+                color:white;
+            }
+        }
+        .inputBox {
+            width: 70vw;
+            font-family: Consolas, "Courier New", monospace;
+        }
+
+        .output-stuff{
+        }
+        .outputBox {
+            height: 100%;
+            text-wrap: nowrap;
+        }
+        
+        button, select, input{
+            padding: 5pt;
+            border: 1px solid black;
+            border-radius: 2px;
+        }
+        
+        .highlighted-button{
+            background: yellow;
+            padding: 10px;
+            border: transparent;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+        
+        .function-explanation{
+            background: var(--code-background);
+            color:white;
+            line-height: 1.4em;
+            border: black solid 2px;
+            padding: 10pt;
+            border-radius: 2px;
+            .function-name{
+                font-family: Consolas, "Courier New", monospace;
+                font-size:1.3em; 
+                margin-bottom: 0.4em;
+            }
+            .overload{
+                font-family: Consolas, "Courier New", monospace;
+            }
+        }
+        
+        .separator{
+            background: gray;
+            height: 1px; 
+            margin: 5px 0 5px 0;
+        }
+        
+        #exampleList #exampleLinkTemplate{
+            background: transparent;
+            a{
+                text-decoration: white underline;
+            }
+        }
+    </style>
+</head>
+<body>
+<div style="flex-direction: column" v-scope>
+    <div style="display: flex; flex-direction: row; height: 70vh; margin-bottom: 10pt">
+        <div class="inputBox" id="codeContainer"></div>
+        <div style="display: flex; flex-direction: column; width: 30vw;">
+            <textarea class="outputBox output-stuff monaco-editor mtk1" id="outputTextArea" autocapitalize="off" spellcheck="false">
+{{ store.displayedOutput }}
+            </textarea>
+            <div style="padding:3pt" class="output-stuff">
+                <select id="file-view-select" style="min-width: 100pt" @change="store.switchFile">
+                    <option>No files generated</option>
+                </select>
+                <button @click="store.copyOutputToClipboard">Copy</button>
+                <button id="workInLocalDirButton" @click="store.openLocalDir">Work in local directory</button>
+            </div>
+        </div>
+    </div>
+    <div style="display: flex; flex-direction: row; gap: 15pt">
+        <button id="transpileButton" style="margin-bottom: 10pt" disabled @click="store.transpile">Transpile</button>
+        <span id="stats"></span>
+        <button id="downloadZipButton" style="margin-bottom: 10pt" disabled>Download datapack as ZIP</button>
+    </div>
+    <div style="background:gray; display: flex; gap:15pt; padding: 10pt">
+        <div>
+            <label for="transpileInRealtimeCheckbox">Transpile in realtime</label>
+            <input type="checkbox" id="transpileInRealtimeCheckbox" checked @change="store.onOptionsChanged">
+        </div>
+        <div>
+            <label for="saveInRealtimeCheckbox">Save to filesystem in realtime</label>
+            <input type="checkbox" id="saveInRealtimeCheckbox" disabled checked @change="store.onOptionsChanged">
+        </div>
+        <div>
+            <label for="useWorkerCheckbox">Use worker for transpiling</label>
+            <input type="checkbox" id="useWorkerCheckbox" checked @change="store.onOptionsChanged">
+        </div>
+        <div>
+            <label for="generateComments" >Generate comments</label>
+            <input type="checkbox" id="generateComments" @change="store.onOptionsChanged" checked>
+        </div>
+        <div>
+            <label for="targetMcVersion">Target Version</label>
+            <select id="targetMcVersion" @change="store.onOptionsChanged">
+            <option selected>1.21</option>
+                
+            <option>1.20.6</option>
+            <option>1.20.5</option>
+            <option>1.20.4</option>
+            <option>1.20.3</option>
+            <option>1.20.2</option>
+            <option>1.20.1</option>
+            <option>1.20</option>
+            <option>1.19.4</option>
+            <option>1.19.3</option>
+            <option>1.19.2</option>
+            <option>1.19.1</option>
+            <option>1.19</option>
+            <option>1.18.2</option>
+            <option>1.18.1</option>
+            <option>1.18</option>
+            <option>1.17.1</option>
+            <option>1.17</option>
+            <option>1.16.5</option>
+            <option>1.16.4</option>
+            <option>1.16.3</option>
+            <option>1.16.2</option>
+            <option>1.16.1</option>
+            <option>1.16</option>
+            <option>1.15.2</option>
+            <option>1.15.1</option>
+            <option>1.15</option>
+            <option>1.14.4</option>
+            <option>1.14.3</option>
+            <option>1.14.2</option>
+            <option>1.14.1</option>
+            <option>1.14</option>
+            <option>1.13.2</option>
+            <option>1.13.1</option>
+            <option>1.13</option>
+        </select>
+        </div>
+    </div>
+    <h2 style="color: red;" id="errorMsg">
+        
+    </h2>
+    <h2 style="color: #45e445; visibility: hidden" id="successMsg">
+        Transpiled successfully! <span id="savingLocallySpan" style="display: none">(saving to directory...)</span>
+    </h2>
+</div>
+<div style="flex-direction: column; font-size: 1.3em" id="quickstartstuff">
+    <h1>Quickstart <a style="font-size: 0.4em; text-decoration: underline" href="javascript:void(document.getElementById('quickstartstuff').style.display = 'none')">hide</a></h1> 
+    <p>Don't know where to start? Don't worry. You can read a quickstart guide in the <a href="https://github.com/zenonet/HighLevelFunction">GitHub Repo</a><br>
+    <span id="filesystemaccessapi-help" style="display: none">
+        <b>You can press the <span style="color:yellow">Work in local directory</span>-button and navigate to a minecraft world you want to work in.
+        Then navigate into the "datapacks" directory and create a new directory for your datapack. Open it in the 'work in local directory' dialog.</b>
+        <span id="noteWhereMinecraftFolderIs" style="display: none"><br><br>(Your minecraft worlds are usually in <span style="font-family: monospace">%appdata%/.minecraft/saves</span>)</span>
+        
+    </span>
+    </p>
+    <p id="download-help" style="display: none">
+        Your browser does not support editing files (e.g. your datapack) on your disk directly. I highly recommend using a Chromium-based browser instead.<br>
+        <b>You can still use this tool by pressing the <span style="color:yellow;">Download datapack as ZIP</span>-button and putting the ZIP into your data datapacks directory.</b>
+    </p>
+
+    <script defer>
+        if('showOpenFilePicker' in window){
+            document.getElementById("filesystemaccessapi-help").style.display = "unset";
+            document.getElementById("workInLocalDirButton").classList.add("highlighted-button");
+            console.log("This browser does not support File-System-Access-API");
+        }else{
+            document.getElementById("download-help").style.display = "unset";
+            document.getElementById("downloadZipButton").classList.add("highlighted-button");
+        }
+        if(navigator.userAgentData.platform.toLowerCase() === "windows"){
+            document.getElementById("noteWhereMinecraftFolderIs").style.display = "unset";
+        }
+    </script>
+</div>
+<div id="examples" style="font-size: 1.3em">
+    <h2>Example Scripts (click to load)</h2>
+    <li style="display: none" id="exampleLinkTemplate">
+        <a id="link" href="#" onclick="">$NAME</a>
+    </li>
+    <ul id="exampleList" style="display: flex; flex-direction: column;">
+
+    </ul>
+</div>
+<div style="flex-direction: column;">
+    <h2>Documentation</h2>
+    <input id="search" placeholder="Search functions..." style="font-size: 1.3em;padding: 8pt;"/>
+    <li style="display: none" class="function-explanation" id="template">
+        <b class="function-name">
+            <span style="color:#39CC8F" id="functionName">$NAME</span><span style="color: var(--code-foreground)">()</span></b>
+        <br>
+        <span id="description">$DESCRIPTION</span><br>
+        <div class="separator"></div>
+        <b>Overloads:</b><br>
+        <span id="overloads" class="overload">$OVERLOADS</span>
+    </li>
+    <ul id="functionDefinitions" style="gap: 20pt;display: flex;flex-direction: column; min-height: 60vh">
+    </ul>
+</div>
+</body>
+</html>
