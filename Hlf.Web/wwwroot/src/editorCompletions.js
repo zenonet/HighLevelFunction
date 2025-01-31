@@ -1,5 +1,5 @@
 ﻿import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import {throwSymbols, getAllBuiltinFunctionDefinitions} from "./hlf";
+import {throwSymbols, getAllBuiltinFunctionDefinitions, throwExpressionInfo} from "./hlf";
 
 let functionDefinitions;
 
@@ -123,7 +123,7 @@ function getSymbolsAtPosition(model, tokens, position){
 }
 let symbolData;
 monaco.languages.registerCompletionItemProvider("hlf", {
-    triggerCharacters: [],
+    triggerCharacters: ['.'],
     provideCompletionItems: function (model, position) {
         
         const _tokens = monaco.editor.tokenize(model.getValue(), "hlf").flat();
@@ -242,11 +242,10 @@ monaco.languages.registerCompletionItemProvider("hlf", {
                 const functionName = matches[0][2];
                 const parameterNames = matches.map(x => x[4])
                 console.log(parameterNames);
-
-                let i = 0;
+                let i = 1;
                 let insert = functionName + "(" +  parameterNames.map(x => "${" + i++ + ":" + x + "}").join(", ") + ")" + (isStatement ? ";" : "");
 
-                let overloadWithoutReturnType = def.overloads[0].substring(def.overloads[0].indexOf(" "));
+                let overloadWithoutReturnType = def.overloads[0].substring(def.overloads[0].indexOf(" ")+1);
 
                 suggestions.push({
                     label: overloadWithoutReturnType,
@@ -260,6 +259,27 @@ monaco.languages.registerCompletionItemProvider("hlf", {
             }
 
         }
+        if(lastToken !== undefined && lastToken.type.startsWith("delimiter.dot")){
+            console.log("Members")
+            // run expression analysis to suggest type members
+            const offset = model.getOffsetAt({
+                lineNumber: lastToken.line+1,
+                column: lastToken.offset+1,
+            })+1;
+            const src = model.getValue();
+            const preparedSource = [src.slice(0, offset), "throwMeta", src.slice(offset)].join('');
+            console.log(preparedSource)
+            const expressionInfo = throwExpressionInfo(preparedSource);
+            
+            expressionInfo.members.forEach(member => {
+                suggestions.push({
+                    label: member,
+                    kind: monaco.languages.CompletionItemKind.Property,
+                    insertText: member,
+                },)
+            })
+        }
+        
         console.log(`Generated ${suggestions.length} suggestions`);
         return {
             suggestions: suggestions,
