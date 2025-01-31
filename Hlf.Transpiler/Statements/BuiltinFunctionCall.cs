@@ -328,7 +328,7 @@ public class BuiltinFunctionCall : Statement
             
             // User defined function
 
-            if (function.Parameters.Select(x => x.Type).Where((type, i) => !Parameters[i].Result.Type.IsAssignableTo(type)).Any())
+            if (Parameters.Count != function.Parameters.Count || Parameters.Select(x => x.Result.Type).Where((type, i) => !function.Parameters[i].Type.IsAssignableTo(type)).Any())
             {
                 throw new LanguageException($"Function with signature {FunctionName}({string.Join(", ", Parameters.Select(x => x.Result.Type.Name))}) could not be found.\n" +                                             
                                             $"Available overloads of {FunctionName}:\n" +
