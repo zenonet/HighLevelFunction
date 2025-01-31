@@ -50,23 +50,53 @@ public static partial class HlfTranspilerJs
         try
         {
             new Transpiler().Transpile(src, new());
-            return new(
-                Success: false,
-                Error: "nothrow",
-                [],
-                [],
-                []
-            );
         }
         catch (SymbolThrow e)
         {
-            Console.WriteLine($"Returning symbol throw data: {string.Join(',', e.SymbolData.Variables)}");
             return e.SymbolData;
+        }
+        catch (LanguageException langEx)
+        {
         }
         finally
         {
             ThrowDefinedSymbolsStatement.AllowSymbolThrows = false;
         }
+        return new(
+            Success: false,
+            Error: "nothrow",
+            [],
+            [],
+            []
+        );
+    }
+    
+    [JSInvokable]
+    public static ExpressionMetadata ThrowExpressionInfo(string src)
+    {
+        ThrowDefinedSymbolsStatement.AllowSymbolThrows = true;
+        try
+        {
+            new Transpiler().Transpile(src, new());
+
+        }
+        catch (ExpressionInfoThrow e)
+        {
+            return e.Metadata;
+        }
+        catch (LanguageException _)
+        {
+            
+        }
+        finally
+        {
+            ThrowDefinedSymbolsStatement.AllowSymbolThrows = false;
+        }
+        return new(
+            Success: false,
+            Type:"",
+            Members:[]
+        );
     }
 
     [JSInvokable]

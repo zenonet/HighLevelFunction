@@ -2,7 +2,7 @@
 //import * as monaco from 'monaco-editor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 //const hlf = require("./hlf");
-import { transpile, getFunctionData, loadDefinitions } from "hlf";
+import { transpile, getFunctionData, throwExpressionInfo } from "hlf";
 import {setFunctionDefinitions} from "./editorCompletions";
 
 function getMonarchDef(){
@@ -240,11 +240,43 @@ monaco.languages.registerHoverProvider("hlf", {
         let word = model.getWordAtPosition(position)
         if(word === null) return
         let afterWord = model.getValueInRange(new monaco.Range(position.lineNumber, word.endColumn, position.lineNumber, word.endColumn+1));
-        if(afterWord !== '(') return
-
-        let data = getFunctionData(word.word);
-        if(!data.success) return
-
+        if (afterWord === '(') {
+            let data = getFunctionData(word.word);
+            if (!data.success) return
+            return {
+                range: new monaco.Range(
+                    position.lineNumber,
+                    word.startColumn,
+                    position.lineNumber,
+                    word.endColumn,
+                ),
+                contents: [
+                    {
+                        value: data.description
+                    },
+                    {
+                        value: "**Overloads:**"
+                    },
+                    {
+                        value: data.overloads.map(function (str) {
+                            return "- " + str + "\n"
+                        }).join('\n')
+                    },
+                ],
+            };
+        }
+        
+        // Use expression throwing
+        const src = model.getValue();
+        const offset = model.getOffsetAt({
+            lineNumber: position.lineNumber,
+            column: word.endColumn
+        })
+        
+        const preparedSource = [src.slice(0, offset), ".throwMeta", src.slice(offset)].join('');
+        console.log(preparedSource)
+        const expressionInfo = throwExpressionInfo(preparedSource);
+        if(!expressionInfo.success) return;
         return {
             range: new monaco.Range(
                 position.lineNumber,
@@ -254,15 +286,7 @@ monaco.languages.registerHoverProvider("hlf", {
             ),
             contents: [
                 {
-                    value: data.description
-                },
-                {
-                    value: "**Overloads:**"
-                },
-                {
-                    value: data.overloads.map(function (str) {
-                        return "- " + str + "\n"
-                    }).join('\n')
+                    value: expressionInfo.type
                 },
             ],
         };

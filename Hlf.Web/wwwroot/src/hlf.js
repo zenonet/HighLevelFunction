@@ -24,6 +24,7 @@ let isAuto = false;
 
 export const getFunctionData = HlfTranspilerJs.getFunctionDescription;
 export const getAllBuiltinFunctionDefinitions = HlfTranspilerJs.getAllBuiltinFunctionDefinitions;
+export const throwExpressionInfo = HlfTranspilerJs.throwExpressionInfo;
 export const throwSymbols = HlfTranspilerJs.throwSymbols;
 function getTargetVersion(){
     const strVal = document.getElementById("targetMcVersion").value;

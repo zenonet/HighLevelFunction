@@ -118,7 +118,17 @@ public class Parser
         while (!path.IsEmpty)
         {
             Token identifier = path.Pop();
-            
+
+            if (ThrowDefinedSymbolsStatement.AllowSymbolThrows && identifier.Content == "throwMeta")
+            {
+                return new ThrowExpressionInfoStatement
+                {
+                    Line = identifier.Line,
+                    Column = identifier.Column,
+                    ParentScope = scope,
+                    Expression = statement,
+                };
+            }
             if (tokens.StartsWith(TokenType.Equals))
             {
                 tokens.Pop();
@@ -130,6 +140,7 @@ public class Parser
                     Expression = value,
                     Line = identifier.Line,
                     Column = identifier.Column,
+                    ParentScope = scope,
                 };
             }
             else
@@ -140,6 +151,7 @@ public class Parser
                     MemberName = identifier.Content,
                     Line = identifier.Line,
                     Column = identifier.Column,
+                    ParentScope = scope,
                 };
             }
             
