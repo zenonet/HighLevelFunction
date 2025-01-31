@@ -13,7 +13,7 @@ public class ThrowDefinedSymbolsStatement : Statement
             Error: null,
             Variables: ParentScope.GetAllAvailableVariables().Select(x => $"{x.Key}:{x.Value.Type.Name!}").ToList(),
             Types:ParentScope.Types.Select(x => x.Name!).ToList(),
-            Functions:ParentScope.GetAllFunctionDefinitions().Select(x => x.Name).ToList()
+            Functions:ParentScope.GetAllFunctionDefinitions().Select(x => x.GetSignature()).ToList()
         ));
     }
 

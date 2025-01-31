@@ -121,10 +121,11 @@ function generateSuggestionFromFunctionOverload(overload, addSemicolonOnInsert =
     const regex = /(?<=^(\w+) (.*)\(.*,?)(?:(\w+) (\w+)|(?<=\()\))/g;
 
     const matches = Array.from(overload.matchAll(regex));
-    if(matches === null) {
+    if(matches === null || matches[0] === undefined) {
         console.log("Couldnt parse: " + overload);
         return null;
     }
+    
     const parameterCount = matches[0][0] === ")" ? 0 : matches.length;
     const returnType = matches[0][1];
     const functionName = matches[0][2];
@@ -228,13 +229,9 @@ monaco.languages.registerCompletionItemProvider("hlf", {
 
             // Add custom functions
             symbolData?.functions.forEach(func => {
-                let insert = func + "($1)" + (isStatement ? ";" : "");
-                suggestions.push({
-                    label: func,
-                    kind: monaco.languages.CompletionItemKind.Class,
-                    insertText: insert,
-                    range: range,
-                })
+                const suggestion = generateSuggestionFromFunctionOverload(func, isStatement);
+                suggestion.range = range;
+                suggestions.push(suggestion);
             })
 
             // Add variables
@@ -279,7 +276,7 @@ monaco.languages.registerCompletionItemProvider("hlf", {
             })
 
             expressionInfo.methods.forEach(method => {
-                const suggestion = generateSuggestionFromFunctionOverload(method);
+                const suggestion = generateSuggestionFromFunctionOverload(method, );
                 //suggestion.description = def.description;
                 suggestion.kind = monaco.languages.CompletionItemKind.Method;
                 suggestion.range = range;
