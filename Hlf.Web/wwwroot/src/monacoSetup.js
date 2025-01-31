@@ -170,7 +170,10 @@ let codeEditor = monaco.editor.create(document.getElementById('codeContainer'), 
     model: editorModel,
     autoClosingBrackets: true,
     automaticLayout: true,
-    mouseWheelZoom: true
+    mouseWheelZoom: true,
+    suggest: {
+        showWords: false,
+    }
 });
 
 
