@@ -1,0 +1,16 @@
+﻿struct Person{
+    string name;
+    int score;
+}
+
+void main(){
+    val a = new Person();
+    a.name = "John";
+    a.score = 6;
+    
+    val b = new Person();
+    b.name = "Jennifer";
+    a.score = 4;
+    
+    b.score++;
+}

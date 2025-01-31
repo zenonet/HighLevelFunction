@@ -1,0 +1,9 @@
+﻿void yeetEntity(Entity e, float amount){
+    e.Motion = Vector(0, amount, 0);
+}
+
+void tick(){
+    Entity hit = raycastForEntity(@p.Position+@p.Forward, @p.Forward, 10000);
+
+    yeetEntity(hit, 15);
+}
