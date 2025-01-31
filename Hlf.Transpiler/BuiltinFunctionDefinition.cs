@@ -28,6 +28,9 @@ public class BuiltinFunctionDefinition(string name, HlfType returnType, CodeGene
         Dependencies.AddRange(dependencies);
         return this;
     }
+
+    public string GetSignature() => $"{ReturnType.Name} {Name}({string.Join(", ", Parameters.Where(x => x.Name != "self").Select(x => $"{x.Type.Name} {x.Name}"))})";
+
 }
 
 public delegate string CodeGenerator(GeneratorOptions options, Dictionary<string, DataId> parameters, DataId resultId);

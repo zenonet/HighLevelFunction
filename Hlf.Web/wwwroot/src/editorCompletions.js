@@ -79,9 +79,6 @@ function getSymbolsAtPosition(model, tokens, position){
     
     const tokensBefore = monaco.editor.tokenize(src.substring(0, offset), "hlf");
     const tokensAfter = monaco.editor.tokenize(src.substring(offset), "hlf");
-    console.log(tokensBefore);
-    console.log(tokensAfter);
-    
     
     let startOffset = -1;
     for (let line = tokensBefore.length-1; line >= 0; line--) {
@@ -99,7 +96,6 @@ function getSymbolsAtPosition(model, tokens, position){
         }
         if(startOffset !== -1) break;
     }
-    console.log(`Block carve out starts at ${startOffset}`);
     
     let endOffset = -1;
     for (let line = 0; line < tokensAfter.length; line++) {
@@ -112,7 +108,6 @@ function getSymbolsAtPosition(model, tokens, position){
         }
         if(endOffset !== -1) break;
     }
-    console.log(`Block carve out ends at ${endOffset}`);
     
     
     const preparedSource = src.substring(0, startOffset) + "throwSymbols;" + src.substring(endOffset, src.length-1)
@@ -121,6 +116,34 @@ function getSymbolsAtPosition(model, tokens, position){
     //const symbolData = HlfTranspilerJs.transpileToString(preparedSource);
     return throwSymbols(preparedSource)
 }
+
+function generateSuggestionFromFunctionOverload(overload, addSemicolonOnInsert = false){
+    const regex = /(?<=^(\w+) (.*)\(.*,?)(?:(\w+) (\w+)|(?<=\()\))/g;
+
+    const matches = Array.from(overload.matchAll(regex));
+    if(matches === null) {
+        console.log("Couldnt parse: " + overload);
+        return null;
+    }
+    const parameterCount = matches[0][0] === ")" ? 0 : matches.length;
+    const returnType = matches[0][1];
+    const functionName = matches[0][2];
+    const parameterNames = matches.map(x => x[4]).filter(x => x !== undefined);
+    console.log(parameterNames);
+    let i = 1;
+    let insert = functionName + "(" +  parameterNames.map(x => "${" + i++ + ":" + x + "}").join(", ") + ")" + ((addSemicolonOnInsert && returnType === "void") ? ";" : "");
+
+    let overloadWithoutReturnType = overload.substring(overload.indexOf(" ")+1);
+
+    return {
+        label: overloadWithoutReturnType,
+        kind: monaco.languages.CompletionItemKind.Function,
+        sortText: "9",
+        insertText: insert,
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+    };
+}
+
 let symbolData;
 monaco.languages.registerCompletionItemProvider("hlf", {
     triggerCharacters: ['.'],
@@ -184,7 +207,7 @@ monaco.languages.registerCompletionItemProvider("hlf", {
                 })
                 
                 // Add types
-                symbolData.types.forEach(type => {
+                symbolData?.types.forEach(type => {
                     suggestions.push({
                         label: type,
                         kind: monaco.languages.CompletionItemKind.Class,
@@ -204,7 +227,7 @@ monaco.languages.registerCompletionItemProvider("hlf", {
             }
 
             // Add custom functions
-            symbolData.functions.forEach(func => {
+            symbolData?.functions.forEach(func => {
                 let insert = func + "($1)" + (isStatement ? ";" : "");
                 suggestions.push({
                     label: func,
@@ -215,7 +238,7 @@ monaco.languages.registerCompletionItemProvider("hlf", {
             })
 
             // Add variables
-            symbolData.variables.forEach(variable => {
+            symbolData?.variables.forEach(variable => {
                 const parts = variable.split(":");
                 const name = parts[0];
                 suggestions.push({
@@ -229,38 +252,14 @@ monaco.languages.registerCompletionItemProvider("hlf", {
 
             // Add builtin function definitions
             for (let def of functionDefinitions) {
-                const overload = def.overloads[0];
-                const regex = /(?<=^(\w+) (.*)\(.*,?)(?:(\w+) (\w+)|(?<=\()\))/g;
-
-                const matches = Array.from(overload.matchAll(regex));
-                if(matches === null) {
-                    console.log("Couldnt parse: " + overload);
-                    continue;
-                }
-                const parameterCount = matches[0][0] === ")" ? 0 : matches.length;
-                const returnType = matches[0][1];
-                const functionName = matches[0][2];
-                const parameterNames = matches.map(x => x[4])
-                console.log(parameterNames);
-                let i = 1;
-                let insert = functionName + "(" +  parameterNames.map(x => "${" + i++ + ":" + x + "}").join(", ") + ")" + (isStatement ? ";" : "");
-
-                let overloadWithoutReturnType = def.overloads[0].substring(def.overloads[0].indexOf(" ")+1);
-
-                suggestions.push({
-                    label: overloadWithoutReturnType,
-                    documentation: def.description,
-                    kind: monaco.languages.CompletionItemKind.Function,
-                    sortText: "9",
-                    insertText: insert,
-                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                    range: range,
-                });
+                const suggestion = generateSuggestionFromFunctionOverload(def.overloads[0], isStatement);
+                suggestion.description = def.description;
+                suggestion.range = range;
+                suggestions.push(suggestion);
             }
 
         }
         if(lastToken !== undefined && lastToken.type.startsWith("delimiter.dot")){
-            console.log("Members")
             // run expression analysis to suggest type members
             const offset = model.getOffsetAt({
                 lineNumber: lastToken.line+1,
@@ -277,6 +276,14 @@ monaco.languages.registerCompletionItemProvider("hlf", {
                     kind: monaco.languages.CompletionItemKind.Property,
                     insertText: member,
                 },)
+            })
+
+            expressionInfo.methods.forEach(method => {
+                const suggestion = generateSuggestionFromFunctionOverload(method);
+                //suggestion.description = def.description;
+                suggestion.kind = monaco.languages.CompletionItemKind.Method;
+                suggestion.range = range;
+                suggestions.push(suggestion);
             })
         }
         

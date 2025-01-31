@@ -95,7 +95,8 @@ public static partial class HlfTranspilerJs
         return new(
             Success: false,
             Type:"",
-            Members:[]
+            Members:[],
+            Methods:[]
         );
     }
 
@@ -120,7 +121,7 @@ public static partial class HlfTranspilerJs
 
             var definition = overloads.First();
 
-            var overloadStrings = overloads.Select(ov => $"{ov.ReturnType.Name} {definition.Name}({string.Join(", ", ov.Parameters.Select(x => $"{x.Type.Name} {x.Name}"))})").ToArray();
+            var overloadStrings = overloads.Select(ov => ov.GetSignature()).ToArray();
             return new(true, definition.Name, definition.Description ?? "", overloadStrings);
         }).ToArray();
 

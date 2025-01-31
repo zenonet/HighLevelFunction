@@ -11,7 +11,8 @@ public class ThrowExpressionInfoStatement: Statement
         throw new ExpressionInfoThrow(new(
             Success:true,
             Type: Expression.Result.Type.Name!,
-            Members: (Expression.Result.Type.Members ?? []).Keys.ToList()
+            Members: (Expression.Result.Type.Members ?? []).Keys.ToList(),
+            Methods:Expression.Result.Type.Methods.Select(x => x.GetSignature()).ToList()
         ));
     }
 
@@ -29,5 +30,6 @@ public class ExpressionInfoThrow(ExpressionMetadata meta) : Exception
 public record ExpressionMetadata(
     bool Success,
     string Type,
-    List<string> Members
+    List<string> Members,
+    List<string> Methods
 );
