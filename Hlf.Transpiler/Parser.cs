@@ -103,6 +103,12 @@ public class Parser
         {
             if (!tokens.StartsWith(TokenType.Identifier)) throw new LanguageException("Expected identifier after dot", tokens.Peek(-1));
             tokens.Pop();
+
+            if (tokens.StartsWith(TokenType.OpenParenthesis))
+            {
+                tokens.PopBetweenParentheses(TokenType.OpenParenthesis, TokenType.CloseParenthesis);
+            }
+            
             if(!tokens.StartsWith(TokenType.Dot)) break;
             tokens.Pop();
         }
@@ -129,7 +135,8 @@ public class Parser
                     Expression = statement,
                 };
             }
-            if (tokens.StartsWith(TokenType.Equals))
+            
+            if (path.IsEmpty && tokens.StartsWith(TokenType.Equals))
             {
                 tokens.Pop();
                 Statement value = ParseStatementLvl3(ref tokens, scope);
@@ -143,7 +150,35 @@ public class Parser
                     ParentScope = scope,
                 };
             }
-            else
+            
+            else if (path.StartsWith(TokenType.OpenParenthesis))
+            {
+                TokenList parameterListTokens = path.PopBetweenParentheses(TokenType.OpenParenthesis, TokenType.CloseParenthesis);
+
+                // Parse parameters
+                List<Statement> parameterStatements = [];
+                while (parameterListTokens.Length > 0)
+                {
+                    Statement param = Parse(parameterListTokens, scope);
+                    parameterStatements.Add(param);
+                    if (parameterListTokens.StartsWith(TokenType.Comma))
+                    {
+                        parameterListTokens.Pop();
+                        continue;
+                    }
+                }
+                
+                statement = new MethodCall
+                {
+                    BaseExpression = statement,
+                    MethodName = identifier.Content,
+                    Line = identifier.Line,
+                    Column = identifier.Column,
+                    ParentScope = scope,
+                    Parameters = parameterStatements,
+                };
+
+            }else
             {
                 statement = new MemberGetter
                 {
@@ -320,7 +355,7 @@ public class Parser
             }
             else
             {
-                // Function
+                // Function call
                 BuiltinFunctionCall functionCall = new();
 
                 // Parse parameters

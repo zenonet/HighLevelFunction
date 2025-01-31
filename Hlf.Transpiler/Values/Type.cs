@@ -184,6 +184,12 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
                 }
             },
         };
+
+        Entity.Methods =
+        [
+            new BuiltinFunctionDefinition("kill", Void, (gen, parameters, _) => $"kill @e[tag={parameters["self"].Generate(gen)}]",
+                new ParameterDefinition("self", Entity)),
+        ];
     }
 
     public static HlfType[] Types =
@@ -195,7 +201,6 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
         Entity,
         Vector,
         BlockType,
-        Void,
     ];
     
     public ValueKind Kind = kind;
@@ -204,8 +209,9 @@ public class HlfType(string? name, ValueKind kind, Conversion[]? implicitConvers
     public Conversion[] ImplicitConversions = implicitConversions ?? [];
     public OperationDefinition[] Operations = operations ?? [];
 
-    public Dictionary<string, Member> Members;
-
+    public Dictionary<string, Member>? Members;
+    public List<BuiltinFunctionDefinition> Methods = [];
+    
     public bool TryGenerateImplicitConversion(GeneratorOptions gen, HlfType otherType, DataId inputId, [NotNullWhen(true)]out string? code, [NotNullWhen(true)]out DataId? resultId)
     {
         Conversion? conversion = ImplicitConversions.FirstOrDefault(x => x.ResultType == otherType);
