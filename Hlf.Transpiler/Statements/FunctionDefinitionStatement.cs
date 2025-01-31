@@ -10,6 +10,7 @@ public class FunctionDefinitionStatement : Statement
     public Scope FunctionScope = new();
     public List<(string, string)> ParameterDefinitions;
     public override bool NeedsSemicolon => false;
+    CustomFunctionDefinition def;
 
     public override void Parse()
     {
@@ -30,14 +31,14 @@ public class FunctionDefinitionStatement : Statement
         Block.ForEach(statement => statement.Parse());
 
         
-        CustomFunctionDefinition def = new()
+        def = new()
         {
             Name = Name,
             McFunctionName = Name.ToLower(),
             Scope = FunctionScope,
             Parameters = parameters,
         };
-        ParentScope.FunctionDefinitions.Add(Name, def);
+        ParentScope.FunctionDefinitions.Add(def.Name, def);
     }
 
     public override string Generate(GeneratorOptions gen)
@@ -46,7 +47,7 @@ public class FunctionDefinitionStatement : Statement
         Block.ForEach(x => sb.AppendCommands(FunctionScope, x.Generate(gen)));
         sb.AppendLine(); // add missing linebreak
         sb.Append(FunctionScope.GenerateScopeDeallocation(gen));
-        gen.ExtraFunctionsToGenerate.Add(new(Name, sb.ToString()));
+        gen.ExtraFunctionsToGenerate.Add(new(def.McFunctionName, sb.ToString()));
         return "";
     }
 }
