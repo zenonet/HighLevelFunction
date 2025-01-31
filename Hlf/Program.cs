@@ -7,8 +7,8 @@ using File = System.IO.File;
 
 string src = File.ReadAllText(@"C:\Users\zeno\RiderProjects\Hlf.Transpiler\Hlf\first.hlf");
 
+ThrowDefinedSymbolsStatement.AllowSymbolThrows = true;
 Transpiler transpiler = new();
-
 try
 {
     if (args.Length > 0)
@@ -22,6 +22,7 @@ try
                     Console.WriteLine("No tokens found");
                     return;
                 }
+
                 Console.WriteLine($"{tokens.Length} Tokens:");
                 int typeWidth = tokens.Max(x => x.Type.ToString().Length);
                 int contentWidth = tokens.Max(x => x.Content.Length);
@@ -33,17 +34,17 @@ try
                 return;
         }
     }
-    
+
     Stopwatch sw = Stopwatch.StartNew();
     var opt = new GeneratorOptions()
     {
         DatapackNamespace = "first_hlf"
     };
-    
+
     Datapack datapack = transpiler.Transpile(src, opt);
     datapack.Name = "first_hlf";
     var gen = datapack.Generate();
-    
+
     new DefaultDirectoryGenerator().GenerateDirectoryStructure(@"C:\Users\zeno\MultiMC\instances\1.21.3 HLF\.minecraft\saves\HflTests\datapacks\", gen);
     /*CreateDataPackStructure(dataPackPath);
     File.WriteAllText(Path.Join(dataPackPath, @"data", "first_hlf", "function", "load.mcfunction"), mcFunction);
@@ -55,6 +56,14 @@ catch (LanguageException l)
     //if(Debugger.IsAttached) Debugger.Break();
     //Console.WriteLine($"Error in line {l.Line}: {l.CustomErrorMessage}");
     Console.WriteLine(l.ToString());
+}
+catch (SymbolThrow symbolThrow)
+{
+    var data = symbolThrow.SymbolData;
+
+    Console.WriteLine("Functions: " + string.Join(", ", data.Functions));
+    Console.WriteLine("Variables: " + string.Join(", ", data.Variables));
+    Console.WriteLine("Types:     " + string.Join(", ", data.Types));
 }
 
 return;

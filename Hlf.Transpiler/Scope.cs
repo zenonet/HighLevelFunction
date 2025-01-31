@@ -24,7 +24,7 @@ public class Scope
 
     public int Depth { get; set; }
     
-    public List<HlfType> CustomTypes = [];
+    public List<StructType> CustomTypes = [];
     
     public IEnumerable<HlfType> Types {
         get
@@ -52,6 +52,17 @@ public class Scope
         
         Parent?.TryGetFunction(name, out functionDefinition);
         return functionDefinition != null;
+    }
+
+    public IEnumerable<CustomFunctionDefinition> GetAllFunctionDefinitions()
+    {
+        if (Parent == null) return FunctionDefinitions.Values;
+        return FunctionDefinitions.Values.Concat(Parent.GetAllFunctionDefinitions());
+    }
+    public IEnumerable<KeyValuePair<string, DataId>> GetAllAvailableVariables()
+    {
+        if (Parent == null) return Variables;
+        return Variables.Concat(Parent.GetAllAvailableVariables());
     }
 
     public DataId AddVariable(string variableName, HlfType hlfType)

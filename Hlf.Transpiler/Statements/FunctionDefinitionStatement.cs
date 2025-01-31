@@ -19,7 +19,6 @@ public class FunctionDefinitionStatement : Statement
         CustomFunctionDefinition def = new()
         {
             Name = Name,
-            Statements = Block,
             Scope = FunctionScope,
         };
         ParentScope.FunctionDefinitions.Add(Name, def);
@@ -40,5 +39,4 @@ public class CustomFunctionDefinition
 {
     public string Name;
     public Scope Scope;
-    public List<Statement> Statements = new();
 }

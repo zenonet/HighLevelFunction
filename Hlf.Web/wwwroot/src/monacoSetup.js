@@ -60,7 +60,7 @@ function getMonarchDef(){
                 [/}/, {
                     cases: {
                         '$S2==interpolatedstring': { token: 'string.quote', next: '@pop' },
-                        '@default': '@brackets'
+                        '@default': 'delimiter.curly.closing'
                     }
                 }],
                 [/[{()\[\]]/, '@brackets'],
@@ -174,7 +174,6 @@ let codeEditor = monaco.editor.create(document.getElementById('codeContainer'), 
 });
 
 
-codeEditor.comple
 codeEditor.addAction(
     {
         id:"transpile",

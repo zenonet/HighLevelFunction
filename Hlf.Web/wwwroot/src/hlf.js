@@ -23,7 +23,8 @@ wasmWorker.onmessage = (e) => {
 let isAuto = false;
 
 export const getFunctionData = HlfTranspilerJs.getFunctionDescription;
-
+export const getAllBuiltinFunctionDefinitions = HlfTranspilerJs.getAllBuiltinFunctionDefinitions;
+export const throwSymbols = HlfTranspilerJs.throwSymbols;
 function getTargetVersion(){
     const strVal = document.getElementById("targetMcVersion").value;
     const parts = strVal.split('.');

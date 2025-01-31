@@ -297,9 +297,9 @@ public class Parser
                         forLoop.LoopScope.ClosestLoop = forLoop;
                         InitStatement(forLoop);
 
-                        if(!headerSections[0].IsEmpty) forLoop.InitStatement = Parse(headerSections[0], scope);
-                        if(!headerSections[1].IsEmpty) forLoop.Condition = Parse(headerSections[1], scope);
-                        if(!headerSections[2].IsEmpty) forLoop.Increment = Parse(headerSections[2], scope);
+                        if(!headerSections[0].IsEmpty) forLoop.InitStatement = Parse(headerSections[0], forLoop.HeaderScope);
+                        if(!headerSections[1].IsEmpty) forLoop.Condition = Parse(headerSections[1], forLoop.HeaderScope);
+                        if(!headerSections[2].IsEmpty) forLoop.Increment = Parse(headerSections[2], forLoop.HeaderScope);
 
                         blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
                         forLoop.Block = ParseMultiple(ref blockTokens, forLoop.LoopScope);
@@ -520,7 +520,18 @@ public class Parser
         List<Statement> statements = new();
         while (tokens.Length > 0)
         {
-            Token t = tokens.Peek();
+            if (ThrowDefinedSymbolsStatement.AllowSymbolThrows && tokens.Peek().Content is "throwSymbols")
+            {
+                Console.WriteLine("Parsing symbolThrow");
+                statements.Add(new ThrowDefinedSymbolsStatement
+                {
+                    Line = tokens.Peek().Line,
+                    Column = tokens.Peek().Column,
+                    ParentScope = scope,
+                });
+                break;
+            }
+
             Statement statement = Parse(tokens, scope);
             statement.IsReturnValueNeeded = false;
             statements.Add(statement);
