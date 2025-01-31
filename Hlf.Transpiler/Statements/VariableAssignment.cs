@@ -46,14 +46,7 @@ public class VariableAssignment : Statement
         sb.SmartAppendL(options.Comment($"Assigning value of type {variableId.Type.Name} to variable {VariableName}{(conversionCode.Length > 0 ? $" and converting it implcitly into a {variableId.Type.Name}" : "")}"));
         sb.SmartAppendL(Expression.Generate(options));
         sb.SmartAppendL(conversionCode);
-        sb.SmartAppendL(variableId.Type.Kind switch
-        {
-            ValueKind.Nbt => $"data modify storage {options.StorageNamespace} {variableId.Generate(options)} set from storage {options.StorageNamespace} {dataId.Generate(options)}",
-            ValueKind.Block => $"clone {dataId.Generate(options)} {dataId.Generate(options)} {variableId.Generate(options)}",
-            ValueKind.EntityTag => $"tag @e remove {variableId.Generate(options)}\n" +
-                                   $"tag @e[tag={dataId.Generate(options)}] add {variableId.Generate(options)}",
-            _ => throw new NotImplementedException($"Variable assignment is not implemented for type {variableId.Type.Name}")
-        });
+        sb.SmartAppendL(options.CopyDataId(dataId, variableId));
         
         // Free values:
         sb.AppendCommands(ParentScope, dataId.FreeIfTemporary(options));

@@ -243,6 +243,20 @@ public class Parser
                 string functionName = tokens.Pop().Content;
                 TokenList parameterTokens = tokens.PopBetweenParentheses(TokenType.OpenParenthesis, TokenType.CloseParenthesis);
                 
+                List<(string, string)> parameters = new();
+                while (!parameterTokens.IsEmpty)
+                {
+                    if (!parameterTokens.StartsWithSequence(TokenType.Identifier, TokenType.Identifier)) throw new LanguageException("Invalid syntax in parameter declaration", parameterTokens.Peek());
+                    string type = parameterTokens.Pop().Content;
+                    string name = parameterTokens.Pop().Content;
+                    parameters.Add((name, type));
+                    if (!parameterTokens.IsEmpty)
+                    {
+                        if (!parameterTokens.StartsWith(TokenType.Comma)) throw new LanguageException("Expected comma between parameter declarations", tokens.Peek());
+                        parameterTokens.Pop();
+                    } 
+                }
+                
                 if(!tokens.StartsWith(TokenType.OpenBrace)) throw new LanguageException("Expected code block for function definition", tokens.Peek(-1));
 
                 TokenList blockTokens = tokens.PopBetweenParentheses(TokenType.OpenBrace, TokenType.CloseBrace);
@@ -254,6 +268,7 @@ public class Parser
                     Name = functionName,
                     Block = block,
                     FunctionScope = functionScope,
+                    ParameterDefinitions = parameters,
                 };
                 InitStatement(statement);
                 return statement;

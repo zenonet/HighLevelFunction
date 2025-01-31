@@ -328,10 +328,15 @@ public class BuiltinFunctionCall : Statement
             
             // User defined function
 
-            if (Parameters.Count > 0) throw new LanguageException($"Function {FunctionName} does not receive parameters but your are supplying {Parameters.Count}", Line, Column, FunctionName.Length);
+            if (function.Parameters.Select(x => x.Type).Where((type, i) => !Parameters[i].Result.Type.IsAssignableTo(type)).Any())
+            {
+                throw new LanguageException($"Function with signature {FunctionName}({string.Join(", ", Parameters.Select(x => x.Result.Type.Name))}) could not be found.\n" +                                             
+                                            $"Available overloads of {FunctionName}:\n" +
+                                            $"    {function.GetSignature()}",
+                    Line, Column);
+            }
 
             customFunctionDefinition = function;
-
         }
     }
 
@@ -348,10 +353,22 @@ public class BuiltinFunctionCall : Statement
         Dictionary<string, DataId> parameterDataIds = new();
         for (int i = 0; i < Parameters.Count; i++)
         {
-            sb.AppendCommands(ParentScope, Parameters[i].Generate(options));
-            DataId parameterId = Parameters[i].Result!.ConvertImplicitly(options, definition.Parameters[i].Type, out string code);
-            sb.AppendCommands(ParentScope, code);
-            parameterDataIds.Add(definition.Parameters[i].Name, parameterId);
+            ParameterDefinition paramDef = definition != null ? definition.Parameters[i] : customFunctionDefinition!.Parameters[i];
+            
+            sb.SmartAppendL(Parameters[i].Generate(options));
+            DataId parameterId = Parameters[i].Result.ConvertImplicitly(options, paramDef.Type, out string code);
+            sb.SmartAppendL(code);
+            parameterDataIds.Add(paramDef.Name, parameterId);
+        }
+
+        if (customFunctionDefinition != null)
+        {
+            // Copy parameter values into the right dataids
+            if(parameterDataIds.Count > 0) sb.SmartAppendL(options.Comment($"Copy parameter value for call to {customFunctionDefinition.GetSignature()}:"));
+            foreach ((string? name, DataId? value) in parameterDataIds)
+            {
+                sb.SmartAppendL(options.CopyDataId(value, customFunctionDefinition.Parameters.First(x => x.Name == name).DataId));
+            }
         }
         
         // Actual function code

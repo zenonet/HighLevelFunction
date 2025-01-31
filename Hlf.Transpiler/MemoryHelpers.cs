@@ -32,4 +32,19 @@ public static class MemoryHelpers
     {
         return $"execute store result storage {gen.StorageNamespace} {dataOut} {type} 1 run data get storage {gen.StorageNamespace} {dataIn}";
     }
+    
+    
+    public static string CopyDataId(this GeneratorOptions gen, DataId source, DataId destination)
+    {
+        if (destination.Type.Kind != source.Type.Kind) throw new ArgumentException($"Can't copy dataId of type {source.Type.Name} (kind: {source.Type.Kind}) to one of type {destination.Type.Name} (kind: {destination.Type.Kind})");
+
+        return source.Type.Kind switch
+        {
+            ValueKind.Nbt => $"data modify storage {gen.StorageNamespace} {destination.Generate(gen)} set from storage {gen.StorageNamespace} {source.Generate(gen)}",
+            ValueKind.Block => $"clone {source.Generate(gen)} {source.Generate(gen)} {destination.Generate(gen)}",
+            ValueKind.EntityTag => $"tag @e remove {destination.Generate(gen)}\n" +
+                                   $"tag @e[tag={source.Generate(gen)}] add {destination.Generate(gen)}",
+            _ => throw new NotImplementedException($"Copy is not implemented for type {destination.Type.Name}"),
+        };
+    }
 }

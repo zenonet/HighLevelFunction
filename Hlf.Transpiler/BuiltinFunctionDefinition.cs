@@ -40,3 +40,8 @@ public class ParameterDefinition(string name, HlfType type)
     public string Name { get; set; } = name;
     public HlfType Type { get; set; } = type;
 }
+
+public class CustomParameterDefinition(string name, HlfType type, DataId id) : ParameterDefinition(name, type)
+{
+    public DataId DataId = id;
+}
