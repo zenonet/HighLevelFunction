@@ -26,7 +26,7 @@ async function main(){
         }
     })
 
-    hlf.setOnTranspilationFinishedCallback(function (){
+    hlf.setOnTranspilationFinishedCallback(function (isAuto){
         switchFile();
 
         if(document.dirHandle !== undefined && (!isAuto || document.getElementById("saveInRealtimeCheckbox").checked)){

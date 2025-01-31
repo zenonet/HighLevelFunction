@@ -144,7 +144,7 @@ function onResult(resp){
         }
     }
 
-    onTranspilationFinished();
+    onTranspilationFinished(isAuto);
     transpileResolve(json);
 }
 
