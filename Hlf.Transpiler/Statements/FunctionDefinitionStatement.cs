@@ -19,6 +19,7 @@ public class FunctionDefinitionStatement : Statement
         CustomFunctionDefinition def = new()
         {
             Name = Name,
+            McFunctionName = Name.ToLower(),
             Scope = FunctionScope,
         };
         ParentScope.FunctionDefinitions.Add(Name, def);
@@ -38,5 +39,6 @@ public class FunctionDefinitionStatement : Statement
 public class CustomFunctionDefinition
 {
     public string Name;
+    public string McFunctionName;
     public Scope Scope;
 }

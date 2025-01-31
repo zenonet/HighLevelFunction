@@ -358,7 +358,7 @@ public class BuiltinFunctionCall : Statement
         if(definition != null)
             sb.AppendCommands(ParentScope, definition.CodeGenerator.Invoke(options, parameterDataIds, Result!));
         else
-            sb.AppendCommands(ParentScope, $"function {options.DatapackNamespace}:{customFunctionDefinition!.Name}");
+            sb.AppendCommands(ParentScope, $"function {options.DatapackNamespace}:{customFunctionDefinition!.McFunctionName}");
     
         // Free parameter values
         sb.AppendCommands(ParentScope, options.Comment("Freeing parameter values for function call.\n"));
