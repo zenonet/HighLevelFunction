@@ -56,13 +56,15 @@ export async function openLocalDir(){
 
     console.log("got file handle: " + document.dirHandle);
 
-    const srcFileHandle = await dir.getFileHandle("source.hlf", {create: false});
-    if(srcFileHandle !== undefined && window.confirm("The opened datapack contains hlf code. Do you want to load it? (Your current code will be gone)")){
-        console.log("Loading hlf code from opened datapack...");
-        // existing hlf datapack has been opened, load source code:
+    const srcFileHandle = await dir.getFileHandle("source.hlf", {create: true});
+    if (srcFileHandle !== undefined) {
         const src = await (await srcFileHandle.getFile()).text()
+        if (src !== "" && window.confirm("The opened datapack contains hlf code. Do you want to load it? (Your current code will be gone)")) {
+            console.log("Loading hlf code from opened datapack...");
+            // existing hlf datapack has been opened, load source code:
 
-        editorModel.setValue(src);
+            editorModel.setValue(src);
+        }
     }
 
     document.getElementById("saveInRealtimeCheckbox").disabled = false;
