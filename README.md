@@ -61,6 +61,7 @@ There is a web-based editor featuring syntax highlighting and real-time transpil
 - Syntax highlighting
 - Realtime transpilation
 - Saving datapack directly to your minecraft world using File-System-Access-API
+- Advanced auto-completions
 - Inline error annotations
 - Hover info for function calls
 - Hotkeys for commenting out
@@ -97,6 +98,7 @@ We know that some people prefer older minecraft versions like 1.18. Because of t
 - Integers
 - Floats (behave like fixed-point-numbers right now though)
 
+You can also define custom types through structs.
 
 ### Control-Flow Statements
 
