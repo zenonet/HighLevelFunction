@@ -110,7 +110,7 @@ function getSymbolsAtPosition(model, tokens, position){
     }
     
     
-    const preparedSource = src.substring(0, startOffset) + "throwSymbols;" + src.substring(endOffset, src.length-1)
+    const preparedSource = src.substring(0, startOffset) + "throwSymbols;" + src.substring(endOffset, src.length)
     console.log(preparedSource);
 
     //const symbolData = HlfTranspilerJs.transpileToString(preparedSource);
