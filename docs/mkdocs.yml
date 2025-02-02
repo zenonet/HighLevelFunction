@@ -1,0 +1,21 @@
+site_name: HLF Documentation
+theme: 
+  name: readthedocs
+  hljs_languages:
+    - bash
+    - csharp
+
+nav:
+  - Home: index.md
+  - Fundamentals:
+      - Variables: variables.md
+      - Types: types.md
+      - Loops: loops.md
+      - Function Definitions: functionDefinitions.md
+      - Structs: structs.md
+  - Other stuff:
+      - String Interpolation: stringInterpolation.md
+      - Working with Entities: workingWithEntities.md
+      - Raycasting: raycasting.md
+;  - API-Reference:
+;      - Builtin Function reference: FunctionReference.md
