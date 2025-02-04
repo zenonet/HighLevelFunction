@@ -38,3 +38,33 @@ void main(){
     killOwned();
 }
 ```
+
+### Comparing entities
+
+You can compare entity references using the default comparison operators.
+For example, you can check if an entity hit by a raycast is the player like this:
+
+````csharp
+Entity hit = raycastForEntity(origin, direction, 1000);
+if(hit == @p) {
+    say("Player was hit!");
+}
+````
+
+This comparison compares the UUIDs of the 2 entities.
+
+### Properties of Entities
+
+The Entity-Type has 3 Properties:
+
+- ``Position``
+    - The position of the Entity
+    - Corresponds to the data property `Pos`
+    - When a player's Position property is assigned, HLF falls back to the `/tp` command
+      to circumvent player-data-modification-errors.
+- ``Forward``
+    - A directional vector representing the entities viewing direction.
+- ``Motion``
+    - The velocity of the entity.
+    - Corresponds to the data property `Motion`
+    - Setting a player's `Motion` does not work because datapacks can't modify player-data.
