@@ -8,6 +8,7 @@ theme:
 nav:
   - Home: index.md
   - Fundamentals:
+      - Program Structure: programStructure.md
       - Variables: variables.md
       - Types: types.md
       - Loops: loops.md

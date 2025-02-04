@@ -3,19 +3,17 @@
 You can define functions like in other languages like this:
 
 ````csharp
-void myFunction()
-{
+void myFunction() {
     say("My function was called!");
 }
 ````
 
 ## Parameters
 
-HLF supports function parameters you can define them like this:
+HLF supports function parameters. you can define them like this:
 
 ```csharp
-void yeet(Entity target, float amount)
-{
+void yeet(Entity target, float amount) {
     target.Motion = Vector(0, amount, 0);
 }
 ```

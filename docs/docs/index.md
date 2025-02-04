@@ -4,7 +4,12 @@ HLF is a high level programming language which compiled (technically transpiled)
 
 [![WebTranspilerStatus](https://img.shields.io/badge/WebEditor-available-blue)](https://zenonet.de/interactive/hlfTranspiler)
 
+## Quickstart
 
+To get started writing HLF-Datapacks, I highly recommend you try out some of the [example scripts](https://github.com/zenonet/HighLevelFunction/tree/master/Examples).
+You can also load them directly from the web editor.<br>
+
+<br>
 Here is an example script written in HLF:
 
 ````csharp

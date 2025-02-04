@@ -17,8 +17,7 @@ while(condition){
 You can write for-loops like this:
 
 ```csharp
-for(<initializer>;<condition>;<increment>)
-{
+for(<initializer>;<condition>;<increment>) {
     // loops content goes here
 }
 ```
@@ -33,8 +32,7 @@ After that the loops begins and runs like this:
 
 An example of a classic usage of a for loop is:
 ```csharp
-for(int i = 0; i < 5; i++)
-{
+for(int i = 0; i < 5; i++) {
     say(i);
 }
 ```
