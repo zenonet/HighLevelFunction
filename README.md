@@ -8,6 +8,7 @@ HLF is statically typed and has syntax similar to C#.
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/zenonet/HighLevelFunction/dotnet.yml)](https://github.com/zenonet/HighLevelFunction/actions/workflows/dotnet.yml)
 [![GitHub License](https://img.shields.io/github/license/zenonet/HighLevelFunction)](https://github.com/zenonet/HighLevelFunction/blob/master/LICENSE)
 [![WebTranspilerStatus](https://img.shields.io/badge/WebEditor-available-blue)](https://zenonet.de/interactive/hlfTranspiler)
+[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://zenonet.github.io/HighLevelFunction/)
 
 </div>
 
