@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Loops - HLF Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Loops";
+        var mkdocs_page_input_path = "loops.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/bash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/csharp.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> HLF Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Fundamentals</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../variables/">Variables</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../types/">Types</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Loops</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#while-loops">While loops</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#for-loops">For loops</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#limitations">Limitations</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../functionDefinitions/">Function Definitions</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../structs/">Structs</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Other stuff</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../stringInterpolation/">String Interpolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../workingWithEntities/">Working with Entities</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../raycasting/">Raycasting</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">HLF Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Fundamentals</li>
+      <li class="breadcrumb-item active">Loops</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="loops">Loops</h1>
+<p>There are while and for loops in HLF.</p>
+<h2 id="while-loops">While loops</h2>
+<p>You can write while loops like this:</p>
+<pre><code class="language-csharp">while(condition){
+    // code here is ran as long as the condition evaluates to true
+}
+</code></pre>
+<h2 id="for-loops">For loops</h2>
+<p>You can write for-loops like this:</p>
+<pre><code class="language-csharp">for(&lt;initializer&gt;;&lt;condition&gt;;&lt;increment&gt;)
+{
+    // loops content goes here
+}
+</code></pre>
+<p>When the loop is run, the initializer is run first, it is typically used to initialize a counter variable.
+After that the loops begins and runs like this:</p>
+<ul>
+<li>Condition is evaluated, loops stops if the condition is <code>false</code></li>
+<li>Loops content is run</li>
+<li>Increment statement is run</li>
+</ul>
+<p>An example of a classic usage of a for loop is:</p>
+<pre><code class="language-csharp">for(int i = 0; i &lt; 5; i++)
+{
+    say(i);
+}
+</code></pre>
+<p>This code would print all numbers from 0 to 4 to the chat</p>
+<h2 id="limitations">Limitations</h2>
+<p>Loops are limited by the <code>maxCommandChainLength</code>-gamerule. By default, it is set to 10000000 when a datapack loads.
+This is to prevent unintuitive behaviour. This (hopefully) is a temporary solution.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../types/" class="btn btn-neutral float-left" title="Types"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../functionDefinitions/" class="btn btn-neutral float-right" title="Function Definitions">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../types/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../functionDefinitions/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
