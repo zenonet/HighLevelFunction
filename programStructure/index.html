@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Raycasting - HLF Documentation</title>
+    <title>Program Structure - HLF Documentation</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Raycasting";
-        var mkdocs_page_input_path = "raycasting.md";
+        var mkdocs_page_name = "Program Structure";
+        var mkdocs_page_input_path = "programStructure.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -46,8 +46,16 @@
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">Fundamentals</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../programStructure/">Program Structure</a>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Program Structure</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#event-functions">Event functions</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#global-variables">Global variables</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#type-definitions">Type definitions</a>
+    </li>
+    </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../variables/">Variables</a>
                   </li>
@@ -61,22 +69,12 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Other stuff</span></p>
-              <ul class="current">
+              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../stringInterpolation/">String Interpolation</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../workingWithEntities/">Working with Entities</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Raycasting</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#raycasting-for-blocks">Raycasting for blocks</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#raycasting-for-entities">Raycasting for entities</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#raycasting-from-the-players-cross-hare">Raycasting from the players cross-hare</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#max-steps">Max steps</a>
-    </li>
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../raycasting/">Raycasting</a>
                   </li>
               </ul>
       </div>
@@ -93,8 +91,8 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Other stuff</li>
-      <li class="breadcrumb-item active">Raycasting</li>
+          <li class="breadcrumb-item">Fundamentals</li>
+      <li class="breadcrumb-item active">Program Structure</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -103,56 +101,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="raycasting">Raycasting</h1>
-<p>HLF provides functions to easily perform raycasting.</p>
-<h2 id="raycasting-for-blocks">Raycasting for blocks</h2>
-<p>You can raycast for blocks using the <code>raycast()</code> functions.
-It takes the ray-origin, the ray-direction and the <a href="#max-steps">maxSteps</a> as parameters.</p>
-<p>The function returns the position where the ray hit a block. 
-If the ray didn't hit anything, the function will return the position where the ray stopped.</p>
-<p>Example:</p>
-<pre><code class="language-csharp">Vector origin = Vector(0, 64, 0);
-Vector direction = Vector(0.5, -0.5, 0);
-Vector hit = raycast(origin, direction, 1000);
-
-// replaces the block where the ray hit the ground with a restone_block
-setBlock(hit, BlockType(&quot;restone_block&quot;));
+                <h1 id="program-structure">Program Structure</h1>
+<p>An HLF-Program consists of functions, types and variable declarations.<br>
+To run some code when the datapack is loaded (or when <code>/reload</code> is run), write it in
+the <code>load()</code> function.</p>
+<pre><code class="language-csharp">void load() {
+    // code written here is executed when the datapack loads
+}
 </code></pre>
-<h2 id="raycasting-for-entities">Raycasting for entities</h2>
-<p>You can raycast for entities using the <code>raycastForEntity()</code> functions.
-It takes the ray-origin, the ray-direction and the <a href="#max-steps">maxSteps</a> as parameters as well.</p>
-<p>The function returns a reference to the entity hit by the ray.
-If the ray didn't hit an entity, it will return an <em>empty entity</em>. 
-There is currently no way of telling if the entity is <em>empty</em>. (Ik, this should be fixed asap)</p>
-<p>Example:</p>
-<pre><code class="language-csharp">Vector origin = Vector(0, 64, 0);
-Vector direction = Vector(0.5, -0.5, 0);
-Entity hit = raycastForEntity(origin, direction, 1000);
+<h2 id="event-functions">Event functions</h2>
+<p>There are 2 event functions in HLF: <code>load()</code> and <code>tick()</code>. As their names suggest, the first one
+runs when the datapack loads, while the second one runs in every game tick.</p>
+<pre><code class="language-csharp">void load() {
+    say(&quot;Datapack loaded!&quot;);
+}
 
-// kills the entity hit by the ray
-kill(hit);
+void tick() {
+    say(&quot;Tick!&quot;);
+}
 </code></pre>
-<h2 id="raycasting-from-the-players-cross-hare">Raycasting from the players cross-hare</h2>
-<p>Raycasting from the players perspective is luckily very easy thanks to the <code>Forward</code> property of the <code>Entity</code>-Type.
-The <code>Forward</code>-property returns a directional Vector specifying the way an entity is looking. </p>
-<p>Example:</p>
-<pre><code class="language-csharp">// Make sure to offset the ray-origin because the players position is at their feet, not their eyes.
-Vector origin = @p.Positon + Vector(0, 1.7, 0);
-Vector direction = @p.Forward;
-Vector hit = raycast(origin, direction, 1000);
+<h2 id="global-variables">Global variables</h2>
+<p>When a variable is declared in the root scope (not in a function body), it is considered a global variable.
+This variable can be accessed from all functions and preserves state between function executions.</p>
+<pre><code class="language-csharp">int i = 0; // this is a global variable
 
-// replaces the block where the player is looking with a restone_block
-setBlock(hit, BlockType(&quot;restone_block&quot;));
+void tick() {
+    say($&quot;This is the {i}th tick!&quot;);
+}
 </code></pre>
-<h2 id="max-steps">Max steps</h2>
-<p>The maxSteps-value is used to stop the raycast after a certain amount of iterations.
-The default stepSize is 0.1 blocks.
-This means that the max-length of a ray with a max-steps value of 1000 is 0.1 blocks * 1000 = 100 blocks.</p>
+<h2 id="type-definitions">Type definitions</h2>
+<p>You can also define custom types in the root scope. For that, see <a href="../structs/">structs</a>.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../workingWithEntities/" class="btn btn-neutral float-left" title="Working with Entities"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../variables/" class="btn btn-neutral float-right" title="Variables">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -175,8 +159,10 @@ This means that the max-length of a ray with a max-steps value of 1000 is 0.1 bl
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../workingWithEntities/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../variables/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

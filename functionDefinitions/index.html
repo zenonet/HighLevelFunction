@@ -47,6 +47,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Fundamentals</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../programStructure/">Program Structure</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../variables/">Variables</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../types/">Types</a>
@@ -103,15 +105,13 @@
               
                 <h1 id="function-definitions">Function definitions</h1>
 <p>You can define functions like in other languages like this:</p>
-<pre><code class="language-csharp">void myFunction()
-{
+<pre><code class="language-csharp">void myFunction() {
     say(&quot;My function was called!&quot;);
 }
 </code></pre>
 <h2 id="parameters">Parameters</h2>
-<p>HLF supports function parameters you can define them like this:</p>
-<pre><code class="language-csharp">void yeet(Entity target, float amount)
-{
+<p>HLF supports function parameters. you can define them like this:</p>
+<pre><code class="language-csharp">void yeet(Entity target, float amount) {
     target.Motion = Vector(0, amount, 0);
 }
 </code></pre>

@@ -47,6 +47,8 @@
               </ul>
               <p class="caption"><span class="caption-text">Fundamentals</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../programStructure/">Program Structure</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../variables/">Variables</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../types/">Types</a>
@@ -71,6 +73,10 @@
     <li class="toctree-l3"><a class="reference internal" href="#owned-entities">Owned entities</a>
     </li>
         </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#comparing-entities">Comparing entities</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#properties-of-entities">Properties of Entities</a>
     </li>
     </ul>
                   </li>
@@ -126,6 +132,36 @@ function to kill all entities owned by HLF:</p>
     killOwned();
 }
 </code></pre>
+<h3 id="comparing-entities">Comparing entities</h3>
+<p>You can compare entity references using the default comparison operators.
+For example, you can check if an entity hit by a raycast is the player like this:</p>
+<pre><code class="language-csharp">Entity hit = raycastForEntity(origin, direction, 1000);
+if(hit == @p) {
+    say(&quot;Player was hit!&quot;);
+}
+</code></pre>
+<p>This comparison compares the UUIDs of the 2 entities.</p>
+<h3 id="properties-of-entities">Properties of Entities</h3>
+<p>The Entity-Type has 3 Properties:</p>
+<ul>
+<li><code>Position</code><ul>
+<li>The position of the Entity</li>
+<li>Corresponds to the data property <code>Pos</code></li>
+<li>When a player's Position property is assigned, HLF falls back to the <code>/tp</code> command
+  to circumvent player-data-modification-errors.</li>
+</ul>
+</li>
+<li><code>Forward</code><ul>
+<li>A directional vector representing the entities viewing direction.</li>
+</ul>
+</li>
+<li><code>Motion</code><ul>
+<li>The velocity of the entity.</li>
+<li>Corresponds to the data property <code>Motion</code></li>
+<li>Setting a player's <code>Motion</code> does not work because datapacks can't modify player-data.</li>
+</ul>
+</li>
+</ul>
               
             </div>
           </div><footer>
